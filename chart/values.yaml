@@ -17,20 +17,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-banyandb:
+standalone:
   name: banyandb
-  replicas: 1
   podAnnotations: 
     example: banyandb-foo
   securityContext: {}
     # runAsUser: 1000
     # runAsGroup: 1000
     # fsGroup: 1000
-  ports:
-    grpc: 17912
-    http: 17913
-    pprof: 6060
-    observebility: 2121
   config: ["standalone"]
   image:
     repository: ghcr.io/apache/skywalking-banyandb
@@ -38,33 +32,24 @@ banyandb:
     pullPolicy: IfNotPresent
 
   grpcSvc:
-    type: ClusterIP
+    labels: {}
+    annotations: {}
     port: 17912
-    name: grpc
 
   httpSvc:
-    type: ClusterIP
-    ports: 
-      - port: 17913
-        name: http
-      - port: 6060
-        name: pprof
-      - port: 2121
-        name: observebility
+    labels: {}
+    annotations: {}
+    port: 17913
 
   ingress:
     enabled: true
-    annotations:
-      kubernetes.io/ingress-class: nginx
+    labels: {}
+    annotations: {}
     hosts: 
       - host: localhost
         paths:
           - path: /
             port: 17913
-          - path: /metrics
-            port: 2121
-          - path: /debug/pprof
-            port: 6060
     tls: []
 
 storages:
@@ -79,27 +64,23 @@ storages:
       claimName: banyandb-stream
       path: /tmp/stream
   persistentVolumeClaim:
-    - name: banyandb-metadata
-      resources:
-        requests:
-          storage: 5Gi
-      volumeMode: Filesystem
-      accessModes:
-        - ReadWriteOnce
-    - name: banyandb-measure
-      resources:
-        requests:
-          storage: 100Gi
-      volumeMode: Filesystem
-      accessModes:
-        - ReadWriteOnce
-    - name: banyandb-stream
-      resources:
-        requests:
-          storage: 100Gi
-      volumeMode: Filesystem
-      accessModes:
-        - ReadWriteOnce
+    enabled: false
+    claim:
+      - name: banyandb-metadata
+        size: 5Gi
+        volumeMode: Filesystem
+        accessModes:
+          - ReadWriteOnce
+      - name: banyandb-measure
+        size: 100Gi
+        volumeMode: Filesystem
+        accessModes:
+          - ReadWriteOnce
+      - name: banyandb-stream
+        size: 100Gi
+        volumeMode: Filesystem
+        accessModes:
+          - ReadWriteOnce
 
 serviceAccount:
   # Specifies whether a service account should be created

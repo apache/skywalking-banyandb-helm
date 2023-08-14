@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.banyandb.grpcSvc }}
+{{- if .Values.standalone.grpcSvc }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -23,16 +23,23 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.banyandb.name }}"
+    component: "{{ .Values.standalone.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+    {{- range $key, $value := .Values.standalone.grpcSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  annotations:
+    {{- range $key, $value := .Values.standalone.grpcSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
 spec:
-  type: {{ .Values.banyandb.grpcSvc.type }}
+  type: ClusterIP
   ports:
-    - port: {{ .Values.banyandb.grpcSvc.port }}
-      name: {{ .Values.banyandb.grpcSvc.name }}
+    - port: {{ .Values.standalone.grpcSvc.port }}
+      name: grpc
   selector:
     app: {{ template "banyandb.name" . }}
-    component: "{{ .Values.banyandb.name }}"
+    component: "{{ .Values.standalone.name }}"
     release: {{ .Release.Name }}
 {{- end}}

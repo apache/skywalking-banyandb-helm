@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+{{- if .Values.storages.persistentVolumeClaim.enabled }}
 {{- $banyandb := . }}
 {{- range $storage := .Values.storages.persistentVolumeClaim }}
 ---
@@ -25,7 +26,7 @@ metadata:
   labels:
     app: {{ template "banyandb.name" $banyandb }}
     chart: {{ $banyandb.Chart.Name }}-{{ $banyandb.Chart.Version }}
-    component: "{{ $banyandb.Values.banyandb.name }}"
+    component: "{{ $banyandb.Values.standalone.name }}"
     heritage: {{ $banyandb.Release.Service }}
     release: {{ $banyandb.Release.Name }}
 spec:
@@ -38,14 +39,10 @@ spec:
     {{- end }}
   {{- end }}
 
-  {{- if $spec.resources }}
+  {{- if $spec.size }}
   resources:
-  {{- if $spec.resources.requests }}
     requests:
-      {{- if $spec.resources.requests.storage }}
-      storage: {{ $spec.resources.requests.storage }}
-      {{- end }}
-  {{- end }}
+      storage: {{ $spec.size }}
   {{- end }}
 
   {{- if $spec.volumeName }}
@@ -60,4 +57,5 @@ spec:
   volumeMode: {{ $spec.volumeMode }}
   {{- end }}
 
+{{- end }}
 {{- end }}

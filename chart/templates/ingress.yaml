@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.banyandb.ingress.enabled }}
+{{- if .Values.standalone.ingress.enabled }}
 {{- $serviceName := include "banyandb.fullname" . | printf "%s-http" }}
 {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
 apiVersion: networking.k8s.io/v1
@@ -29,17 +29,20 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.banyandb.name }}"
+    component: "{{ .Values.standalone.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+    {{- range $key, $value := .Values.standalone.ingress.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
   name: {{ template "banyandb.fullname" . }}
   annotations:
-    {{- range $key, $value := .Values.banyandb.ingress.annotations }}
+    {{- range $key, $value := .Values.standalone.ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
   rules:
-    {{- range .Values.banyandb.ingress.hosts }}
+    {{- range .Values.standalone.ingress.hosts }}
     - host: {{ .host }}
       http:
         paths:
@@ -58,8 +61,8 @@ spec:
             {{- end }}
         {{- end }}
     {{- end -}}
-  {{- if .Values.banyandb.ingress.tls }}
+  {{- if .Values.standalone.ingress.tls }}
   tls:
-{{ toYaml .Values.banyandb.ingress.tls | indent 4 }}
+{{ toYaml .Values.standalone.ingress.tls | indent 4 }}
   {{- end -}}
 {{- end }}

@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.banyandb.httpSvc }}
+{{- if .Values.standalone.httpSvc }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -23,18 +23,23 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.banyandb.name }}"
+    component: "{{ .Values.standalone.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-spec:
-  type: {{ .Values.banyandb.httpSvc.type }}
-  ports:
-    {{- range $v := .Values.banyandb.httpSvc.ports }}
-    - port: {{ $v.port }}
-      name: {{ $v.name }}
+    {{- range $key, $value := .Values.standalone.httpSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
     {{- end }}
+  annotations:  
+    {{- range $key, $value := .Values.standalone.httpSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.standalone.httpSvc.port }}
+      name: http
   selector:
     app: {{ template "banyandb.name" . }}
-    component: "{{ .Values.banyandb.name }}"
+    component: "{{ .Values.standalone.name }}"
     release: {{ .Release.Name }}
 {{- end}}

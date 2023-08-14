@@ -21,31 +21,31 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.banyandb.name }}"
+    component: "{{ .Values.standalone.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
   name: {{ template "banyandb.fullname" . }}
 spec:
   serviceName: banyandb
-  replicas: {{ .Values.banyandb.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       app: {{ template "banyandb.name" . }}
-      component: "{{ .Values.banyandb.name }}"
+      component: "{{ .Values.standalone.name }}"
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         app: {{ template "banyandb.name" . }}
-        component: "{{ .Values.banyandb.name }}"
+        component: "{{ .Values.standalone.name }}"
         release: {{ .Release.Name }}
-      {{- if .Values.banyandb.podAnnotations }}
+      {{- if .Values.standalone.podAnnotations }}
       annotations:
-{{ toYaml .Values.banyandb.podAnnotations | indent 8 }}
+{{ toYaml .Values.standalone.podAnnotations | indent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
-      {{- with .Values.banyandb.securityContext }}
+      {{- with .Values.standalone.securityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -58,18 +58,22 @@ spec:
         {{- end }}
       {{- end}}
       containers:
-        - name: {{ .Values.banyandb.name }}
-          image: {{ .Values.banyandb.image.repository }}:{{ required "banyandb.image.tag is required" .Values.banyandb.image.tag }}
-          imagePullPolicy: {{ .Values.banyandb.image.pullPolicy }}
+        - name: {{ .Values.standalone.name }}
+          image: {{ .Values.standalone.image.repository }}:{{ required "banyandb.image.tag is required" .Values.standalone.image.tag }}
+          imagePullPolicy: {{ .Values.standalone.image.pullPolicy }}
           args:
-            {{- range $value := .Values.banyandb.config }}
+            {{- range $value := .Values.standalone.config }}
             - {{ $value }}
             {{- end }}
           ports:
-            {{- range $key, $value := .Values.banyandb.ports }}
-            - containerPort: {{ $value }}
-              name: {{ $key }}
-            {{- end }}
+            - containerPort: 17912
+              name: grpc
+            - containerPort: 17913
+              name: http
+            - containerPort: 6060
+              name: pprof
+            - containerPort: 2121
+              name: observebility
 
           {{- if .Values.storages.volume }}
           volumeMounts:
@@ -79,8 +83,8 @@ spec:
             {{- end }}
           {{- end }}
 
-      {{- if .Values.banyandb.affinity }}
-      {{- $affinity := .Values.banyandb.affinity }}
+      {{- if .Values.standalone.affinity }}
+      {{- $affinity := .Values.standalone.affinity }}
       affinity:
         {{- if $affinity.nodeAffinity }}
         nodeAffinity:
