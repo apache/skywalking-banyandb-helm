@@ -34,7 +34,7 @@ metadata:
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.standalone.httpSvc.type }}
   ports:
     - port: {{ .Values.standalone.httpSvc.port }}
       name: http
@@ -42,4 +42,19 @@ spec:
     app: {{ template "banyandb.name" . }}
     component: "{{ .Values.standalone.name }}"
     release: {{ .Release.Name }}
+  {{- if .Values.standalone.httpSvc.externalIPs }}
+  externalIPs:
+    {{- range $v := .Values.standalone.httpSvc.externalIPs }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.standalone.httpSvc.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.standalone.httpSvc.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.standalone.httpSvc.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range $v := .Values.standalone.httpSvc.loadBalancerSourceRanges }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
 {{- end}}

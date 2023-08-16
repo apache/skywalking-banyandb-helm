@@ -17,7 +17,7 @@
 
 {{- if .Values.storages.persistentVolumeClaim.enabled }}
 {{- $banyandb := . }}
-{{- range $storage := .Values.storages.persistentVolumeClaim }}
+{{- range $storage := .Values.storages.persistentVolumeClaim.claim }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

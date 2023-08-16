@@ -56,11 +56,17 @@ spec:
           persistentVolumeClaim:
             claimName: {{ $storage.claimName }}
         {{- end }}
-      {{- end}}
+      {{- end }}
+      priorityClassName: {{ .Values.standalone.priorityClassName }}
       containers:
         - name: {{ .Values.standalone.name }}
           image: {{ .Values.standalone.image.repository }}:{{ required "banyandb.image.tag is required" .Values.standalone.image.tag }}
           imagePullPolicy: {{ .Values.standalone.image.pullPolicy }}
+          env:
+            {{- range $env := .Values.standalone.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
           args:
             {{- range $value := .Values.standalone.config }}
             - {{ $value }}
@@ -74,6 +80,34 @@ spec:
               name: pprof
             - containerPort: 2121
               name: observebility
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          
+          {{- if.Values.standalone.resources }}
+          resources:
+            {{- if.Values.standalone.resources.requests }}
+            requests:
+              {{- range $request := .Values.standalone.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if.Values.standalone.resources.limits }}
+            limits:
+              {{- range $limit := .Values.standalone.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
 
           {{- if .Values.storages.volume }}
           volumeMounts:
@@ -83,6 +117,23 @@ spec:
             {{- end }}
           {{- end }}
 
+      {{- if .Values.standalone.tolerations }}
+      tolerations:
+        {{- range $toleration := .Values.standalone.tolerations }}
+        - key: {{ $toleration.key }}
+          operator: {{ $toleration.operator }}
+          value: {{ $toleration.value }}
+          effect: {{ $toleration.effect }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.standalone.nodeSelector }}
+      nodeSelector:
+        {{- range $selector := .Values.standalone.nodeSelector }}
+        {{ $selector.key }}: {{ $selector.value }}
+        {{- end }}
+      {{- end }}
+
       {{- if .Values.standalone.affinity }}
       {{- $affinity := .Values.standalone.affinity }}
       affinity:
@@ -90,33 +141,33 @@ spec:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-            {{- range $requirement := $affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms}}
-              {{- range $matchExpression := $requirement.MatchExpressions }}
+            {{- range $requirement := $affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms }}
+              {{- range $matchExpression := $requirement.matchExpressions }}
                 - matchExpressions:
                     - key: {{ $matchExpression.key }}
                       operator: {{ $matchExpression.operator }}
                       values:
                         {{- range $v := $matchExpression.values }}
                         - {{ $v }}
-                        {{- end}}
-              {{- end}}
-            {{- end}}
-        {{- end}}
+                        {{- end }}
+              {{- end }}
+            {{- end }}
+        {{- end }}
 
         {{- if $affinity.podAffinity }}
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            {{- range $term := $affinity.podAffinity.RequiredDuringSchedulingIgnoredDuringExecution }}
-            - topologyKey: {{ $term.toplogyKey }}
+            {{- range $term := $affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution }}
+            - topologyKey: {{ $term.topologyKey }}
               namespaces:
                 {{- range $ns := $term.namespaces }}
                 - {{ $ns }}
                 {{- end }}
               labelSelector:
-                MatchLabels:
-                {{- range $key, $value := $term.labelSelector.matchLabels }}
-                  {{ $key }} : {{ $value }}
-                {{- end}}
-            {{- end}}
-        {{- end}}
-      {{- end}}
+                matchLabels:
+                  {{- range $label := $term.labelSelector.matchLabels }}
+                  {{ $label.key }}: {{ $label.value }}
+                  {{- end }}
+            {{- end }}
+        {{- end }}
+      {{- end }}

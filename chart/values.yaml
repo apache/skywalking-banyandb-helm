@@ -30,6 +30,58 @@ standalone:
     repository: ghcr.io/apache/skywalking-banyandb
     tag: 7443bd36e56404ee813b66a5e2b183d3c9ed3371
     pullPolicy: IfNotPresent
+  env:
+    - name: BANYANDB_FOO
+      value: "bar"
+  priorityClassName: ""
+  podDisruptionBudget:
+    minAvailable: 1
+    # maxUnavailable: 2
+    matchLabels:
+      - key: foo
+        value: bar
+    matchExpressions:
+      - key: foo
+        operator: In
+        values: [bar, baz]
+    paused: false
+  tolerations:
+    - key: foo
+      value: bar
+      operator: Equal
+      effect: NoSchedule
+  nodeSelector: {}
+    # - key: foo
+    #   value: bar
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: foo
+                operator: In
+                values:
+                  - bar
+                  - baz
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              - key: app
+                value: banyandb
+          topologyKey: "kubernetes.io/hostname"
+          namespaces: []
+  resources:
+    requests:
+      - key: cpu
+        value: "100m"
+      - key: memory
+        value: "256Mi"
+    limits:
+      - key: cpu
+        value: "500m"
+      - key: memory
+        value: "512Mi"
 
   grpcSvc:
     labels: {}
@@ -40,6 +92,12 @@ standalone:
     labels: {}
     annotations: {}
     port: 17913
+    type: LoadBalancer
+    externalIPs:
+      - 192.168.1.101
+    loadBalancerIP: 192.168.1.100
+    loadBalancerSourceRanges:
+      - 10.0.0.0/8
 
   ingress:
     enabled: true
@@ -64,7 +122,7 @@ storages:
       claimName: banyandb-stream
       path: /tmp/stream
   persistentVolumeClaim:
-    enabled: false
+    enabled: true
     claim:
       - name: banyandb-metadata
         size: 5Gi
