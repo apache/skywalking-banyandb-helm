@@ -49,14 +49,6 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.storages.volume }}
-      volumes:
-        {{- range $storage := .Values.storages.volume }}
-        - name: {{ $storage.name }}
-          persistentVolumeClaim:
-            claimName: {{ $storage.claimName }}
-        {{- end }}
-      {{- end }}
       priorityClassName: {{ .Values.standalone.priorityClassName }}
       containers:
         - name: {{ .Values.standalone.name }}
@@ -109,13 +101,22 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if .Values.storages.volume }}
+          {{- if .Values.storage.enabled }}
           volumeMounts:
-            {{- range $storage := .Values.storages.volume }}
-            - mountPath: {{ $storage.path }}
-              name: {{ $storage.name }}
-            {{- end }}
+            - mountPath: /tmp/data
+              name: data
           {{- end }}
+
+      {{- if .Values.storage.enabled }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            {{- if .Values.storage.exisitingClaimName }}
+            claimName: {{ .Values.storage.existingClaimName }}
+            {{- else }}
+            claimName: {{ .Values.storage.claimName }}
+            {{- end }}
+      {{- end }}
 
       {{- if .Values.standalone.tolerations }}
       tolerations:

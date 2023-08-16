@@ -15,47 +15,44 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.storages.persistentVolumeClaim.enabled }}
-{{- $banyandb := . }}
-{{- range $storage := .Values.storages.persistentVolumeClaim.claim }}
----
+{{- if .Values.storage.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ $storage.name }}
   labels:
-    app: {{ template "banyandb.name" $banyandb }}
-    chart: {{ $banyandb.Chart.Name }}-{{ $banyandb.Chart.Version }}
-    component: "{{ $banyandb.Values.standalone.name }}"
-    heritage: {{ $banyandb.Release.Service }}
-    release: {{ $banyandb.Release.Name }}
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.standalone.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  {{- if .Values.storage.existingClaimName }}
+  name: {{ .Values.storage.existingClaimName }}
+  {{- else }}
+  name: {{ .Values.storage.claimName }}
+  {{- end }}
 spec:
-  {{- $spec := $storage }}
-
-  {{- if $spec.accessModes }}
+  {{- if .Values.storage.accessModes }}
   accessModes:
-    {{- range $spec.accessModes }}
+    {{- range .Values.storage.accessModes }}
     - {{ . }}
     {{- end }}
   {{- end }}
 
-  {{- if $spec.size }}
+  {{- if .Values.storage.size }}
   resources:
     requests:
-      storage: {{ $spec.size }}
+      storage: {{ .Values.storage.size }}
   {{- end }}
 
-  {{- if $spec.volumeName }}
-  volumeName: {{ $spec.volumeName }}
+  {{- if .Values.storage.volumeName }}
+  volumeName: {{ .Values.storage.volumeName }}
   {{- end }}
 
-  {{- if $spec.storageClassName }}
-  storageClassName: {{ $spec.storageClassName }}
+  {{- if .Values.storage.storageClassName }}
+  storageClassName: {{ .Values.storage.storageClassName }}
   {{- end }}
 
-  {{- if $spec.volumeMode }}
-  volumeMode: {{ $spec.volumeMode }}
+  {{- if .Values.storage.volumeMode }}
+  volumeMode: {{ .Values.storage.volumeMode }}
   {{- end }}
-
-{{- end }}
 {{- end }}

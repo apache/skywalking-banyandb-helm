@@ -110,35 +110,16 @@ standalone:
             port: 17913
     tls: []
 
-storages:
-  volume:
-    - name: metadata
-      claimName: banyandb-metadata
-      path: /tmp/metadata
-    - name: measure
-      claimName: banyandb-measure
-      path: /tmp/measure
-    - name: stream
-      claimName: banyandb-stream
-      path: /tmp/stream
-  persistentVolumeClaim:
-    enabled: true
-    claim:
-      - name: banyandb-metadata
-        size: 5Gi
-        volumeMode: Filesystem
-        accessModes:
-          - ReadWriteOnce
-      - name: banyandb-measure
-        size: 100Gi
-        volumeMode: Filesystem
-        accessModes:
-          - ReadWriteOnce
-      - name: banyandb-stream
-        size: 100Gi
-        volumeMode: Filesystem
-        accessModes:
-          - ReadWriteOnce
+storage:
+  enabled: true
+  existingClaimName: null
+  claimName: data
+  size: 200Gi
+  accessModes:
+    - ReadWriteOnce
+  volumeName: null
+  storageClass: null
+  volumeMode: Filesystem
 
 serviceAccount:
   # Specifies whether a service account should be created
