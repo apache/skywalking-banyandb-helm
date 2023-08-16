@@ -111,7 +111,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            {{- if .Values.storage.exisitingClaimName }}
+            {{- if .Values.storage.existingClaimName }}
             claimName: {{ .Values.storage.existingClaimName }}
             {{- else }}
             claimName: {{ .Values.storage.claimName }}

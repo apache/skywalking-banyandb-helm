@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.storage.enabled }}
+{{- if and .Values.storage.enabled (not .Values.storage.existingClaimName) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -25,11 +25,7 @@ metadata:
     component: "{{ .Values.standalone.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  {{- if .Values.storage.existingClaimName }}
-  name: {{ .Values.storage.existingClaimName }}
-  {{- else }}
   name: {{ .Values.storage.claimName }}
-  {{- end }}
 spec:
   {{- if .Values.storage.accessModes }}
   accessModes:
