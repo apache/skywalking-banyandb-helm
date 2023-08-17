@@ -15,40 +15,43 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if and .Values.storage.enabled (not .Values.storage.existingClaimName) }}
+{{- if .Values.storage.enabled }}
+{{- $root := . }}
+{{- range $claim := .Values.storage.persistentVolumeClaim }}
+---
+{{- if not $claim.existingClaimName }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.standalone.name }}"
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
-  name: {{ .Values.storage.claimName }}
+    app: {{ template "banyandb.name" $root }}
+    chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
+    component: "{{ $root.Values.standalone.name }}"
+    heritage: {{ $root.Release.Service }}
+    release: {{ $root.Release.Name }}
+  name: {{ $claim.claimName }}
 spec:
-  {{- if .Values.storage.accessModes }}
+  {{- if $claim.accessModes }}
   accessModes:
-    {{- range .Values.storage.accessModes }}
+    {{- range $claim.accessModes }}
     - {{ . }}
     {{- end }}
   {{- end }}
 
-  {{- if .Values.storage.size }}
+  {{- if $claim.size }}
   resources:
     requests:
-      storage: {{ .Values.storage.size }}
+      storage: {{ $claim.size }}
   {{- end }}
 
-  {{- if .Values.storage.volumeName }}
-  volumeName: {{ .Values.storage.volumeName }}
+  {{- if $claim.storageClassName }}
+  storageClassName: {{ $claim.storageClassName }}
   {{- end }}
 
-  {{- if .Values.storage.storageClassName }}
-  storageClassName: {{ .Values.storage.storageClassName }}
+  {{- if $claim.volumeMode }}
+  volumeMode: {{ $claim.volumeMode }}
   {{- end }}
+{{- end }} 
 
-  {{- if .Values.storage.volumeMode }}
-  volumeMode: {{ .Values.storage.volumeMode }}
-  {{- end }}
+{{- end }}
 {{- end }}

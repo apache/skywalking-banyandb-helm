@@ -110,14 +110,23 @@ standalone:
 
 storage:
   enabled: false
-  existingClaimName: null
-  claimName: data
-  size: 200Gi
-  accessModes:
-    - ReadWriteOnce
-  volumeName: null
-  storageClass: null
-  volumeMode: Filesystem
+  persistentVolumeClaim:
+    - mountTargets: ["measure", "stream"]
+      existingClaimName: null
+      claimName: data
+      size: 200Gi
+      accessModes:
+        - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: ["metadata"]
+      existingClaimName: null
+      claimName: meta
+      size: 10Gi
+      accessModes:
+        - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
 
 serviceAccount:
   # Specifies whether a service account should be created

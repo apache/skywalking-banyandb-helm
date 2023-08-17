@@ -103,19 +103,36 @@ spec:
 
           {{- if .Values.storage.enabled }}
           volumeMounts:
-            - mountPath: /tmp/data
-              name: data
+            {{- range $claim := .Values.storage.persistentVolumeClaim }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           {{- end }}
 
       {{- if .Values.storage.enabled }}
       volumes:
-        - name: data
+        {{- range $claim := .Values.storage.persistentVolumeClaim }}
+        {{- if $claim.existingClaimName }}
+        - name: {{ $claim.existingClaimName }}-volume
           persistentVolumeClaim:
-            {{- if .Values.storage.existingClaimName }}
-            claimName: {{ .Values.storage.existingClaimName }}
-            {{- else }}
-            claimName: {{ .Values.storage.claimName }}
-            {{- end }}
+            claimName: {{ $claim.existingClaimName }}
+        {{ else }}
+        - name: {{ $claim.claimName }}-volume
+          persistentVolumeClaim:
+            claimName: {{ $claim.claimName }}
+        {{- end }}
+        {{- end }}
       {{- end }}
 
       {{- if .Values.standalone.tolerations }}
