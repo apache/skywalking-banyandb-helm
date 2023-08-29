@@ -60,9 +60,7 @@ spec:
               value: {{ $env.value }}
             {{- end }}
           args:
-            {{- range $value := .Values.standalone.config }}
-            - {{ $value }}
-            {{- end }}
+            - standalone
           ports:
             - containerPort: 17912
               name: grpc
@@ -101,9 +99,10 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if .Values.storage.enabled }}
+          {{- if or .Values.storage.enabled .Values.standalone.tls }}
           volumeMounts:
-            {{- range $claim := .Values.storage.persistentVolumeClaim }}
+            {{- if .Values.storage.enabled }}
+            {{- range $claim := .Values.storage.persistentVolumeClaims }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
             - mountPath: /tmp/{{ . }}
@@ -118,11 +117,20 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            {{- end }}
+
+            {{- if .Values.standalone.tls }}
+            {{- range $secretName := .Values.standalone.tls }}
+            - mountPath: /etc/tls/{{ $secretName }}
+              name: {{ $secretName }}-volume
+            {{- end }}
+            {{- end }}
           {{- end }}
 
-      {{- if .Values.storage.enabled }}
+      {{- if or .Values.storage.enabled .Values.standalone.tls }}
       volumes:
-        {{- range $claim := .Values.storage.persistentVolumeClaim }}
+        {{- if .Values.storage.enabled }}
+        {{- range $claim := .Values.storage.persistentVolumeClaims }}
         {{- if $claim.existingClaimName }}
         - name: {{ $claim.existingClaimName }}-volume
           persistentVolumeClaim:
@@ -131,6 +139,15 @@ spec:
         - name: {{ $claim.claimName }}-volume
           persistentVolumeClaim:
             claimName: {{ $claim.claimName }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+
+        {{- if .Values.standalone.tls }}
+        {{- range $secretName := .Values.standalone.tls }} 
+        - name: {{ $secretName }}-volume
+          secret:
+            secretName: {{ $secretName }}
         {{- end }}
         {{- end }}
       {{- end }}

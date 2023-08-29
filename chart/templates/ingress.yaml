@@ -16,7 +16,6 @@
 # under the License.
 
 {{- if .Values.standalone.ingress.enabled }}
-{{- $serviceName := include "banyandb.fullname" . | printf "%s-http" }}
 {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
 apiVersion: networking.k8s.io/v1
 {{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" }}
@@ -42,7 +41,7 @@ metadata:
     {{- end }}
 spec:
   rules:
-    {{- range .Values.standalone.ingress.hosts }}
+    {{- range .Values.standalone.ingress.rules }}
     - host: {{ .host }}
       http:
         paths:
@@ -52,11 +51,11 @@ spec:
           backend:
             {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
             service:
-              name: {{ $serviceName }}
+              name: {{ .serviceName }}
               port:
                 number: {{ .port }}
             {{- else }}
-            serviceName: {{ $serviceName }}
+            serviceName: {{ .serviceName }}
             servicePort: {{ .port }}
             {{- end }}
         {{- end }}

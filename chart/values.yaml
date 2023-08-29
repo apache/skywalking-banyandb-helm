@@ -25,7 +25,6 @@ standalone:
     # runAsUser: 1000
     # runAsGroup: 1000
     # fsGroup: 1000
-  config: ["standalone"]
   image:
     repository: ghcr.io/apache/skywalking-banyandb
     tag: 7443bd36e56404ee813b66a5e2b183d3c9ed3371
@@ -82,6 +81,9 @@ standalone:
       #   value: "500m"
       # - key: memory
       #   value: "512Mi"
+  tls: []
+    # - secret-foo
+    # - secret-bar
 
   grpcSvc:
     labels: {}
@@ -101,16 +103,20 @@ standalone:
     enabled: false
     labels: {}
     annotations: {}
-    hosts: []
+    rules: []
       # - host: localhost
       #   paths:
       #     - path: /
       #       port: 17913
+      #       serviceName: banyandb-http
     tls: []
+      # - hosts:
+      #     - localhost
+      #   secretName: tls-secret
 
 storage:
   enabled: false
-  persistentVolumeClaim:
+  persistentVolumeClaims:
     - mountTargets: ["measure", "stream"]
       existingClaimName: null
       claimName: data

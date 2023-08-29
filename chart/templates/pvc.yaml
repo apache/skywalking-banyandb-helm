@@ -17,7 +17,7 @@
 
 {{- if .Values.storage.enabled }}
 {{- $root := . }}
-{{- range $claim := .Values.storage.persistentVolumeClaim }}
+{{- range $claim := .Values.storage.persistentVolumeClaims }}
 ---
 {{- if not $claim.existingClaimName }}
 apiVersion: v1

@@ -13,6 +13,9 @@ BanyanDB Helm Chart repository provides ways to install and configure SkyWalking
 
 BanyanDB chart detailed configuration can be found at [BanyanDB Chart Readme](./chart/README.md).
 
+## Use external certificate authorities for TLS
+If you'd like to use external certificate authorities, such as Vault, corresponding annotations can be injected into [banyandb](./chart/templates/statefulset.yaml).
+
 # Install development version of BanyanDB using main branch
 This is needed **only** when you want to install [BanyanDB](https://github.com/apache/skywalking-banyandb/tree/main) from main branch. 
 
