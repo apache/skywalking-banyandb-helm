@@ -59,6 +59,24 @@ spec:
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
+            {{- if .Values.standalone.tls.grpcSecretName }}
+            - name: BYDB_TLS
+              value: "true"
+            - name: BYDB_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.crt"
+            - name: BYDB_KEY_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.key"
+            - name: BYDB_HTTP_GRPC_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.crt"
+            {{- end }}
+            {{- if .Values.standalone.tls.httpSecretName }}
+            - name: BYDB_HTTP_TLS
+              value: "true"
+            - name: BYDB_HTTP_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.httpSecretName }}/tls.crt"
+            - name: BYDB_HTTP_KEY_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.httpSecretName }}/tls.key"
+            {{- end }}
           args:
             - standalone
           ports:
@@ -119,11 +137,13 @@ spec:
             {{- end }}
             {{- end }}
 
-            {{- if .Values.standalone.tls }}
-            {{- range $secretName := .Values.standalone.tls }}
-            - mountPath: /etc/tls/{{ $secretName }}
-              name: {{ $secretName }}-volume
+            {{- if .Values.standalone.tls.grpcSecretName }}
+            - mountPath: /etc/tls/{{ .Values.standalone.tls.grpcSecretName }}
+              name: {{ .Values.standalone.tls.grpcSecretName }}-volume
             {{- end }}
+            {{- if and .Values.standalone.tls.httpSecretName (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName) }}
+            - mountPath: /etc/tls/{{ .Values.standalone.tls.httpSecretName }}
+              name: {{ .Values.standalone.tls.httpSecretName }}-volume
             {{- end }}
           {{- end }}
 
@@ -143,12 +163,15 @@ spec:
         {{- end }}
         {{- end }}
 
-        {{- if .Values.standalone.tls }}
-        {{- range $secretName := .Values.standalone.tls }} 
-        - name: {{ $secretName }}-volume
+        {{- if .Values.standalone.tls.grpcSecretName }}
+        - name: {{ .Values.standalone.tls.grpcSecretName }}-volume
           secret:
-            secretName: {{ $secretName }}
+            secretName: {{ .Values.standalone.tls.grpcSecretName }}
         {{- end }}
+        {{- if and .Values.standalone.tls.httpSecretName (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName) }}
+        - name: {{ .Values.standalone.tls.httpSecretName }}-volume
+          secret:
+            secretName: {{ .Values.standalone.tls.httpSecretName }}
         {{- end }}
       {{- end }}
 
