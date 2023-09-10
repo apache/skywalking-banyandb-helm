@@ -27,7 +27,7 @@ standalone:
     # fsGroup: 1000
   image:
     repository: ghcr.io/apache/skywalking-banyandb
-    tag: 589cfb077fd28e66edab464edd8e93d730533d5d
+    tag: eecd29e71bc07d07f22aea1496d80dc76a2b2f90
     pullPolicy: IfNotPresent
   env: []
     # - name: BANYANDB_FOO
@@ -82,8 +82,8 @@ standalone:
       # - key: memory
       #   value: "512Mi"
   tls:
-    grpcSecretName: secret-foo
-    # httpSecretName: secret-foo
+    grpcSecretName: ""
+    httpSecretName: ""
 
   grpcSvc:
     labels: {}
