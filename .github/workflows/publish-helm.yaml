@@ -23,7 +23,6 @@ on:
 
 env:
   HUB: ghcr.io/apache/skywalking-banyandb-helm
-  VERSION: $(git rev-parse --short HEAD)
 
 jobs:
   publish:
@@ -48,6 +47,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy SkyWalking BanyanDB Helm Chart
         run: |
+          VERSION=0.0.0-$(git rev-parse --short HEAD)
           sed -i "s/^version: .*/version: $VERSION/" ${{ matrix.chart.path }}/Chart.yaml
           helm dep up ${{ matrix.chart.path }}
           helm package ${{ matrix.chart.path }}
