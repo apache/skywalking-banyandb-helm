@@ -23,7 +23,7 @@ on:
 
 env:
   HUB: ghcr.io/apache/skywalking-banyandb-helm
-  VERSION: 0.0.0-${{ github.sha }}
+  VERSION: $(git rev-parse --short HEAD)
 
 jobs:
   publish:
