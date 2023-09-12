@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy SkyWalking BanyanDB Helm Chart
         run: |
-          VERSION=$(git rev-parse --short HEAD)
+          VERSION=0.0.0-$(git rev-parse --short HEAD)
           sed -i "s/^version: .*/version: $VERSION/" ${{ matrix.chart.path }}/Chart.yaml
           helm dep up ${{ matrix.chart.path }}
           helm package ${{ matrix.chart.path }}
