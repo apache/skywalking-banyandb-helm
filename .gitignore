@@ -8,4 +8,9 @@ chart/operator/charts
 chart/operator/Chart.lock
 chart/adapter/charts
 chart/adapter/Chart.lock
+chart/LICENSE
+chart/NOTICE
 *.tgz
+*.tgz.asc
+*.tgz.sha512
+build/
