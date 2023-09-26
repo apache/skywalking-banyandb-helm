@@ -16,7 +16,7 @@
 #
 
 github:
-  description: Apache SkyWalking Kubernetes Deployment Helm Chart
+  description: BanyanDB Helm Chart repository provides ways to install and configure BanyanDB running in a cluster natively on Kubernetes.
   homepage: https://skywalking.apache.org/
   labels:
     - skywalking
@@ -31,3 +31,8 @@ github:
     squash:  true
     merge:   false
     rebase:  false
+  protected_branches:
+    master:
+      required_pull_request_reviews:
+        dismiss_stale_reviews: true
+        required_approving_review_count: 1
