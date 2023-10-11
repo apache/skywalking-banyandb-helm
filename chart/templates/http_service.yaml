@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.standalone.httpSvc }}
+{{- if and .Values.standalone.enabled .Values.standalone.httpSvc }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -57,4 +57,7 @@ spec:
     - {{ $v }}
     {{- end }}
   {{- end }}
-{{- end}}
+{{- end }}
+
+{{- if and .Values.cluster.enabled .Values.cluster.liaison.httpSvc }}
+{{- end }}

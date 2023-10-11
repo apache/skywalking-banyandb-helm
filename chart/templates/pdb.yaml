@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.standalone.podDisruptionBudget }}
+{{- if and .Values.standalone.enabled .Values.standalone.podDisruptionBudget }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1
 {{- else }}
@@ -55,4 +55,11 @@ spec:
   {{- if $budget.paused }}
   paused: {{ $budget.paused }}
   {{- end }}
+{{- end }}
+
+{{- if .Values.cluster.enabled }}
+{{- if .Values.cluster.liaison.podDisruptionBudget }}
+{{- end }}
+{{- if .Values.cluster.data.podDisruptionBudget }}
+{{- end }}
 {{- end }}

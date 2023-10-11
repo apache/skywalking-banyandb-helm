@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.standalone.grpcSvc }}
+{{- if and .Values.standalone.enabled .Values.standalone.grpcSvc }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -42,4 +42,11 @@ spec:
     app: {{ template "banyandb.name" . }}
     component: "{{ .Values.standalone.name }}"
     release: {{ .Release.Name }}
-{{- end}}
+{{- end }}
+
+{{- if .Values.cluster.enabled }}
+{{- if .Values.cluster.liaison.grpcSvc }}
+{{- end }}
+{{- if .Values.cluster.data.grpcSvc}}
+{{- end }}
+{{- end }}
