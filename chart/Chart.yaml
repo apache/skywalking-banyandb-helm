@@ -24,5 +24,5 @@ sources:
 dependencies:
   - name: etcd
     version: 9.5.5
-    repository: oci://registry-1.docker.io/bitnamicharts/etcd
+    repository: oci://registry-1.docker.io/bitnamicharts
     condition: etcd.enabled

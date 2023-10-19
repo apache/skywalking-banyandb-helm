@@ -60,4 +60,45 @@ spec:
 {{- end }}
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison.httpSvc }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "banyandb.fullname" . }}-http
+  labels:
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.cluster.liaison.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    {{- range $key, $value := .Values.cluster.liaison.httpSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  annotations:  
+    {{- range $key, $value := .Values.cluster.liaison.httpSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  type: {{ .Values.cluster.liaison.httpSvc.type }}
+  ports:
+    - port: {{ .Values.cluster.liaison.httpSvc.port }}
+      name: http
+  selector:
+    app: {{ template "banyandb.name" . }}
+    component: "{{ .Values.cluster.liaison.name }}"
+    release: {{ .Release.Name }}
+  {{- if .Values.cluster.liaison.httpSvc.externalIPs }}
+  externalIPs:
+    {{- range $v := .Values.cluster.liaison.httpSvc.externalIPs }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cluster.liaison.httpSvc.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.cluster.liaison.httpSvc.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.cluster.liaison.httpSvc.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range $v := .Values.cluster.liaison.httpSvc.loadBalancerSourceRanges }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
 {{- end }}

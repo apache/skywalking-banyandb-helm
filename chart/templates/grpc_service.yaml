@@ -46,7 +46,59 @@ spec:
 
 {{- if .Values.cluster.enabled }}
 {{- if .Values.cluster.liaison.grpcSvc }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "banyandb.fullname" . }}-grpc
+  labels:
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.cluster.liaison.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    {{- range $key, $value := .Values.cluster.liaison.grpcSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  annotations:
+    {{- range $key, $value := .Values.cluster.liaison.grpcSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.cluster.liaison.grpcSvc.port }}
+      name: grpc
+  selector:
+    app: {{ template "banyandb.name" . }}
+    component: "{{ .Values.cluster.liaison.name }}"
+    release: {{ .Release.Name }}
 {{- end }}
 {{- if .Values.cluster.data.grpcSvc}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "banyandb.fullname" . }}-grpc
+  labels:
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.cluster.data.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    {{- range $key, $value := .Values.cluster.data.grpcSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  annotations:
+    {{- range $key, $value := .Values.cluster.data.grpcSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.cluster.data.grpcSvc.port }}
+      name: grpc
+  selector:
+    app: {{ template "banyandb.name" . }}
+    component: "{{ .Values.cluster.data.name }}"
+    release: {{ .Release.Name }}
 {{- end }}
 {{- end }}

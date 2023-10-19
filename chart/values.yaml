@@ -117,18 +117,21 @@ standalone:
 
 cluster:
   enabled: true
+  image:
+    repository: ghcr.io/apache/skywalking-banyandb
+    tag: 81011a4e3c1f4e181f87a4d561eeab190bdf5af2
+    pullPolicy: IfNotPresent
+  etcdEndpoints:
+    - http://banyandb-etcd:2379
   liaison:
     name: banyandb
+    replicas: 2
     podAnnotations: 
       example: banyandb-foo
     securityContext: {}
       # runAsUser: 1000
       # runAsGroup: 1000
       # fsGroup: 1000
-    image:
-      repository: ghcr.io/apache/skywalking-banyandb
-      tag: eecd29e71bc07d07f22aea1496d80dc76a2b2f90
-      pullPolicy: IfNotPresent
     env: []
       # - name: BANYANDB_FOO
       #   value: "bar"
@@ -216,16 +219,13 @@ cluster:
 
   data:
     name: banyandb
+    replicas: 3
     podAnnotations: 
       example: banyandb-foo
     securityContext: {}
       # runAsUser: 1000
       # runAsGroup: 1000
       # fsGroup: 1000
-    image:
-      repository: ghcr.io/apache/skywalking-banyandb
-      tag: eecd29e71bc07d07f22aea1496d80dc76a2b2f90
-      pullPolicy: IfNotPresent
     env: []
       # - name: BANYANDB_FOO
       #   value: "bar"
@@ -280,30 +280,11 @@ cluster:
         #   value: "512Mi"
     tls:
       grpcSecretName: ""
-      httpSecretName: ""
 
     grpcSvc:
       labels: {}
       annotations: {}
       port: 17912
-
-    ingress:
-      enabled: false
-      labels: {}
-      annotations: {}
-      rules: []
-        # - host: localhost
-        #   paths:
-        #     - path: /
-        #       port: 17913
-        #       serviceName: banyandb-http
-      tls: []
-        # - hosts:
-        #     - localhost
-        #   secretName: tls-secret
-
-    etcd:
-      enabled: true
 
 storage:
   enabled: false
@@ -333,5 +314,12 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+etcd:
+  enabled: true
+  replicaCount: 2
+  auth:
+    rbac:
+      create: false
 
 fullnameOverride: "banyandb"

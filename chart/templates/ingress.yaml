@@ -66,9 +66,5 @@ spec:
   {{- end -}}
 {{- end }}
 
-{{- if .Values.cluster.enabled }}
-{{- if .Values.cluster.liaison.ingress.enabled }}
-{{- end }}
-{{- if .Values.cluster.data.ingress.enabled }}
-{{- end }}
+{{- if and .Values.cluster.enabled .Values.cluster.liaison.ingress.enabled }}
 {{- end }}
