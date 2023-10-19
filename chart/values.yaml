@@ -18,6 +18,7 @@
 # Declare variables to be passed into your templates.
 
 standalone:
+  enabled: false
   name: banyandb
   podAnnotations: 
     example: banyandb-foo
@@ -114,6 +115,177 @@ standalone:
       #     - localhost
       #   secretName: tls-secret
 
+cluster:
+  enabled: true
+  image:
+    repository: ghcr.io/apache/skywalking-banyandb
+    tag: 81011a4e3c1f4e181f87a4d561eeab190bdf5af2
+    pullPolicy: IfNotPresent
+  etcdEndpoints:
+    - http://banyandb-etcd:2379
+  liaison:
+    name: banyandb
+    replicas: 2
+    podAnnotations: 
+      example: banyandb-foo
+    securityContext: {}
+      # runAsUser: 1000
+      # runAsGroup: 1000
+      # fsGroup: 1000
+    env: []
+      # - name: BANYANDB_FOO
+      #   value: "bar"
+    priorityClassName: ""
+    podDisruptionBudget: {}
+      # minAvailable: 1
+      # maxUnavailable: 2
+      # matchLabels:
+      #   - key: foo
+      #     value: bar
+      # matchExpressions:
+      #   - key: foo
+      #     operator: In
+      #     values: [bar, baz]
+      # paused: false
+    tolerations: []
+      # - key: foo
+      #   value: bar
+      #   operator: Equal
+      #   effect: NoSchedule
+    nodeSelector: []
+      # - key: foo
+      #   value: bar
+    affinity: {}
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #       - matchExpressions:
+      #           - key: foo
+      #             operator: In
+      #             values:
+      #               - bar
+      #               - baz
+      # podAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchLabels:
+      #           - key: app
+      #             value: banyandb
+      #       topologyKey: "kubernetes.io/hostname"
+      #       namespaces: []
+    resources:
+      requests: []
+        # - key: cpu
+        #   value: "100m"
+        # - key: memory
+        #   value: "256Mi"
+      limits: []
+        # - key: cpu
+        #   value: "500m"
+        # - key: memory
+        #   value: "512Mi"
+    tls:
+      grpcSecretName: ""
+      httpSecretName: ""
+
+    grpcSvc:
+      labels: {}
+      annotations: {}
+      port: 17912
+
+    httpSvc:
+      labels: {}
+      annotations: {}
+      port: 17913
+      type: LoadBalancer
+      externalIPs: []
+      loadBalancerIP: null
+      loadBalancerSourceRanges: []
+
+    ingress:
+      enabled: false
+      labels: {}
+      annotations: {}
+      rules: []
+        # - host: localhost
+        #   paths:
+        #     - path: /
+        #       port: 17913
+        #       serviceName: banyandb-http
+      tls: []
+        # - hosts:
+        #     - localhost
+        #   secretName: tls-secret
+
+  data:
+    name: banyandb
+    replicas: 3
+    podAnnotations: 
+      example: banyandb-foo
+    securityContext: {}
+      # runAsUser: 1000
+      # runAsGroup: 1000
+      # fsGroup: 1000
+    env: []
+      # - name: BANYANDB_FOO
+      #   value: "bar"
+    priorityClassName: ""
+    podDisruptionBudget: {}
+      # minAvailable: 1
+      # maxUnavailable: 2
+      # matchLabels:
+      #   - key: foo
+      #     value: bar
+      # matchExpressions:
+      #   - key: foo
+      #     operator: In
+      #     values: [bar, baz]
+      # paused: false
+    tolerations: []
+      # - key: foo
+      #   value: bar
+      #   operator: Equal
+      #   effect: NoSchedule
+    nodeSelector: []
+      # - key: foo
+      #   value: bar
+    affinity: {}
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #       - matchExpressions:
+      #           - key: foo
+      #             operator: In
+      #             values:
+      #               - bar
+      #               - baz
+      # podAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchLabels:
+      #           - key: app
+      #             value: banyandb
+      #       topologyKey: "kubernetes.io/hostname"
+      #       namespaces: []
+    resources:
+      requests: []
+        # - key: cpu
+        #   value: "100m"
+        # - key: memory
+        #   value: "256Mi"
+      limits: []
+        # - key: cpu
+        #   value: "500m"
+        # - key: memory
+        #   value: "512Mi"
+    tls:
+      grpcSecretName: ""
+
+    grpcSvc:
+      labels: {}
+      annotations: {}
+      port: 17912
+
 storage:
   enabled: false
   persistentVolumeClaims:
@@ -142,5 +314,12 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+etcd:
+  enabled: true
+  replicaCount: 2
+  auth:
+    rbac:
+      create: false
 
 fullnameOverride: "banyandb"
