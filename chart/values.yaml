@@ -27,7 +27,7 @@ standalone:
     # fsGroup: 1000
   image:
     repository: ghcr.io/apache/skywalking-banyandb
-    tag: eecd29e71bc07d07f22aea1496d80dc76a2b2f90
+    tag: 84f32b3969cdcc676aaee428383b34b3b67dbdf5
     pullPolicy: IfNotPresent
   env: []
     # - name: BANYANDB_FOO
