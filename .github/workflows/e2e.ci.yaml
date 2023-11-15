@@ -39,9 +39,9 @@ jobs:
             config: test/e2e/e2e-banyandb.yaml
     name: ${{ matrix.test.name }}
     env:
-      OAP_TAG: e651c381abe661e5a38ab1607758aae893b3dbeb
+      OAP_TAG: 965dea898986ed2ab1343559fb20d6faed11ada9
       OAP_REPO: ghcr.io/apache/skywalking/oap
-      UI_TAG: e651c381abe661e5a38ab1607758aae893b3dbeb
+      UI_TAG: 965dea898986ed2ab1343559fb20d6faed11ada9
       UI_REPO: ghcr.io/apache/skywalking/ui
       SATELLITE_TAG: v35bfaff6352b4dc351a706772796a1f79b651c14
       SATELLITE_REPO: ghcr.io/apache/skywalking-satellite/skywalking-satellite
