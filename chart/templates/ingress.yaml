@@ -67,4 +67,52 @@ spec:
 {{- end }}
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison.ingress.enabled }}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else }}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  labels:
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.cluster.liaison.ingress.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    {{- range $key, $value := .Values.cluster.liaison.ingress.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "banyandb.fullname" . }}
+  annotations:
+    {{- range $key, $value := .Values.cluster.liaison.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+    {{- range .Values.cluster.liaison.ingress.rules }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+        - path: {{ .path }}
+          pathType: Prefix
+          backend:
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            service:
+              name: {{ .serviceName }}
+              port:
+                number: {{ .port }}
+            {{- else }}
+            serviceName: {{ .serviceName }}
+            servicePort: {{ .port }}
+            {{- end }}
+        {{- end }}
+    {{- end -}}
+  {{- if .Values.cluster.liaison.ingress.tls }}
+  tls:
+{{ toYaml .Values.cluster.liaison.ingress.tls | indent 4 }}
+  {{- end -}}
 {{- end }}
