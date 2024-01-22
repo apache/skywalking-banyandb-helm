@@ -300,18 +300,22 @@ spec:
               name: pprof
             - containerPort: 2121
               name: observebility
-          # readinessProbe:
-          #   httpGet:
-          #     path: /api/healthz
-          #     port: 17913
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 10
-          # livenessProbe:
-          #   httpGet:
-          #     path: /api/healthz
-          #     port: 17913
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health --grpc-addr=banyandb-grpc:17912"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health --grpc-addr=banyandb-grpc:17912"
+            initialDelaySeconds: 5
+            periodSeconds: 10
           
           {{- if.Values.cluster.data.resources }}
           resources:

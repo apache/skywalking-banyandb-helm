@@ -119,7 +119,7 @@ cluster:
   enabled: true
   image:
     repository: ghcr.io/apache/skywalking-banyandb
-    tag: 81011a4e3c1f4e181f87a4d561eeab190bdf5af2
+    tag: 08d8dc81f676078bc7776ec69bd99ea8cfc811e4
     pullPolicy: IfNotPresent
   etcdEndpoints:
     - http://banyandb-etcd:2379
