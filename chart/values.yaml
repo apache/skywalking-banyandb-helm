@@ -320,6 +320,8 @@ etcd:
   replicaCount: 2
   auth:
     rbac:
-      create: false
+      allowNoneAuthentication: false
+      rootPassword: banyandb 
+      # existingSecret: etcd-secret
 
 fullnameOverride: "banyandb"

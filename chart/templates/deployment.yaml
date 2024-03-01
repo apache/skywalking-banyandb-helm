@@ -77,6 +77,12 @@ spec:
             - name: BYDB_HTTP_KEY_FILE
               value: "/etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}/tls.key"
             {{- end }}
+            {{- if not .Values.etcd.auth.rbac.allowNoneAuthentication }}
+            - name: BYDB_ETCD_USERNAME
+              value: "root"
+            - name: BYDB_ETCD_PASSWORD
+              value: {{ .Values.etcd.auth.rbac.rootPassword }}
+            {{- end }}
             - name: BYDB_ETCD_ENDPOINTS
               value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
           args:

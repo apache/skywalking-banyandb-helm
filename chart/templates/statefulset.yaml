@@ -287,6 +287,18 @@ spec:
             - name: BYDB_HTTP_GRPC_CERT_FILE
               value: "/etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}/tls.crt"
             {{- end }}
+            {{- if not .Values.etcd.auth.rbac.allowNoneAuthentication }}
+            - name: BYDB_ETCD_USERNAME
+              value: "root"
+            - name: BYDB_ETCD_PASSWORD
+              value: {{ .Values.etcd.auth.rbac.rootPassword }}
+            # - name: BYDB_ETCD_TLS_CA_FILE
+            #   value: "/etc/etcd/{{ .Values.etcd.auth.rbac.existingSecret }}/etcd-ca.crt"
+            # - name: BYDB_ETCD_TLS_CERT_FILE
+            #   value: "/etc/etcd/{{ .Values.etcd.auth.rbac.existingSecret }}/etcd.crt"
+            # - name: BYDB_ETCD_TLS_KEY_FILE
+            #   value: "/etc/etcd/{{ .Values.etcd.auth.rbac.existingSecret }}/etcd.key"
+            {{- end }}
             - name: BYDB_ETCD_ENDPOINTS
               value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
           args:
