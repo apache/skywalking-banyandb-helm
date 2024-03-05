@@ -345,6 +345,9 @@ etcd:
       enableAuthentication: false
       certFilename: tls.crt
       certKeyFilename: tls.key
-      caFilename: ca.crt
+      caFilename: ""
+  extraEnvVars:
+    - name: ETCDCTL_CACERT
+      value: /opt/bitnami/etcd/certs/client/ca.crt
 
 fullnameOverride: "banyandb"
