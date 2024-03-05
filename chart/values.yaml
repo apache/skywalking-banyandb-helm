@@ -114,15 +114,22 @@ standalone:
       # - hosts:
       #     - localhost
       #   secretName: tls-secret
+  
+  sidecar: []
+    # - name: cleanup-sidecar
+    #   image: busybox:latest
+    #   imagePullPolicy: IfNotPresent
+    #   commands: 
+    #     preStop: ["sh", "-c", "rm -rf /path/to/cleanup"]
 
 cluster:
   enabled: true
   image:
     repository: ghcr.io/apache/skywalking-banyandb
-    tag: 08d8dc81f676078bc7776ec69bd99ea8cfc811e4
+    tag: 2ded410158c95e809d95f34db09f4b82f81fbcf3
     pullPolicy: IfNotPresent
   etcdEndpoints:
-    - http://banyandb-etcd:2379
+    - banyandb-etcd-0.banyandb-etcd-headless.default.svc.cluster.local:2379
   liaison:
     name: banyandb
     replicas: 2
@@ -187,6 +194,7 @@ cluster:
     tls:
       grpcSecretName: ""
       httpSecretName: ""
+      etcdSecretName: "etcd-client-tls"
 
     grpcSvc:
       labels: {}
@@ -280,12 +288,20 @@ cluster:
         #   value: "512Mi"
     tls:
       grpcSecretName: ""
+      etcdSecretName: "etcd-client-tls"
 
     grpcSvc:
       labels: {}
       annotations: {}
       port: 17912
 
+    sidecar:
+      - name: cleanup-sidecar
+        image: busybox:latest
+        imagePullPolicy: IfNotPresent
+        commands: 
+          preStop: ["sh", "-c", "echo cleanup"]
+        
 storage:
   enabled: false
   persistentVolumeClaims:
@@ -320,8 +336,15 @@ etcd:
   replicaCount: 2
   auth:
     rbac:
-      allowNoneAuthentication: false
+      create: true
+      allowNoneAuthentication: true
       rootPassword: banyandb 
-      # existingSecret: etcd-secret
+    client:
+      secureTransport: true
+      existingSecret: etcd-client-tls
+      enableAuthentication: false
+      certFilename: tls.crt
+      certKeyFilename: tls.key
+      caFilename: ca.crt
 
 fullnameOverride: "banyandb"

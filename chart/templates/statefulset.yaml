@@ -287,17 +287,21 @@ spec:
             - name: BYDB_HTTP_GRPC_CERT_FILE
               value: "/etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}/tls.crt"
             {{- end }}
-            {{- if not .Values.etcd.auth.rbac.allowNoneAuthentication }}
+            {{- if and .Values.etcd.auth.rbac.create (not .Values.etcd.auth.rbac.allowNoneAuthentication) }}
             - name: BYDB_ETCD_USERNAME
               value: "root"
             - name: BYDB_ETCD_PASSWORD
               value: {{ .Values.etcd.auth.rbac.rootPassword }}
-            # - name: BYDB_ETCD_TLS_CA_FILE
-            #   value: "/etc/etcd/{{ .Values.etcd.auth.rbac.existingSecret }}/etcd-ca.crt"
-            # - name: BYDB_ETCD_TLS_CERT_FILE
-            #   value: "/etc/etcd/{{ .Values.etcd.auth.rbac.existingSecret }}/etcd.crt"
-            # - name: BYDB_ETCD_TLS_KEY_FILE
-            #   value: "/etc/etcd/{{ .Values.etcd.auth.rbac.existingSecret }}/etcd.key"
+            {{- end }}
+            {{- if .Values.etcd.auth.client.secureTransport }}
+            - name: BYDB_ETCD_TLS_CA_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/ca.crt"
+            {{- end }}
+            {{- if .Values.etcd.auth.client.enableAuthentication }}
+            - name: BYDB_ETCD_TLS_CERT_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/tls.crt"
+            - name: BYDB_ETCD_TLS_KEY_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/tls.key"
             {{- end }}
             - name: BYDB_ETCD_ENDPOINTS
               value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
@@ -369,7 +373,41 @@ spec:
             - mountPath: /etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}
               name: {{ .Values.cluster.data.tls.grpcSecretName }}-volume
             {{- end }}
+            {{- if .Values.cluster.data.tls.etcdSecretName }}
+            - mountPath: /etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}
+              name: {{ .Values.cluster.data.tls.etcdSecretName }}-volume
+            {{- end }}
           {{- end }}
+        # {{- range $sidecar := .Values.cluster.data.sidecar }}
+        # - name: {{ $sidecar.name }}
+        #   image: {{ $sidecar.image }}
+        #   imagePullPolicy: {{ $sidecar.imagePullPolicy }}
+        #   lifecycle:
+        #     preStop:
+        #       exec:
+        #         command:
+        #           {{- range $sidecar.commands.preStop }}
+        #           - {{ . | quote }}
+        #           {{- end }}
+        #   {{- if $.Values.storage.enabled }}
+        #   volumeMounts:
+        #     {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+        #     {{- if $claim.existingClaimName }}
+        #     {{- range $claim.mountTargets }}
+        #     - mountPath: /tmp/{{ . }}
+        #       name: {{ $claim.existingClaimName }}-volume
+        #       subPath: {{ . }}
+        #     {{- end }}
+        #     {{- else }}
+        #     {{- range $claim.mountTargets }}
+        #     - mountPath: /tmp/{{ . }}
+        #       name: {{ $claim.claimName }}-volume
+        #       subPath: {{ . }}
+        #     {{- end }}
+        #     {{- end }}
+        #     {{- end }}
+        #   {{- end }}
+        # {{- end }}
 
       {{- if or .Values.storage.enabled .Values.cluster.data.tls }}
       volumes:
@@ -391,6 +429,11 @@ spec:
         - name: {{ .Values.cluster.data.tls.grpcSecretName }}-volume
           secret:
             secretName: {{ .Values.cluster.data.tls.grpcSecretName }}
+        {{- end }}
+        {{- if .Values.cluster.data.tls.etcdSecretName }}
+        - name: {{ .Values.cluster.data.tls.etcdSecretName }}-volume
+          secret:
+            secretName: {{ .Values.cluster.data.tls.etcdSecretName }}
         {{- end }}
       {{- end }}
 
