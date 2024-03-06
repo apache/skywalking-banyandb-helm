@@ -378,36 +378,40 @@ spec:
               name: {{ .Values.cluster.data.tls.etcdSecretName }}-volume
             {{- end }}
           {{- end }}
-        # {{- range $sidecar := .Values.cluster.data.sidecar }}
-        # - name: {{ $sidecar.name }}
-        #   image: {{ $sidecar.image }}
-        #   imagePullPolicy: {{ $sidecar.imagePullPolicy }}
-        #   lifecycle:
-        #     preStop:
-        #       exec:
-        #         command:
-        #           {{- range $sidecar.commands.preStop }}
-        #           - {{ . | quote }}
-        #           {{- end }}
-        #   {{- if $.Values.storage.enabled }}
-        #   volumeMounts:
-        #     {{- range $claim := $.Values.storage.persistentVolumeClaims }}
-        #     {{- if $claim.existingClaimName }}
-        #     {{- range $claim.mountTargets }}
-        #     - mountPath: /tmp/{{ . }}
-        #       name: {{ $claim.existingClaimName }}-volume
-        #       subPath: {{ . }}
-        #     {{- end }}
-        #     {{- else }}
-        #     {{- range $claim.mountTargets }}
-        #     - mountPath: /tmp/{{ . }}
-        #       name: {{ $claim.claimName }}-volume
-        #       subPath: {{ . }}
-        #     {{- end }}
-        #     {{- end }}
-        #     {{- end }}
-        #   {{- end }}
-        # {{- end }}
+        {{- range $sidecar := .Values.cluster.data.sidecar }}
+        - name: {{ $sidecar.name }}
+          image: {{ $sidecar.image }}
+          imagePullPolicy: {{ $sidecar.imagePullPolicy }}
+          command:
+            {{- range $sidecar.commands.normal }}
+            - {{ . | quote }}
+            {{- end }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{- range $sidecar.commands.preStop }}
+                  - {{ . | quote }}
+                  {{- end }}
+          {{- if $.Values.storage.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
 
       {{- if or .Values.storage.enabled .Values.cluster.data.tls }}
       volumes:

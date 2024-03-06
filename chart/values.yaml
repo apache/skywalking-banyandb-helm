@@ -295,12 +295,13 @@ cluster:
       annotations: {}
       port: 17912
 
-    sidecar:
-      - name: cleanup-sidecar
-        image: busybox:latest
-        imagePullPolicy: IfNotPresent
-        commands: 
-          preStop: ["sh", "-c", "echo cleanup"]
+    sidecar: []
+      # - name: cleanup-sidecar
+      #   image: busybox:latest
+      #   imagePullPolicy: IfNotPresent
+      #   commands: 
+      #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
+      #     preStop: ["sh", "-c", "echo cleanup"]
         
 storage:
   enabled: false
