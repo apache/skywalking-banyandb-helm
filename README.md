@@ -118,6 +118,31 @@ $ helm install my-release banyandb -f values.yaml
 ## Use external certificate authorities for TLS
 If you'd like to use external certificate authorities, such as Vault, corresponding annotations can be injected into [banyandb](./chart/templates/statefulset.yaml).
 
+## Setup certificate for etcd TLS
+To establish secure communication for etcd, you can leverage cert-manager to generate the necessary TLS certificates. This tool simplifies the process of creating and managing certificates.
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: etcd-client
+  namespace: banyandb
+spec:
+  secretName: etcd-client-tls
+  duration: 17520h
+  renewBefore: 4320h
+  issuerRef:
+    name: banyandb-issuer
+    kind: Issuer
+  usages:
+    - server auth
+    - client auth
+  commonName: banyandb-etcd
+  dnsNames:
+    - "*.banyandb-etcd.default.svc.cluster.local"
+    - "*.banyandb-etcd-headless.default.svc.cluster.local"
+```
+
 # Install the development version of BanyanDB using the master branch
 This is needed **only** when you want to install [BanyanDB](https://github.com/apache/skywalking-banyandb/tree/main) from the master branch. 
 
