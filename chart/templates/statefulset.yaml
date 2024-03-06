@@ -251,12 +251,14 @@ spec:
       app: {{ template "banyandb.name" . }}
       component: "{{ .Values.cluster.data.name }}"
       release: {{ .Release.Name }}
+      role: {{ .Values.cluster.data.role }}
   template:
     metadata:
       labels:
         app: {{ template "banyandb.name" . }}
         component: "{{ .Values.cluster.data.name }}"
         release: {{ .Release.Name }}
+        role: {{ .Values.cluster.data.role }}
       {{- if .Values.cluster.data.podAnnotations }}
       annotations:
 {{ toYaml .Values.cluster.data.podAnnotations | indent 8 }}
@@ -305,6 +307,12 @@ spec:
             {{- end }}
             - name: BYDB_ETCD_ENDPOINTS
               value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "ip"
+            - name: BYDB_NODE_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           args:
             - data 
           ports:
@@ -321,17 +329,17 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health --grpc-addr=banyandb-grpc:17912"
-            initialDelaySeconds: 5
-            periodSeconds: 10
+                - "/bydbctl health --grpc-addr=localhost:17912 --insecure"
+            initialDelaySeconds: 20
+            periodSeconds: 60
           livenessProbe:
             exec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health --grpc-addr=banyandb-grpc:17912"
-            initialDelaySeconds: 5
-            periodSeconds: 10
+                - "/bydbctl health --grpc-addr=localhost:17912 --insecure"
+            initialDelaySeconds: 20
+            periodSeconds: 60
           
           {{- if.Values.cluster.data.resources }}
           resources:

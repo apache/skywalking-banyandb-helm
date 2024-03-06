@@ -25,6 +25,7 @@ metadata:
     component: "{{ .Values.cluster.liaison.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+    role: {{ .Values.cluster.liaison.role }}
   name: {{ template "banyandb.fullname" . }}
 spec:
   replicas: {{ .Values.cluster.liaison.replicas }}
@@ -39,6 +40,7 @@ spec:
         app: {{ template "banyandb.name" . }}
         component: "{{ .Values.cluster.liaison.name }}"
         release: {{ .Release.Name }}
+        role: {{ .Values.cluster.liaison.role }}
       {{- if .Values.cluster.liaison.podAnnotations }}
       annotations:
 {{ toYaml .Values.cluster.liaison.podAnnotations | indent 8 }}
@@ -107,17 +109,21 @@ spec:
             - containerPort: 2121
               name: observebility
           readinessProbe:
-            httpGet:
-              path: /api/healthz
-              port: 17913
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health"
+            initialDelaySeconds: 20
+            periodSeconds: 60
           livenessProbe:
-            httpGet:
-              path: /api/healthz
-              port: 17913
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health"
+            initialDelaySeconds: 20
+            periodSeconds: 60
           
           {{- if.Values.cluster.liaison.resources }}
           resources:
@@ -169,7 +175,7 @@ spec:
             {{- end }}
           {{- end }}
 
-      {{- if or .Values.storage.enabled .Values.cluster.liaison.tls }}
+      {{- if or .Values.storage.enabled .Values.cluster.data.tls }}
       volumes:
         {{- if .Values.storage.enabled }}
         {{- range $claim := .Values.storage.persistentVolumeClaims }}

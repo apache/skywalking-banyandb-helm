@@ -86,6 +86,7 @@ spec:
     app: {{ template "banyandb.name" . }}
     component: "{{ .Values.cluster.liaison.name }}"
     release: {{ .Release.Name }}
+    role: liaison
   {{- if .Values.cluster.liaison.httpSvc.externalIPs }}
   externalIPs:
     {{- range $v := .Values.cluster.liaison.httpSvc.externalIPs }}

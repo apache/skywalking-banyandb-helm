@@ -40,11 +40,16 @@ setup:
         kubectl label namespace default istio-injection=enabled
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
+    - name: Install dependency
+      command: |
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        cd chart
+        helm dependency update
     - name: Install BanyanDB
-      command: helm -n istio-system install banyandb chart/
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.cluster.yaml
     - name: Install SkyWalking
       command: |
-        helm -n istio-system install skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+        helm -n istio-system install --timeout 10m skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
                        --version "$SW_HELM_VERSION" \
                        --set fullnameOverride=skywalking \
                        --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
