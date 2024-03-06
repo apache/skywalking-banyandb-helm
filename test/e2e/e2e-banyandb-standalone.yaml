@@ -41,7 +41,7 @@ setup:
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
     - name: Install BanyanDB
-      command: helm -n istio-system install banyandb chart/
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.standalone.yaml
     - name: Install SkyWalking
       command: |
         helm -n istio-system install skywalking oci://registry-1.docker.io/apache/skywalking-helm \

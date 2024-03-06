@@ -194,7 +194,7 @@ cluster:
     tls:
       grpcSecretName: ""
       httpSecretName: ""
-      etcdSecretName: "etcd-client-tls"
+      etcdSecretName: ""
 
     grpcSvc:
       labels: {}
@@ -288,7 +288,7 @@ cluster:
         #   value: "512Mi"
     tls:
       grpcSecretName: ""
-      etcdSecretName: "etcd-client-tls"
+      etcdSecretName: ""
 
     grpcSvc:
       labels: {}
@@ -338,17 +338,17 @@ etcd:
   auth:
     rbac:
       create: true
-      allowNoneAuthentication: true
+      allowNoneAuthentication: false
       rootPassword: banyandb 
     client:
-      secureTransport: true
-      existingSecret: etcd-client-tls
+      secureTransport: false
+      existingSecret: ""
       enableAuthentication: false
       certFilename: tls.crt
       certKeyFilename: tls.key
       caFilename: ""
-  extraEnvVars:
-    - name: ETCDCTL_CACERT
-      value: /opt/bitnami/etcd/certs/client/ca.crt
+  # extraEnvVars:
+  #   - name: ETCDCTL_CACERT
+  #     value: /opt/bitnami/etcd/certs/client/ca.crt
 
 fullnameOverride: "banyandb"
