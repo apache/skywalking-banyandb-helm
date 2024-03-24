@@ -305,8 +305,21 @@ spec:
             - name: BYDB_ETCD_TLS_KEY_FILE
               value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/tls.key"
             {{- end }}
+            {{- if and (not .Values.etcd.enabled) .Values.cluster.etcdEndpoints }}
             - name: BYDB_ETCD_ENDPOINTS
               value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
+            {{- else }}
+            {{- $endpoints := list }}
+            {{- $replicaCount := int .Values.etcd.replicaCount }}
+            {{- $releaseName := .Release.Name }}
+            {{- $namespace := .Release.Namespace }}
+            {{- range $i := until $replicaCount }}
+              {{- $endpoint := printf "%s-etcd-%d.%s-etcd-headless.%s:2379" $releaseName $i $releaseName $namespace }}
+              {{- $endpoints = append $endpoints $endpoint }}
+            {{- end }}
+            - name: BYDB_ETCD_ENDPOINTS
+              value: "{{- $endpoints | join "," -}}"
+            {{- end }}
             - name: BYDB_NODE_HOST_PROVIDER
               value: "ip"
             - name: BYDB_NODE_HOST
