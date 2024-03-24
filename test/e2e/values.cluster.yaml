@@ -23,8 +23,7 @@ cluster:
     repository: ghcr.io/apache/skywalking-banyandb
     tag: dc88130e8d0516c7989734bdeb505e2d92c1ab71
     pullPolicy: IfNotPresent
-  etcdEndpoints:
-    - banyandb-etcd-0.banyandb-etcd-headless.istio-system.svc.cluster.local:2379
+  etcdEndpoints: []
   liaison:
     name: banyandb
     role: liaison
