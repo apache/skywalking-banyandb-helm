@@ -99,16 +99,7 @@ spec:
             - name: BYDB_ETCD_ENDPOINTS
               value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
             {{- else }}
-            {{- $endpoints := list }}
-            {{- $replicaCount := int .Values.etcd.replicaCount }}
-            {{- $releaseName := .Release.Name }}
-            {{- $namespace := .Release.Namespace }}
-            {{- range $i := until $replicaCount }}
-              {{- $endpoint := printf "%s-etcd-%d.%s-etcd-headless.%s:2379" $releaseName $i $releaseName $namespace }}
-              {{- $endpoints = append $endpoints $endpoint }}
-            {{- end }}
-            - name: BYDB_ETCD_ENDPOINTS
-              value: "{{- $endpoints | join "," -}}"
+            {{- include "banyandb.etcdEndpoints" . | nindent 12 }}
             {{- end }}
           args:
             - liaison

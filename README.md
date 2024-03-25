@@ -119,8 +119,12 @@ $ helm install my-release banyandb -f values.yaml
 If you'd like to use external certificate authorities, such as Vault, corresponding annotations can be injected into [banyandb](./chart/templates/statefulset.yaml).
 
 ## Setup certificate for etcd TLS
-To establish secure communication for etcd, you can leverage cert-manager to generate the necessary TLS certificates. This tool simplifies the process of creating and managing certificates.
+To establish secure communication for etcd, you can leverage cert-manager to generate the necessary TLS certificates. This tool simplifies the process of creating and managing certificates. You can install cert-manager with the following command.
+```console
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
+```
 
+A Certificate can be created with the following configurations. In this setup, each dnsName includes a wildcard that enables resolution of all etcd pods' DNS names within the specified namespace, along with the service name of etcd and its corresponding namespace. Here, 'svc' represents a service, while 'cluster.local' serves as the domain suffix for the Kubernetes cluster.
 ```yaml
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -137,10 +141,9 @@ spec:
   usages:
     - server auth
     - client auth
-  commonName: banyandb-etcd
   dnsNames:
-    - "*.banyandb-etcd.default.svc.cluster.local"
-    - "*.banyandb-etcd-headless.default.svc.cluster.local"
+    - "*.banyandb-etcd.banyandb.svc.cluster.local"
+    - "*.banyandb-etcd-headless.banyandb.svc.cluster.local"
 ```
 
 # Install the development version of BanyanDB using the master branch
