@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if .Values.standalone.podDisruptionBudget }}
+{{- if and .Values.standalone.enabled .Values.standalone.podDisruptionBudget }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1
 {{- else }}
@@ -55,4 +55,89 @@ spec:
   {{- if $budget.paused }}
   paused: {{ $budget.paused }}
   {{- end }}
+{{- end }}
+
+{{- if .Values.cluster.enabled }}
+{{- if .Values.cluster.liaison.podDisruptionBudget }}
+{{- if .Capabilities.APIVersions.Has "policy/v1" }}
+apiVersion: policy/v1
+{{- else }}
+apiVersion: policy/v1beta1
+{{- end }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "banyandb.fullname" . }}
+  labels:
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.cluster.liaison.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  {{- $budget := .Values.cluster.liaison.podDisruptionBudget }}
+  {{- if $budget.maxUnavailable }}
+  maxUnavailable: {{ $budget.maxUnavailable }}
+  {{- end }}
+  {{- if $budget.minAvailable }}
+  minAvailable: {{ $budget.minAvailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+    {{- range $label := $budget.matchLabels }}
+      {{ $label.key }}: {{ $label.value }}
+    {{- end }}
+    matchExpressions:
+    {{- range $expression := $budget.matchExpressions }}
+      - key: {{ $expression.key }}
+        operator: {{ $expression.operator }}
+        values:
+          {{- range $v := $expression.values }}
+          - {{ $v }}
+          {{- end}}
+    {{- end }}
+  {{- if $budget.paused }}
+  paused: {{ $budget.paused }}
+  {{- end }}
+{{- end }}
+{{- if .Values.cluster.data.podDisruptionBudget }}
+{{- if .Capabilities.APIVersions.Has "policy/v1" }}
+apiVersion: policy/v1
+{{- else }}
+apiVersion: policy/v1beta1
+{{- end }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "banyandb.fullname" . }}
+  labels:
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.data.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  {{- $budget := .Values.data.podDisruptionBudget }}
+  {{- if $budget.maxUnavailable }}
+  maxUnavailable: {{ $budget.maxUnavailable }}
+  {{- end }}
+  {{- if $budget.minAvailable }}
+  minAvailable: {{ $budget.minAvailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+    {{- range $label := $budget.matchLabels }}
+      {{ $label.key }}: {{ $label.value }}
+    {{- end }}
+    matchExpressions:
+    {{- range $expression := $budget.matchExpressions }}
+      - key: {{ $expression.key }}
+        operator: {{ $expression.operator }}
+        values:
+          {{- range $v := $expression.values }}
+          - {{ $v }}
+          {{- end}}
+    {{- end }}
+  {{- if $budget.paused }}
+  paused: {{ $budget.paused }}
+  {{- end }}
+{{- end }}
 {{- end }}

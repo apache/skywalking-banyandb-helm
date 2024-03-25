@@ -83,3 +83,19 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+EtcdEndpoints
+*/}}
+{{- define "banyandb.etcdEndpoints" -}}
+{{- $endpoints := list }}
+{{- $replicaCount := int .Values.etcd.replicaCount }}
+{{- $releaseName := .Release.Name }}
+{{- $namespace := .Release.Namespace }}
+{{- range $i := until $replicaCount }}
+    {{- $endpoint := printf "%s-etcd-%d.%s-etcd-headless.%s:2379" $releaseName $i $releaseName $namespace }}
+    {{- $endpoints = append $endpoints $endpoint }}
+{{- end }}
+- name: BYDB_ETCD_ENDPOINTS
+  value: "{{- $endpoints | join "," -}}"
+{{- end }}

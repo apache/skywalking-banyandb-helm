@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+{{- if and .Values.standalone.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -229,3 +230,281 @@ spec:
             {{- end }}
         {{- end }}
       {{- end }}
+{{- end }}
+
+{{- if and .Values.cluster.enabled .Values.cluster.data }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: {{ template "banyandb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.cluster.data.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "banyandb.fullname" . }}
+spec:
+  serviceName: banyandb
+  replicas: {{ .Values.cluster.data.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "banyandb.name" . }}
+      component: "{{ .Values.cluster.data.name }}"
+      release: {{ .Release.Name }}
+      role: {{ .Values.cluster.data.role }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "banyandb.name" . }}
+        component: "{{ .Values.cluster.data.name }}"
+        release: {{ .Release.Name }}
+        role: {{ .Values.cluster.data.role }}
+      {{- if .Values.cluster.data.podAnnotations }}
+      annotations:
+{{ toYaml .Values.cluster.data.podAnnotations | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
+      {{- with .Values.cluster.data.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.cluster.data.priorityClassName }}
+      containers:
+        - name: {{ .Values.cluster.data.name }}
+          image: {{ .Values.cluster.image.repository }}:{{ required "banyandb.image.tag is required" .Values.cluster.image.tag }}
+          imagePullPolicy: {{ .Values.cluster.image.pullPolicy }}
+          env:
+            {{- range $env := .Values.cluster.data.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+            {{- if .Values.cluster.data.tls.grpcSecretName }}
+            - name: BYDB_TLS
+              value: "true"
+            - name: BYDB_CERT_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}/tls.crt"
+            - name: BYDB_KEY_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}/tls.key"
+            - name: BYDB_HTTP_GRPC_CERT_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}/tls.crt"
+            {{- end }}
+            {{- if and .Values.etcd.auth.rbac.create (not .Values.etcd.auth.rbac.allowNoneAuthentication) }}
+            - name: BYDB_ETCD_USERNAME
+              value: "root"
+            - name: BYDB_ETCD_PASSWORD
+              value: {{ .Values.etcd.auth.rbac.rootPassword }}
+            {{- end }}
+            {{- if .Values.etcd.auth.client.secureTransport }}
+            - name: BYDB_ETCD_TLS_CA_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/ca.crt"
+            {{- end }}
+            {{- if .Values.etcd.auth.client.enableAuthentication }}
+            - name: BYDB_ETCD_TLS_CERT_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/tls.crt"
+            - name: BYDB_ETCD_TLS_KEY_FILE
+              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/tls.key"
+            {{- end }}
+            {{- if and (not .Values.etcd.enabled) .Values.cluster.etcdEndpoints }}
+            - name: BYDB_ETCD_ENDPOINTS
+              value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
+            {{- else }}
+            {{- include "banyandb.etcdEndpoints" . | nindent 12 }}
+            {{- end }}
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "ip"
+            - name: BYDB_NODE_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          args:
+            - data 
+          ports:
+            - containerPort: 17912
+              name: grpc
+            - containerPort: 17913
+              name: http
+            - containerPort: 6060
+              name: pprof
+            - containerPort: 2121
+              name: observebility
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health --grpc-addr=localhost:17912 --insecure"
+            initialDelaySeconds: 20
+            periodSeconds: 60
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health --grpc-addr=localhost:17912 --insecure"
+            initialDelaySeconds: 20
+            periodSeconds: 60
+          
+          {{- if.Values.cluster.data.resources }}
+          resources:
+            {{- if.Values.cluster.data.resources.requests }}
+            requests:
+              {{- range $request := .Values.cluster.data.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if.Values.cluster.data.resources.limits }}
+            limits:
+              {{- range $limit := .Values.cluster.data.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+
+          {{- if or .Values.storage.enabled .Values.cluster.data.tls }}
+          volumeMounts:
+            {{- if .Values.storage.enabled }}
+            {{- range $claim := .Values.storage.persistentVolumeClaims }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+
+            {{- if .Values.cluster.data.tls.grpcSecretName }}
+            - mountPath: /etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}
+              name: {{ .Values.cluster.data.tls.grpcSecretName }}-volume
+            {{- end }}
+            {{- if .Values.cluster.data.tls.etcdSecretName }}
+            - mountPath: /etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}
+              name: {{ .Values.cluster.data.tls.etcdSecretName }}-volume
+            {{- end }}
+          {{- end }}
+        {{- range $sidecar := .Values.cluster.data.sidecar }}
+        - name: {{ $sidecar.name }}
+          image: {{ $sidecar.image }}
+          imagePullPolicy: {{ $sidecar.imagePullPolicy }}
+          command:
+            {{- range $sidecar.commands.normal }}
+            - {{ . | quote }}
+            {{- end }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{- range $sidecar.commands.preStop }}
+                  - {{ . | quote }}
+                  {{- end }}
+          {{- if $.Values.storage.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}-volume
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
+      {{- if or .Values.storage.enabled .Values.cluster.data.tls }}
+      volumes:
+        {{- if .Values.storage.enabled }}
+        {{- range $claim := .Values.storage.persistentVolumeClaims }}
+        {{- if $claim.existingClaimName }}
+        - name: {{ $claim.existingClaimName }}-volume
+          persistentVolumeClaim:
+            claimName: {{ $claim.existingClaimName }}
+        {{ else }}
+        - name: {{ $claim.claimName }}-volume
+          persistentVolumeClaim:
+            claimName: {{ $claim.claimName }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+
+        {{- if .Values.cluster.data.tls.grpcSecretName }}
+        - name: {{ .Values.cluster.data.tls.grpcSecretName }}-volume
+          secret:
+            secretName: {{ .Values.cluster.data.tls.grpcSecretName }}
+        {{- end }}
+        {{- if .Values.cluster.data.tls.etcdSecretName }}
+        - name: {{ .Values.cluster.data.tls.etcdSecretName }}-volume
+          secret:
+            secretName: {{ .Values.cluster.data.tls.etcdSecretName }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.data.tolerations }}
+      tolerations:
+        {{- range $toleration := .Values.cluster.data.tolerations }}
+        - key: {{ $toleration.key }}
+          operator: {{ $toleration.operator }}
+          value: {{ $toleration.value }}
+          effect: {{ $toleration.effect }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.data.nodeSelector }}
+      nodeSelector:
+        {{- range $selector := .Values.cluster.data.nodeSelector }}
+        {{ $selector.key }}: {{ $selector.value }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.data.affinity }}
+      {{- $affinity := .Values.cluster.data.affinity }}
+      affinity:
+        {{- if $affinity.nodeAffinity }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            {{- range $requirement := $affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms }}
+              {{- range $matchExpression := $requirement.matchExpressions }}
+                - matchExpressions:
+                    - key: {{ $matchExpression.key }}
+                      operator: {{ $matchExpression.operator }}
+                      values:
+                        {{- range $v := $matchExpression.values }}
+                        - {{ $v }}
+                        {{- end }}
+              {{- end }}
+            {{- end }}
+        {{- end }}
+
+        {{- if $affinity.podAffinity }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- range $term := $affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution }}
+            - topologyKey: {{ $term.topologyKey }}
+              namespaces:
+                {{- range $ns := $term.namespaces }}
+                - {{ $ns }}
+                {{- end }}
+              labelSelector:
+                matchLabels:
+                  {{- range $label := $term.labelSelector.matchLabels }}
+                  {{ $label.key }}: {{ $label.value }}
+                  {{- end }}
+            {{- end }}
+        {{- end }}
+      {{- end }}
+{{- end }}
