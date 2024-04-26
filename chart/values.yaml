@@ -134,7 +134,7 @@ cluster:
     role: liaison
     replicas: 2
     podAnnotations: 
-      example: banyandb-foo
+      # example: banyandb-foo
     securityContext: {}
       # runAsUser: 1000
       # runAsGroup: 1000
@@ -191,10 +191,10 @@ cluster:
         #   value: "500m"
         # - key: memory
         #   value: "512Mi"
-    tls:
-      grpcSecretName: ""
-      httpSecretName: ""
-      etcdSecretName: ""
+    # tls:
+      # grpcSecretName: ""
+      # httpSecretName: ""
+      # etcdSecretName: ""
 
     grpcSvc:
       labels: {}
@@ -230,7 +230,7 @@ cluster:
     role: data
     replicas: 3
     podAnnotations: 
-      example: banyandb-foo
+      # example: banyandb-foo
     securityContext: {}
       # runAsUser: 1000
       # runAsGroup: 1000
@@ -287,9 +287,9 @@ cluster:
         #   value: "500m"
         # - key: memory
         #   value: "512Mi"
-    tls:
-      grpcSecretName: ""
-      etcdSecretName: ""
+    # tls:
+    #   grpcSecretName: ""
+    #   etcdSecretName: ""
 
     grpcSvc:
       labels: {}
@@ -310,7 +310,7 @@ storage:
     - mountTargets: ["measure", "stream"]
       existingClaimName: null
       claimName: data
-      size: 200Gi
+      size: 50Gi
       accessModes:
         - ReadWriteOnce
       storageClass: null
@@ -318,7 +318,7 @@ storage:
     - mountTargets: ["metadata"]
       existingClaimName: null
       claimName: meta
-      size: 10Gi
+      size: 5Gi
       accessModes:
         - ReadWriteOnce
       storageClass: null

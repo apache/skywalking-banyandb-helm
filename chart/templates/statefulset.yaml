@@ -60,6 +60,7 @@ spec:
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
+            {{- if .Values.cluster.data.tls}}
             {{- if .Values.standalone.tls.grpcSecretName }}
             - name: BYDB_TLS
               value: "true"
@@ -78,6 +79,7 @@ spec:
             - name: BYDB_HTTP_KEY_FILE
               value: "/etc/tls/{{ .Values.standalone.tls.httpSecretName }}/tls.key"
             {{- end }}
+            {{- end }}
           args:
             - standalone
           ports:
@@ -90,17 +92,21 @@ spec:
             - containerPort: 2121
               name: observebility
           readinessProbe:
-            httpGet:
-              path: /api/healthz
-              port: 17913
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
+            initialDelaySeconds: 20
+            periodSeconds: 60
           livenessProbe:
-            httpGet:
-              path: /api/healthz
-              port: 17913
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            exec:
+              command:
+                - sh
+                - -c
+                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
+            initialDelaySeconds: 20
+            periodSeconds: 60
           
           {{- if.Values.standalone.resources }}
           resources:
@@ -125,13 +131,13 @@ spec:
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
             - mountPath: /tmp/{{ . }}
-              name: {{ $claim.existingClaimName }}-volume
+              name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
             - mountPath: /tmp/{{ . }}
-              name: {{ $claim.claimName }}-volume
+              name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
             {{- end }}
@@ -148,22 +154,8 @@ spec:
             {{- end }}
           {{- end }}
 
-      {{- if or .Values.storage.enabled .Values.standalone.tls }}
+      {{- if .Values.standalone.tls }}
       volumes:
-        {{- if .Values.storage.enabled }}
-        {{- range $claim := .Values.storage.persistentVolumeClaims }}
-        {{- if $claim.existingClaimName }}
-        - name: {{ $claim.existingClaimName }}-volume
-          persistentVolumeClaim:
-            claimName: {{ $claim.existingClaimName }}
-        {{ else }}
-        - name: {{ $claim.claimName }}-volume
-          persistentVolumeClaim:
-            claimName: {{ $claim.claimName }}
-        {{- end }}
-        {{- end }}
-        {{- end }}
-
         {{- if .Values.standalone.tls.grpcSecretName }}
         - name: {{ .Values.standalone.tls.grpcSecretName }}-volume
           secret:
@@ -230,6 +222,34 @@ spec:
             {{- end }}
         {{- end }}
       {{- end }}
+  {{- if .Values.storage.enabled }}
+  volumeClaimTemplates:
+    {{- range $claim := .Values.storage.persistentVolumeClaims }}
+    - metadata:
+        name: {{ $claim.claimName }}
+      spec:
+        {{- if $claim.accessModes }}
+        accessModes:
+          {{- range $claim.accessModes }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+
+        {{- if $claim.size }}
+        resources:
+          requests:
+            storage: {{ $claim.size }}
+        {{- end }}
+
+        {{- if $claim.storageClass }}
+        storageClassName: {{ $claim.storageClass }}
+        {{- end }}
+
+        {{- if $claim.volumeMode }}
+        volumeMode: {{ $claim.volumeMode }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{- if and .Values.cluster.enabled .Values.cluster.data }}
@@ -279,6 +299,7 @@ spec:
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
+            {{- if .Values.cluster.data.tls}}
             {{- if .Values.cluster.data.tls.grpcSecretName }}
             - name: BYDB_TLS
               value: "true"
@@ -288,6 +309,7 @@ spec:
               value: "/etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}/tls.key"
             - name: BYDB_HTTP_GRPC_CERT_FILE
               value: "/etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}/tls.crt"
+            {{- end }}
             {{- end }}
             {{- if and .Values.etcd.auth.rbac.create (not .Values.etcd.auth.rbac.allowNoneAuthentication) }}
             - name: BYDB_ETCD_USERNAME
@@ -322,8 +344,6 @@ spec:
           ports:
             - containerPort: 17912
               name: grpc
-            - containerPort: 17913
-              name: http
             - containerPort: 6060
               name: pprof
             - containerPort: 2121
@@ -333,7 +353,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health --grpc-addr=localhost:17912 --insecure"
+                - "/bydbctl health --grpc-addr=localhost:17912 {{- if .Values.cluster.data.tls }} --enable-tls  --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           livenessProbe:
@@ -341,7 +361,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health --grpc-addr=localhost:17912 --insecure"
+                - "/bydbctl health --grpc-addr=localhost:17912 {{- if .Values.cluster.data.tls }} --enable-tls  --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           
@@ -368,19 +388,20 @@ spec:
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
             - mountPath: /tmp/{{ . }}
-              name: {{ $claim.existingClaimName }}-volume
+              name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
             - mountPath: /tmp/{{ . }}
-              name: {{ $claim.claimName }}-volume
+              name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
             {{- end }}
             {{- end }}
             {{- end }}
 
+            {{- if .Values.cluster.data.tls }}
             {{- if .Values.cluster.data.tls.grpcSecretName }}
             - mountPath: /etc/tls/{{ .Values.cluster.data.tls.grpcSecretName }}
               name: {{ .Values.cluster.data.tls.grpcSecretName }}-volume
@@ -388,6 +409,7 @@ spec:
             {{- if .Values.cluster.data.tls.etcdSecretName }}
             - mountPath: /etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}
               name: {{ .Values.cluster.data.tls.etcdSecretName }}-volume
+            {{- end }}
             {{- end }}
           {{- end }}
         {{- range $sidecar := .Values.cluster.data.sidecar }}
@@ -411,13 +433,13 @@ spec:
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
             - mountPath: /tmp/{{ . }}
-              name: {{ $claim.existingClaimName }}-volume
+              name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
             - mountPath: /tmp/{{ . }}
-              name: {{ $claim.claimName }}-volume
+              name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
             {{- end }}
@@ -425,22 +447,8 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if or .Values.storage.enabled .Values.cluster.data.tls }}
+      {{- if .Values.cluster.data.tls }}
       volumes:
-        {{- if .Values.storage.enabled }}
-        {{- range $claim := .Values.storage.persistentVolumeClaims }}
-        {{- if $claim.existingClaimName }}
-        - name: {{ $claim.existingClaimName }}-volume
-          persistentVolumeClaim:
-            claimName: {{ $claim.existingClaimName }}
-        {{ else }}
-        - name: {{ $claim.claimName }}-volume
-          persistentVolumeClaim:
-            claimName: {{ $claim.claimName }}
-        {{- end }}
-        {{- end }}
-        {{- end }}
-
         {{- if .Values.cluster.data.tls.grpcSecretName }}
         - name: {{ .Values.cluster.data.tls.grpcSecretName }}-volume
           secret:
@@ -507,4 +515,32 @@ spec:
             {{- end }}
         {{- end }}
       {{- end }}
+  {{- if .Values.storage.enabled }}
+  volumeClaimTemplates:
+    {{- range $claim := .Values.storage.persistentVolumeClaims }}
+    - metadata:
+        name: {{ $claim.claimName }}
+      spec:
+        {{- if $claim.accessModes }}
+        accessModes:
+          {{- range $claim.accessModes }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+
+        {{- if $claim.size }}
+        resources:
+          requests:
+            storage: {{ $claim.size }}
+        {{- end }}
+
+        {{- if $claim.storageClass }}
+        storageClassName: {{ $claim.storageClass }}
+        {{- end }}
+
+        {{- if $claim.volumeMode }}
+        volumeMode: {{ $claim.volumeMode }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}

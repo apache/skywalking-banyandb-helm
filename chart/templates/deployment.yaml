@@ -61,6 +61,7 @@ spec:
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
+            {{- if .Values.cluster.liaison.tls }}
             {{- if .Values.cluster.liaison.tls.grpcSecretName }}
             - name: BYDB_TLS
               value: "true"
@@ -78,6 +79,7 @@ spec:
               value: "/etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}/tls.crt"
             - name: BYDB_HTTP_KEY_FILE
               value: "/etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}/tls.key"
+            {{- end }}
             {{- end }}
             {{- if and .Values.etcd.auth.rbac.create (not .Values.etcd.auth.rbac.allowNoneAuthentication) }}
             - name: BYDB_ETCD_USERNAME
@@ -117,7 +119,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health"
+                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           livenessProbe:
@@ -125,7 +127,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health"
+                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           
@@ -145,26 +147,8 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or .Values.storage.enabled .Values.cluster.liaison.tls }}
+          {{- if .Values.cluster.liaison.tls }}
           volumeMounts:
-            {{- if .Values.storage.enabled }}
-            {{- range $claim := .Values.storage.persistentVolumeClaims }}
-            {{- if $claim.existingClaimName }}
-            {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
-              name: {{ $claim.existingClaimName }}-volume
-              subPath: {{ . }}
-            {{- end }}
-            {{- else }}
-            {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
-              name: {{ $claim.claimName }}-volume
-              subPath: {{ . }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-
             {{- if .Values.cluster.liaison.tls.grpcSecretName }}
             - mountPath: /etc/tls/{{ .Values.cluster.liaison.tls.grpcSecretName }}
               name: {{ .Values.cluster.liaison.tls.grpcSecretName }}-volume
@@ -179,22 +163,8 @@ spec:
             {{- end }}
           {{- end }}
 
-      {{- if or .Values.storage.enabled .Values.cluster.data.tls }}
+      {{- if .Values.cluster.liaison.tls }}
       volumes:
-        {{- if .Values.storage.enabled }}
-        {{- range $claim := .Values.storage.persistentVolumeClaims }}
-        {{- if $claim.existingClaimName }}
-        - name: {{ $claim.existingClaimName }}-volume
-          persistentVolumeClaim:
-            claimName: {{ $claim.existingClaimName }}
-        {{ else }}
-        - name: {{ $claim.claimName }}-volume
-          persistentVolumeClaim:
-            claimName: {{ $claim.claimName }}
-        {{- end }}
-        {{- end }}
-        {{- end }}
-
         {{- if .Values.cluster.liaison.tls.grpcSecretName }}
         - name: {{ .Values.cluster.liaison.tls.grpcSecretName }}-volume
           secret:
