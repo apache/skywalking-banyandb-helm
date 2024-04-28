@@ -86,10 +86,10 @@ cluster:
         #   value: "500m"
         # - key: memory
         #   value: "512Mi"
-    tls:
-      grpcSecretName: ""
-      httpSecretName: ""
-      etcdSecretName: ""
+    # tls:
+    #   grpcSecretName: ""
+    #   httpSecretName: ""
+    #   etcdSecretName: ""
 
     grpcSvc:
       labels: {}
@@ -182,9 +182,9 @@ cluster:
         #   value: "500m"
         # - key: memory
         #   value: "512Mi"
-    tls:
-      grpcSecretName: ""
-      etcdSecretName: ""
+    # tls:
+    #   grpcSecretName: ""
+    #   etcdSecretName: ""
 
     grpcSvc:
       labels: {}

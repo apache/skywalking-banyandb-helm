@@ -88,9 +88,9 @@ standalone:
       #   value: "500m"
       # - key: memory
       #   value: "512Mi"
-  tls:
-    grpcSecretName: ""
-    httpSecretName: ""
+  # tls:
+  #   grpcSecretName: ""
+  #   httpSecretName: ""
 
   grpcSvc:
     labels: {}
