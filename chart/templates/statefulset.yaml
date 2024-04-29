@@ -60,7 +60,7 @@ spec:
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
-            {{- if .Values.cluster.data.tls}}
+            {{- if .Values.standalone.tls}}
             {{- if .Values.standalone.tls.grpcSecretName }}
             - name: BYDB_TLS
               value: "true"
@@ -96,7 +96,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
+                - "/bydbctl health {{- if .Values.standalone.tls }} --enable-tls  --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           livenessProbe:
@@ -104,7 +104,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
+                - "/bydbctl health {{- if .Values.standalone.tls }} --enable-tls  --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           
