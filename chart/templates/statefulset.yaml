@@ -60,7 +60,7 @@ spec:
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
-            {{- if .Values.standalone.data.tls}}
+            {{- if .Values.standalone.tls}}
             {{- if .Values.standalone.tls.grpcSecretName }}
             - name: BYDB_TLS
               value: "true"
