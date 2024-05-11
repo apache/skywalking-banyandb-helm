@@ -119,7 +119,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
+                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls {{- else }} --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           livenessProbe:
@@ -127,7 +127,7 @@ spec:
               command:
                 - sh
                 - -c
-                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls  --insecure{{- end}}"
+                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls {{- else }} --insecure{{- end}}"
             initialDelaySeconds: 20
             periodSeconds: 60
           
