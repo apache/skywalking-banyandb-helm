@@ -20,8 +20,8 @@
 cluster:
   enabled: true
   image:
-    repository: ghcr.io/apache/skywalking-banyandb
-    tag: dc88130e8d0516c7989734bdeb505e2d92c1ab71
+    repository: apache/skywalking-banyandb
+    tag: 0.6.0
     pullPolicy: IfNotPresent
   etcdEndpoints: []
   liaison:

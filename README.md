@@ -69,8 +69,8 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.enabled | bool | `true` |  |
 | cluster.etcdEndpoints | list | `[]` |  |
 | cluster.image.pullPolicy | string | `"IfNotPresent"` |  |
-| cluster.image.repository | string | `"ghcr.io/apache/skywalking-banyandb"` |  |
-| cluster.image.tag | string | `"dc88130e8d0516c7989734bdeb505e2d92c1ab71"` |  |
+| cluster.image.repository | string | `"apache/skywalking-banyandb"` |  |
+| cluster.image.tag | string | `"0.6.0"` |  |
 | cluster.liaison.affinity | object | `{}` |  |
 | cluster.liaison.env | list | `[]` |  |
 | cluster.liaison.grpcSvc.annotations | object | `{}` |  |
@@ -131,8 +131,8 @@ The command removes all the banyandb components associated with the chart and de
 | standalone.httpSvc.port | int | `17913` |  |
 | standalone.httpSvc.type | string | `"LoadBalancer"` |  |
 | standalone.image.pullPolicy | string | `"IfNotPresent"` |  |
-| standalone.image.repository | string | `"ghcr.io/apache/skywalking-banyandb"` |  |
-| standalone.image.tag | string | `"dc88130e8d0516c7989734bdeb505e2d92c1ab71"` |  |
+| standalone.image.repository | string | `"apache/skywalking-banyandb"` |  |
+| standalone.image.tag | string | `"0.6.0"` |  |
 | standalone.ingress.annotations | object | `{}` |  |
 | standalone.ingress.enabled | bool | `false` |  |
 | standalone.ingress.labels | object | `{}` |  |
