@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-{{- if and .Values.standalone.enabled }}
+{{- if .Values.standalone.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -53,8 +53,8 @@ spec:
       priorityClassName: {{ .Values.standalone.priorityClassName }}
       containers:
         - name: {{ .Values.standalone.name }}
-          image: {{ .Values.standalone.image.repository }}:{{ required "banyandb.image.tag is required" .Values.standalone.image.tag }}
-          imagePullPolicy: {{ .Values.standalone.image.pullPolicy }}
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- range $env := .Values.standalone.env }}
             - name: {{ $env.name }}
@@ -292,8 +292,8 @@ spec:
       priorityClassName: {{ .Values.cluster.data.priorityClassName }}
       containers:
         - name: {{ .Values.cluster.data.name }}
-          image: {{ .Values.cluster.image.repository }}:{{ required "banyandb.image.tag is required" .Values.cluster.image.tag }}
-          imagePullPolicy: {{ .Values.cluster.image.pullPolicy }}
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- range $env := .Values.cluster.data.env }}
             - name: {{ $env.name }}

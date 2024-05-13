@@ -54,8 +54,8 @@ spec:
       priorityClassName: {{ .Values.cluster.liaison.priorityClassName }}
       containers:
         - name: {{ .Values.cluster.liaison.name }}
-          image: {{ .Values.cluster.image.repository }}:{{ required "banyandb.image.tag is required" .Values.cluster.image.tag }}
-          imagePullPolicy: {{ .Values.cluster.image.pullPolicy }}
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- range $env := .Values.cluster.liaison.env }}
             - name: {{ $env.name }}
