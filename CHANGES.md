@@ -14,6 +14,11 @@ Release Notes.
 
 - Update relevant documents
 
+#### Chores
+
+- Bump banyandb image version to 0.6.0
+- Bump several dependencies in e2e test
+
 0.1.0
 ------------------
 
