@@ -54,7 +54,7 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.data.grpcSvc.port | int | `17912` |  |
 | cluster.data.name | string | `"banyandb"` |  |
 | cluster.data.nodeSelector | list | `[]` |  |
-| cluster.data.podAnnotations.example | string | `"banyandb-foo"` |  |
+| cluster.data.podAnnotations | string | `nil` |  |
 | cluster.data.podDisruptionBudget | object | `{}` |  |
 | cluster.data.priorityClassName | string | `""` |  |
 | cluster.data.replicas | int | `3` |  |
@@ -63,14 +63,9 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.data.role | string | `"data"` |  |
 | cluster.data.securityContext | object | `{}` |  |
 | cluster.data.sidecar | list | `[]` |  |
-| cluster.data.tls.etcdSecretName | string | `""` |  |
-| cluster.data.tls.grpcSecretName | string | `""` |  |
 | cluster.data.tolerations | list | `[]` |  |
 | cluster.enabled | bool | `true` |  |
 | cluster.etcdEndpoints | list | `[]` |  |
-| cluster.image.pullPolicy | string | `"IfNotPresent"` |  |
-| cluster.image.repository | string | `"docker.io/apache/skywalking-banyandb"` |  |
-| cluster.image.tag | string | `"0.6.0"` |  |
 | cluster.liaison.affinity | object | `{}` |  |
 | cluster.liaison.env | list | `[]` |  |
 | cluster.liaison.grpcSvc.annotations | object | `{}` |  |
@@ -90,7 +85,7 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.liaison.ingress.tls | list | `[]` |  |
 | cluster.liaison.name | string | `"banyandb"` |  |
 | cluster.liaison.nodeSelector | list | `[]` |  |
-| cluster.liaison.podAnnotations.example | string | `"banyandb-foo"` |  |
+| cluster.liaison.podAnnotations | string | `nil` |  |
 | cluster.liaison.podDisruptionBudget | object | `{}` |  |
 | cluster.liaison.priorityClassName | string | `""` |  |
 | cluster.liaison.replicas | int | `2` |  |
@@ -98,9 +93,6 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.liaison.resources.requests | list | `[]` |  |
 | cluster.liaison.role | string | `"liaison"` |  |
 | cluster.liaison.securityContext | object | `{}` |  |
-| cluster.liaison.tls.etcdSecretName | string | `""` |  |
-| cluster.liaison.tls.grpcSecretName | string | `""` |  |
-| cluster.liaison.tls.httpSecretName | string | `""` |  |
 | cluster.liaison.tolerations | list | `[]` |  |
 | etcd.auth.client.caFilename | string | `""` |  |
 | etcd.auth.client.certFilename | string | `"tls.crt"` |  |
@@ -114,6 +106,9 @@ The command removes all the banyandb components associated with the chart and de
 | etcd.enabled | bool | `true` |  |
 | etcd.replicaCount | int | `1` |  |
 | fullnameOverride | string | `"banyandb"` |  |
+| image.pullPolicy | string | `"IfNotPresent"` |  |
+| image.repository | string | `"docker.io/apache/skywalking-banyandb"` |  |
+| image.tag | string | `"0.6.0"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
@@ -130,9 +125,6 @@ The command removes all the banyandb components associated with the chart and de
 | standalone.httpSvc.loadBalancerSourceRanges | list | `[]` |  |
 | standalone.httpSvc.port | int | `17913` |  |
 | standalone.httpSvc.type | string | `"LoadBalancer"` |  |
-| standalone.image.pullPolicy | string | `"IfNotPresent"` |  |
-| standalone.image.repository | string | `"docker.io/apache/skywalking-banyandb"` |  |
-| standalone.image.tag | string | `"0.6.0"` |  |
 | standalone.ingress.annotations | object | `{}` |  |
 | standalone.ingress.enabled | bool | `false` |  |
 | standalone.ingress.labels | object | `{}` |  |
@@ -156,14 +148,14 @@ The command removes all the banyandb components associated with the chart and de
 | storage.persistentVolumeClaims[0].existingClaimName | string | `nil` |  |
 | storage.persistentVolumeClaims[0].mountTargets[0] | string | `"measure"` |  |
 | storage.persistentVolumeClaims[0].mountTargets[1] | string | `"stream"` |  |
-| storage.persistentVolumeClaims[0].size | string | `"200Gi"` |  |
+| storage.persistentVolumeClaims[0].size | string | `"50Gi"` |  |
 | storage.persistentVolumeClaims[0].storageClass | string | `nil` |  |
 | storage.persistentVolumeClaims[0].volumeMode | string | `"Filesystem"` |  |
 | storage.persistentVolumeClaims[1].accessModes[0] | string | `"ReadWriteOnce"` |  |
 | storage.persistentVolumeClaims[1].claimName | string | `"meta"` |  |
 | storage.persistentVolumeClaims[1].existingClaimName | string | `nil` |  |
 | storage.persistentVolumeClaims[1].mountTargets[0] | string | `"metadata"` |  |
-| storage.persistentVolumeClaims[1].size | string | `"10Gi"` |  |
+| storage.persistentVolumeClaims[1].size | string | `"5Gi"` |  |
 | storage.persistentVolumeClaims[1].storageClass | string | `nil` |  |
 | storage.persistentVolumeClaims[1].volumeMode | string | `"Filesystem"` |  |
 

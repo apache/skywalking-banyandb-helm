@@ -23,6 +23,11 @@ cluster:
 etcd:
   enabled: false
 
+image:
+  repository: docker.io/apache/skywalking-banyandb
+  tag: 0.6.0
+  pullPolicy: IfNotPresent
+
 standalone:
   enabled: true
   name: banyandb
@@ -32,10 +37,6 @@ standalone:
     # runAsUser: 1000
     # runAsGroup: 1000
     # fsGroup: 1000
-  image:
-    repository: docker.io/apache/skywalking-banyandb
-    tag: 0.6.0
-    pullPolicy: IfNotPresent
   env: []
     # - name: BANYANDB_FOO
     #   value: "bar"
