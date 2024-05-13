@@ -52,6 +52,7 @@ release-src:
 	--exclude .gitignore \
 	--exclude .DS_Store \
 	--exclude .github \
+	--exclude build \
 	.
 	mv build/$(RELEASE_SRC).tgz . && rm -rf build
 
