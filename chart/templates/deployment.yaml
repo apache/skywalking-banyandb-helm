@@ -22,25 +22,23 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.cluster.liaison.name }}"
+    component: liaison
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-    role: {{ .Values.cluster.liaison.role }}
   name: {{ template "banyandb.fullname" . }}
 spec:
   replicas: {{ .Values.cluster.liaison.replicas }}
   selector:
     matchLabels:
       app: {{ template "banyandb.name" . }}
-      component: "{{ .Values.cluster.liaison.name }}"
+      component: liaison
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         app: {{ template "banyandb.name" . }}
-        component: "{{ .Values.cluster.liaison.name }}"
+        component: liaison
         release: {{ .Release.Name }}
-        role: {{ .Values.cluster.liaison.role }}
       {{- if .Values.cluster.liaison.podAnnotations }}
       annotations:
 {{ toYaml .Values.cluster.liaison.podAnnotations | indent 8 }}
@@ -53,7 +51,7 @@ spec:
       {{- end }}
       priorityClassName: {{ .Values.cluster.liaison.priorityClassName }}
       containers:
-        - name: {{ .Values.cluster.liaison.name }}
+        - name: liaison
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:

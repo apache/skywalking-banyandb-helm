@@ -52,7 +52,6 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.data.grpcSvc.annotations | object | `{}` |  |
 | cluster.data.grpcSvc.labels | object | `{}` |  |
 | cluster.data.grpcSvc.port | int | `17912` |  |
-| cluster.data.name | string | `"banyandb"` |  |
 | cluster.data.nodeSelector | list | `[]` |  |
 | cluster.data.podAnnotations | string | `nil` |  |
 | cluster.data.podDisruptionBudget | object | `{}` |  |
@@ -60,7 +59,6 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.data.replicas | int | `3` |  |
 | cluster.data.resources.limits | list | `[]` |  |
 | cluster.data.resources.requests | list | `[]` |  |
-| cluster.data.role | string | `"data"` |  |
 | cluster.data.securityContext | object | `{}` |  |
 | cluster.data.sidecar | list | `[]` |  |
 | cluster.data.tolerations | list | `[]` |  |
@@ -83,7 +81,6 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.liaison.ingress.labels | object | `{}` |  |
 | cluster.liaison.ingress.rules | list | `[]` |  |
 | cluster.liaison.ingress.tls | list | `[]` |  |
-| cluster.liaison.name | string | `"banyandb"` |  |
 | cluster.liaison.nodeSelector | list | `[]` |  |
 | cluster.liaison.podAnnotations | string | `nil` |  |
 | cluster.liaison.podDisruptionBudget | object | `{}` |  |
@@ -91,7 +88,6 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.liaison.replicas | int | `2` |  |
 | cluster.liaison.resources.limits | list | `[]` |  |
 | cluster.liaison.resources.requests | list | `[]` |  |
-| cluster.liaison.role | string | `"liaison"` |  |
 | cluster.liaison.securityContext | object | `{}` |  |
 | cluster.liaison.tolerations | list | `[]` |  |
 | etcd.auth.client.caFilename | string | `""` |  |
@@ -130,7 +126,6 @@ The command removes all the banyandb components associated with the chart and de
 | standalone.ingress.labels | object | `{}` |  |
 | standalone.ingress.rules | list | `[]` |  |
 | standalone.ingress.tls | list | `[]` |  |
-| standalone.name | string | `"banyandb"` |  |
 | standalone.nodeSelector | list | `[]` |  |
 | standalone.podAnnotations.example | string | `"banyandb-foo"` |  |
 | standalone.podDisruptionBudget | object | `{}` |  |
