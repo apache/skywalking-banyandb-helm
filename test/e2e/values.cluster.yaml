@@ -26,8 +26,6 @@ cluster:
   enabled: true
   etcdEndpoints: []
   liaison:
-    name: banyandb
-    role: liaison
     replicas: 1
     podAnnotations: 
       example: banyandb-foo
@@ -122,8 +120,6 @@ cluster:
         #   secretName: tls-secret
 
   data:
-    name: banyandb
-    role: data
     replicas: 1
     podAnnotations: 
       example: banyandb-foo

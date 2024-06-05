@@ -28,7 +28,7 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.standalone.name }}"
+    component: standalone
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
     {{- range $key, $value := .Values.standalone.ingress.labels }}

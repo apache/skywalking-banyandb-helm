@@ -24,7 +24,6 @@ image:
 
 standalone:
   enabled: false
-  name: banyandb
   podAnnotations: 
     example: banyandb-foo
   securityContext: {}
@@ -127,8 +126,6 @@ cluster:
   enabled: true
   etcdEndpoints: []
   liaison:
-    name: banyandb
-    role: liaison
     replicas: 2
     podAnnotations: 
       # example: banyandb-foo
@@ -224,7 +221,6 @@ cluster:
 
   data:
     name: banyandb
-    role: data
     replicas: 3
     podAnnotations: 
       # example: banyandb-foo

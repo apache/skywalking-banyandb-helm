@@ -27,7 +27,7 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.standalone.name }}"
+    component: standalone
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
@@ -70,7 +70,7 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.cluster.liaison.name }}"
+    component: liaison
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
@@ -111,7 +111,7 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.data.name }}"
+    component: data
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:

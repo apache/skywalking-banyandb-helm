@@ -22,7 +22,7 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.standalone.name }}"
+    component: standalone
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
   name: {{ template "banyandb.fullname" . }}
@@ -32,13 +32,13 @@ spec:
   selector:
     matchLabels:
       app: {{ template "banyandb.name" . }}
-      component: "{{ .Values.standalone.name }}"
+      component: standalone
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
         app: {{ template "banyandb.name" . }}
-        component: "{{ .Values.standalone.name }}"
+        component: standalone
         release: {{ .Release.Name }}
       {{- if .Values.standalone.podAnnotations }}
       annotations:
@@ -52,7 +52,7 @@ spec:
       {{- end }}
       priorityClassName: {{ .Values.standalone.priorityClassName }}
       containers:
-        - name: {{ .Values.standalone.name }}
+        - name: standalone
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
@@ -259,7 +259,7 @@ metadata:
   labels:
     app: {{ template "banyandb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.cluster.data.name }}"
+    component: data
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
   name: {{ template "banyandb.fullname" . }}
@@ -269,16 +269,14 @@ spec:
   selector:
     matchLabels:
       app: {{ template "banyandb.name" . }}
-      component: "{{ .Values.cluster.data.name }}"
+      component: data
       release: {{ .Release.Name }}
-      role: {{ .Values.cluster.data.role }}
   template:
     metadata:
       labels:
         app: {{ template "banyandb.name" . }}
-        component: "{{ .Values.cluster.data.name }}"
+        component: data
         release: {{ .Release.Name }}
-        role: {{ .Values.cluster.data.role }}
       {{- if .Values.cluster.data.podAnnotations }}
       annotations:
 {{ toYaml .Values.cluster.data.podAnnotations | indent 8 }}
@@ -291,7 +289,7 @@ spec:
       {{- end }}
       priorityClassName: {{ .Values.cluster.data.priorityClassName }}
       containers:
-        - name: {{ .Values.cluster.data.name }}
+        - name: data
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
