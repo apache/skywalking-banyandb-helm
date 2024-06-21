@@ -2,6 +2,15 @@ Changes by Version
 ==================
 Release Notes.
 
+
+0.3.0
+------------------
+
+#### Chores
+
+- Bump banyandb image version to 0.6.1
+
+
 0.2.0
 ------------------
 
