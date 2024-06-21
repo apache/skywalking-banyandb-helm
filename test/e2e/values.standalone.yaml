@@ -25,7 +25,7 @@ etcd:
 
 image:
   repository: docker.io/apache/skywalking-banyandb
-  tag: 0.6.0
+  tag: 0.6.1
   pullPolicy: IfNotPresent
 
 standalone:

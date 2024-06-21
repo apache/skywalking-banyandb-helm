@@ -104,7 +104,7 @@ The command removes all the banyandb components associated with the chart and de
 | fullnameOverride | string | `"banyandb"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"docker.io/apache/skywalking-banyandb"` |  |
-| image.tag | string | `"0.6.0"` |  |
+| image.tag | string | `"0.6.1"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
