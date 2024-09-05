@@ -6,6 +6,12 @@ Release Notes.
 0.3.0
 ------------------
 
+#### Features
+
+Support Anti-Affinity for banyandb cluster mode
+Align the modern Kubernetes label names
+Opt probe settings to http get /healthz instead of bydbctl health check
+
 #### Chores
 
 - Bump banyandb image version to 0.6.1

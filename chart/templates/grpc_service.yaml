@@ -20,12 +20,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "banyandb.fullname" . }}-grpc
-  labels:
-    app: {{ template "banyandb.name" . }}
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: standalone
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+    app.kubernetes.io/component: standalone
     {{- range $key, $value := .Values.standalone.grpcSvc.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
@@ -38,10 +35,8 @@ spec:
   ports:
     - port: {{ .Values.standalone.grpcSvc.port }}
       name: grpc
-  selector:
-    app: {{ template "banyandb.name" . }}
-    component: standalone
-    release: {{ .Release.Name }}
+  selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
 {{- end }}
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison.grpcSvc }}
@@ -49,12 +44,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "banyandb.fullname" . }}-grpc
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: liaison
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+  labels:  {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
     {{- range $key, $value := .Values.cluster.liaison.grpcSvc.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
@@ -67,8 +58,6 @@ spec:
   ports:
     - port: {{ .Values.cluster.liaison.grpcSvc.port }}
       name: grpc
-  selector:
-    app: {{ template "banyandb.name" . }}
-    component: liaison
-    release: {{ .Release.Name }}
+  selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
 {{- end }}

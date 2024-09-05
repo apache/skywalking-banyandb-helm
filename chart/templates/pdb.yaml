@@ -24,12 +24,8 @@ apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: {{ template "banyandb.fullname" . }}
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: standalone
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone    
 spec:
   {{- $budget := .Values.standalone.podDisruptionBudget }}
   {{- if $budget.maxUnavailable }}
@@ -39,19 +35,8 @@ spec:
   minAvailable: {{ $budget.minAvailable }}
   {{- end }}
   selector:
-    matchLabels:
-    {{- range $label := $budget.matchLabels }}
-      {{ $label.key }}: {{ $label.value }}
-    {{- end }}
-    matchExpressions:
-    {{- range $expression := $budget.matchExpressions }}
-      - key: {{ $expression.key }}
-        operator: {{ $expression.operator }}
-        values:
-          {{- range $v := $expression.values }}
-          - {{ $v }}
-          {{- end}}
-    {{- end }}
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: standalone
   {{- if $budget.paused }}
   paused: {{ $budget.paused }}
   {{- end }}
@@ -66,13 +51,9 @@ apiVersion: policy/v1beta1
 {{- end }}
 kind: PodDisruptionBudget
 metadata:
-  name: {{ template "banyandb.fullname" . }}
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: liaison
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+  name: {{ template "banyandb.fullname" . }}-liaison
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
 spec:
   {{- $budget := .Values.cluster.liaison.podDisruptionBudget }}
   {{- if $budget.maxUnavailable }}
@@ -82,23 +63,13 @@ spec:
   minAvailable: {{ $budget.minAvailable }}
   {{- end }}
   selector:
-    matchLabels:
-    {{- range $label := $budget.matchLabels }}
-      {{ $label.key }}: {{ $label.value }}
-    {{- end }}
-    matchExpressions:
-    {{- range $expression := $budget.matchExpressions }}
-      - key: {{ $expression.key }}
-        operator: {{ $expression.operator }}
-        values:
-          {{- range $v := $expression.values }}
-          - {{ $v }}
-          {{- end}}
-    {{- end }}
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: liaison
   {{- if $budget.paused }}
   paused: {{ $budget.paused }}
   {{- end }}
 {{- end }}
+---
 {{- if .Values.cluster.data.podDisruptionBudget }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1
@@ -107,15 +78,11 @@ apiVersion: policy/v1beta1
 {{- end }}
 kind: PodDisruptionBudget
 metadata:
-  name: {{ template "banyandb.fullname" . }}
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: data
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+  name: {{ template "banyandb.fullname" . }}-data
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: data
 spec:
-  {{- $budget := .Values.data.podDisruptionBudget }}
+  {{- $budget := .Values.cluster.data.podDisruptionBudget }}
   {{- if $budget.maxUnavailable }}
   maxUnavailable: {{ $budget.maxUnavailable }}
   {{- end }}
@@ -123,19 +90,8 @@ spec:
   minAvailable: {{ $budget.minAvailable }}
   {{- end }}
   selector:
-    matchLabels:
-    {{- range $label := $budget.matchLabels }}
-      {{ $label.key }}: {{ $label.value }}
-    {{- end }}
-    matchExpressions:
-    {{- range $expression := $budget.matchExpressions }}
-      - key: {{ $expression.key }}
-        operator: {{ $expression.operator }}
-        values:
-          {{- range $v := $expression.values }}
-          - {{ $v }}
-          {{- end}}
-    {{- end }}
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: data
   {{- if $budget.paused }}
   paused: {{ $budget.paused }}
   {{- end }}

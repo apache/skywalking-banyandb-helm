@@ -47,112 +47,149 @@ The command removes all the banyandb components associated with the chart and de
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cluster.data.affinity | object | `{}` |  |
-| cluster.data.env | list | `[]` |  |
-| cluster.data.grpcSvc.annotations | object | `{}` |  |
-| cluster.data.grpcSvc.labels | object | `{}` |  |
-| cluster.data.grpcSvc.port | int | `17912` |  |
-| cluster.data.nodeSelector | list | `[]` |  |
-| cluster.data.podAnnotations | string | `nil` |  |
-| cluster.data.podDisruptionBudget | object | `{}` |  |
-| cluster.data.priorityClassName | string | `""` |  |
-| cluster.data.replicas | int | `3` |  |
-| cluster.data.resources.limits | list | `[]` |  |
-| cluster.data.resources.requests | list | `[]` |  |
-| cluster.data.securityContext | object | `{}` |  |
-| cluster.data.sidecar | list | `[]` |  |
-| cluster.data.tolerations | list | `[]` |  |
-| cluster.enabled | bool | `true` |  |
-| cluster.etcdEndpoints | list | `[]` |  |
-| cluster.liaison.affinity | object | `{}` |  |
-| cluster.liaison.env | list | `[]` |  |
-| cluster.liaison.grpcSvc.annotations | object | `{}` |  |
-| cluster.liaison.grpcSvc.labels | object | `{}` |  |
-| cluster.liaison.grpcSvc.port | int | `17912` |  |
-| cluster.liaison.httpSvc.annotations | object | `{}` |  |
-| cluster.liaison.httpSvc.externalIPs | list | `[]` |  |
-| cluster.liaison.httpSvc.labels | object | `{}` |  |
-| cluster.liaison.httpSvc.loadBalancerIP | string | `nil` |  |
-| cluster.liaison.httpSvc.loadBalancerSourceRanges | list | `[]` |  |
-| cluster.liaison.httpSvc.port | int | `17913` |  |
-| cluster.liaison.httpSvc.type | string | `"LoadBalancer"` |  |
-| cluster.liaison.ingress.annotations | object | `{}` |  |
-| cluster.liaison.ingress.enabled | bool | `false` |  |
-| cluster.liaison.ingress.labels | object | `{}` |  |
-| cluster.liaison.ingress.rules | list | `[]` |  |
-| cluster.liaison.ingress.tls | list | `[]` |  |
-| cluster.liaison.nodeSelector | list | `[]` |  |
-| cluster.liaison.podAnnotations | string | `nil` |  |
-| cluster.liaison.podDisruptionBudget | object | `{}` |  |
-| cluster.liaison.priorityClassName | string | `""` |  |
-| cluster.liaison.replicas | int | `2` |  |
-| cluster.liaison.resources.limits | list | `[]` |  |
-| cluster.liaison.resources.requests | list | `[]` |  |
-| cluster.liaison.securityContext | object | `{}` |  |
-| cluster.liaison.tolerations | list | `[]` |  |
-| etcd.auth.client.caFilename | string | `""` |  |
-| etcd.auth.client.certFilename | string | `"tls.crt"` |  |
-| etcd.auth.client.certKeyFilename | string | `"tls.key"` |  |
-| etcd.auth.client.enableAuthentication | bool | `false` |  |
-| etcd.auth.client.existingSecret | string | `""` |  |
-| etcd.auth.client.secureTransport | bool | `false` |  |
-| etcd.auth.rbac.allowNoneAuthentication | bool | `false` |  |
-| etcd.auth.rbac.create | bool | `true` |  |
-| etcd.auth.rbac.rootPassword | string | `"banyandb"` |  |
-| etcd.enabled | bool | `true` |  |
-| etcd.replicaCount | int | `1` |  |
-| fullnameOverride | string | `"banyandb"` |  |
-| image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"docker.io/apache/skywalking-banyandb"` |  |
-| image.tag | string | `"0.6.1"` |  |
-| serviceAccount.annotations | object | `{}` |  |
-| serviceAccount.create | bool | `true` |  |
-| serviceAccount.name | string | `""` |  |
-| standalone.affinity | object | `{}` |  |
-| standalone.enabled | bool | `false` |  |
-| standalone.env | list | `[]` |  |
-| standalone.grpcSvc.annotations | object | `{}` |  |
-| standalone.grpcSvc.labels | object | `{}` |  |
-| standalone.grpcSvc.port | int | `17912` |  |
-| standalone.httpSvc.annotations | object | `{}` |  |
-| standalone.httpSvc.externalIPs | list | `[]` |  |
-| standalone.httpSvc.labels | object | `{}` |  |
-| standalone.httpSvc.loadBalancerIP | string | `nil` |  |
-| standalone.httpSvc.loadBalancerSourceRanges | list | `[]` |  |
-| standalone.httpSvc.port | int | `17913` |  |
-| standalone.httpSvc.type | string | `"LoadBalancer"` |  |
-| standalone.ingress.annotations | object | `{}` |  |
-| standalone.ingress.enabled | bool | `false` |  |
-| standalone.ingress.labels | object | `{}` |  |
-| standalone.ingress.rules | list | `[]` |  |
-| standalone.ingress.tls | list | `[]` |  |
-| standalone.nodeSelector | list | `[]` |  |
-| standalone.podAnnotations.example | string | `"banyandb-foo"` |  |
-| standalone.podDisruptionBudget | object | `{}` |  |
-| standalone.priorityClassName | string | `""` |  |
-| standalone.resources.limits | list | `[]` |  |
-| standalone.resources.requests | list | `[]` |  |
-| standalone.securityContext | object | `{}` |  |
-| standalone.sidecar | list | `[]` |  |
-| standalone.tls.grpcSecretName | string | `""` |  |
-| standalone.tls.httpSecretName | string | `""` |  |
-| standalone.tolerations | list | `[]` |  |
-| storage.enabled | bool | `false` |  |
-| storage.persistentVolumeClaims[0].accessModes[0] | string | `"ReadWriteOnce"` |  |
-| storage.persistentVolumeClaims[0].claimName | string | `"data"` |  |
-| storage.persistentVolumeClaims[0].existingClaimName | string | `nil` |  |
-| storage.persistentVolumeClaims[0].mountTargets[0] | string | `"measure"` |  |
-| storage.persistentVolumeClaims[0].mountTargets[1] | string | `"stream"` |  |
-| storage.persistentVolumeClaims[0].size | string | `"50Gi"` |  |
-| storage.persistentVolumeClaims[0].storageClass | string | `nil` |  |
-| storage.persistentVolumeClaims[0].volumeMode | string | `"Filesystem"` |  |
-| storage.persistentVolumeClaims[1].accessModes[0] | string | `"ReadWriteOnce"` |  |
-| storage.persistentVolumeClaims[1].claimName | string | `"meta"` |  |
-| storage.persistentVolumeClaims[1].existingClaimName | string | `nil` |  |
-| storage.persistentVolumeClaims[1].mountTargets[0] | string | `"metadata"` |  |
-| storage.persistentVolumeClaims[1].size | string | `"5Gi"` |  |
-| storage.persistentVolumeClaims[1].storageClass | string | `nil` |  |
-| storage.persistentVolumeClaims[1].volumeMode | string | `"Filesystem"` |  |
+| cluster.data.affinity | object | `{}` | Affinity settings for pod assignment |
+| cluster.data.podAffinityPreset | string | `""` | podAffinityPreset Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`  |
+| cluster.data.podAntiAffinityPreset | string | `""` | podAntiAffinityPreset Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`  |
+| cluster.data.env | list | `[]` | Environment variables for the data pods |
+| cluster.data.grpcSvc.annotations | object | `{}` | Annotations for the gRPC service |
+| cluster.data.grpcSvc.labels | object | `{}` | Labels for the gRPC service |
+| cluster.data.grpcSvc.port | int | `17912` | Port for the gRPC service |
+| cluster.data.livenessProbe.initialDelaySeconds | int | `20` | Initial delay before starting liveness probes |
+| cluster.data.livenessProbe.periodSeconds | int | `30` | Period between liveness probes |
+| cluster.data.livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probes |
+| cluster.data.livenessProbe.successThreshold | int | `1` | Success threshold for liveness probes |
+| cluster.data.livenessProbe.failureThreshold | int | `5` | Failure threshold for liveness probes |
+| cluster.data.nodeSelector | list | `[]` | Node selector for data pods |
+| cluster.data.podAnnotations | string | `nil` | Annotations for the data pods |
+| cluster.data.podDisruptionBudget | object | `{}` | Pod disruption budget for data pods |
+| cluster.data.priorityClassName | string | `""` | Priority class name for data pods |
+| cluster.data.readinessProbe.initialDelaySeconds | int | `20` | Initial delay before starting readiness probes |
+| cluster.data.readinessProbe.periodSeconds | int | `10` | Period between readiness probes |
+| cluster.data.readinessProbe.timeoutSeconds | int | `5` | Timeout for readiness probes |
+| cluster.data.readinessProbe.successThreshold | int | `1` | Success threshold for readiness probes |
+| cluster.data.readinessProbe.failureThreshold | int | `5` | Failure threshold for readiness probes |
+| cluster.data.replicas | int | `3` | Number of replicas for data pods |
+| cluster.data.resources.limits | list | `[]` | Resource limits for data pods |
+| cluster.data.resources.requests | list | `[]` | Resource requests for data pods |
+| cluster.data.securityContext | object | `{}` | Security context for data pods |
+| cluster.data.sidecar | list | `[]` | Sidecar containers for data pods |
+| cluster.data.tolerations | list | `[]` | Tolerations for data pods |
+| cluster.enabled | bool | `true` | Enable or disable the cluster |
+| cluster.etcdEndpoints | list | `[]` | Endpoints for the etcd cluster |
+| cluster.liaison.affinity | object | `{}` | Affinity settings for liaison pods |
+| cluster.liaison.podAffinityPreset | string | `""` | podAffinityPreset Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`  |
+| cluster.liaison.podAntiAffinityPreset | string | `""` | podAntiAffinityPreset Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`  |
+| cluster.liaison.env | list | `[]` | Environment variables for the liaison pods |
+| cluster.liaison.grpcSvc.annotations | object | `{}` | Annotations for the gRPC service |
+| cluster.liaison.grpcSvc.labels | object | `{}` | Labels for the gRPC service |
+| cluster.liaison.grpcSvc.port | int | `17912` | Port for the gRPC service |
+| cluster.liaison.httpSvc.annotations | object | `{}` | Annotations for the HTTP service |
+| cluster.liaison.httpSvc.externalIPs | list | `[]` | External IPs for the HTTP service |
+| cluster.liaison.httpSvc.labels | object | `{}` | Labels for the HTTP service |
+| cluster.liaison.httpSvc.loadBalancerIP | string | `nil` | Load balancer IP for the HTTP service |
+| cluster.liaison.httpSvc.loadBalancerSourceRanges | list | `[]` | Load balancer source ranges for the HTTP service |
+| cluster.liaison.httpSvc.port | int | `17913` | Port for the HTTP service |
+| cluster.liaison.httpSvc.type | string | `"LoadBalancer"` | Type of the HTTP service |
+| cluster.liaison.ingress.annotations | object | `{}` | Annotations for the ingress |
+| cluster.liaison.ingress.enabled | bool | `false` | Enable or disable the ingress |
+| cluster.liaison.ingress.labels | object | `{}` | Labels for the ingress |
+| cluster.liaison.ingress.rules | list | `[]` | Rules for the ingress |
+| cluster.liaison.ingress.tls | list | `[]` | TLS settings for the ingress |
+| cluster.liaison.livenessProbe.initialDelaySeconds | int | `20` | Initial delay before starting liveness probes |
+| cluster.liaison.livenessProbe.periodSeconds | int | `30` | Period between liveness probes |
+| cluster.liaison.livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probes |
+| cluster.liaison.livenessProbe.successThreshold | int | `1` | Success threshold for liveness probes |
+| cluster.liaison.livenessProbe.failureThreshold | int | `5` | Failure threshold for liveness probes |
+| cluster.liaison.nodeSelector | list | `[]` | Node selector for liaison pods |
+| cluster.liaison.podAnnotations | string | `nil` | Annotations for the liaison pods |
+| cluster.liaison.podDisruptionBudget | object | `{}` | Pod disruption budget for liaison pods |
+| cluster.liaison.priorityClassName | string | `""` | Priority class name for liaison pods |
+| cluster.liaison.readinessProbe.initialDelaySeconds | int | `20` | Initial delay before starting readiness probes |
+| cluster.liaison.readinessProbe.periodSeconds | int | `10` | Period between readiness probes |
+| cluster.liaison.readinessProbe.timeoutSeconds | int | `5` | Timeout for readiness probes |
+| cluster.liaison.readinessProbe.successThreshold | int | `1` | Success threshold for readiness probes |
+| cluster.liaison.readinessProbe.failureThreshold | int | `5` | Failure threshold for readiness probes |
+| cluster.liaison.replicas | int | `2` | Number of replicas for liaison pods |
+| cluster.liaison.resources.limits | list | `[]` | Resource limits for liaison pods |
+| cluster.liaison.resources.requests | list | `[]` | Resource requests for liaison pods |
+| cluster.liaison.securityContext | object | `{}` | Security context for liaison pods |
+| cluster.liaison.tolerations | list | `[]` | Tolerations for liaison pods |
+| etcd.auth.client.caFilename | string | `""` | CA filename for etcd client authentication |
+| etcd.auth.client.certFilename | string | `"tls.crt"` | Certificate filename for etcd client authentication |
+| etcd.auth.client.certKeyFilename | string | `"tls.key"` | Certificate key filename for etcd client authentication |
+| etcd.auth.client.enableAuthentication | bool | `false` | Enable or disable etcd client authentication |
+| etcd.auth.client.existingSecret | string | `""` | Existing secret for etcd client authentication |
+| etcd.auth.client.secureTransport | bool | `false` | Enable or disable secure transport for etcd client |
+| etcd.auth.rbac.allowNoneAuthentication | bool | `false` | Allow none authentication for etcd RBAC |
+| etcd.auth.rbac.create | bool | `true` | Create etcd RBAC resources |
+| etcd.auth.rbac.rootPassword | string | `"banyandb"` | Root password for etcd RBAC |
+| etcd.enabled | bool | `true` | Enable or disable etcd |
+| etcd.livenessProbe.initialDelaySeconds | int | `10` | Initial delay before starting liveness probes |
+| etcd.readinessProbe.initialDelaySeconds | int | `10` | Initial delay before starting readiness probes |
+| etcd.replicaCount | int | `1` | Number of replicas for etcd |
+| fullnameOverride | string | `""` | Full name override for the chart |
+| nameOverride | string | `"banyandb"` | Name override for the chart |
+| image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
+| image.repository | string | `"docker.io/apache/skywalking-banyandb"` | Image repository |
+| image.tag | string | `"0.6.1"` | Image tag |
+| serviceAccount.annotations | object | `{}` | Annotations for the service account |
+| serviceAccount.create | bool | `true` | Create a service account |
+| serviceAccount.name | string | `""` | Name of the service account |
+| standalone.affinity | object | `{}` | Affinity settings for standalone pods |
+| standalone.enabled | bool | `false` | Enable or disable standalone mode |
+| standalone.env | list | `[]` | Environment variables for standalone pods |
+| standalone.grpcSvc.annotations | object | `{}` | Annotations for the gRPC service |
+| standalone.grpcSvc.labels | object | `{}` | Labels for the gRPC service |
+| standalone.grpcSvc.port | int | `17912` | Port for the gRPC service |
+| standalone.httpSvc.annotations | object | `{}` | Annotations for the HTTP service |
+| standalone.httpSvc.externalIPs | list | `[]` | External IPs for the HTTP service |
+| standalone.httpSvc.labels | object | `{}` | Labels for the HTTP service |
+| standalone.httpSvc.loadBalancerIP | string | `nil` | Load balancer IP for the HTTP service |
+| standalone.httpSvc.loadBalancerSourceRanges | list | `[]` | Load balancer source ranges for the HTTP service |
+| standalone.httpSvc.port | int | `17913` | Port for the HTTP service |
+| standalone.httpSvc.type | string | `"LoadBalancer"` | Type of the HTTP service |
+| standalone.ingress.annotations | object | `{}` | Annotations for the ingress |
+| standalone.ingress.enabled | bool | `false` | Enable or disable the ingress |
+| standalone.ingress.labels | object | `{}` | Labels for the ingress |
+| standalone.ingress.rules | list | `[]` | Rules for the ingress |
+| standalone.ingress.tls | list | `[]` | TLS settings for the ingress |
+| standalone.livenessProbe.initialDelaySeconds | int | `20` | Initial delay before starting liveness probes |
+| standalone.livenessProbe.periodSeconds | int | `30` | Period between liveness probes |
+| standalone.livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probes |
+| standalone.livenessProbe.successThreshold | int | `1` | Success threshold for liveness probes |
+| standalone.livenessProbe.failureThreshold | int | `5` | Failure threshold for liveness probes |
+| standalone.nodeSelector | list | `[]` | Node selector for standalone pods |
+| standalone.podAnnotations.example | string | `"banyandb-foo"` | Example annotation for standalone pods |
+| standalone.podDisruptionBudget | object | `{}` | Pod disruption budget for standalone pods |
+| standalone.priorityClassName | string | `""` | Priority class name for standalone pods |
+| standalone.readinessProbe.initialDelaySeconds | int | `20` | Initial delay before starting readiness probes |
+| standalone.readinessProbe.periodSeconds | int | `10` | Period between readiness probes |
+| standalone.readinessProbe.timeoutSeconds | int | `5` | Timeout for readiness probes |
+| standalone.readinessProbe.successThreshold | int | `1` | Success threshold for readiness probes |
+| standalone.readinessProbe.failureThreshold | int | `5` | Failure threshold for readiness probes |
+| standalone.resources.limits | list | `[]` | Resource limits for standalone pods |
+| standalone.resources.requests | list | `[]` | Resource requests for standalone pods |
+| standalone.securityContext | object | `{}` | Security context for standalone pods |
+| standalone.sidecar | list | `[]` | Sidecar containers for standalone pods |
+| standalone.tls.grpcSecretName | string | `""` | Secret name for gRPC TLS in standalone mode |
+| standalone.tls.httpSecretName | string | `""` | Secret name for HTTP TLS in standalone mode |
+| standalone.tolerations | list | `[]` | Tolerations for standalone pods |
+| storage.enabled | bool | `false` | Enable or disable storage |
+| storage.persistentVolumeClaims[0].accessModes[0] | string | `"ReadWriteOnce"` | Access modes for the first PVC |
+| storage.persistentVolumeClaims[0].claimName | string | `"data"` | Claim name for the first PVC |
+| storage.persistentVolumeClaims[0].existingClaimName | string | `nil` | Existing claim name for the first PVC |
+| storage.persistentVolumeClaims[0].mountTargets[0] | string | `"measure"` | First mount target for the first PVC |
+| storage.persistentVolumeClaims[0].mountTargets[1] | string | `"stream"` | Second mount target for the first PVC |
+| storage.persistentVolumeClaims[0].size | string | `"50Gi"` | Size of the first PVC |
+| storage.persistentVolumeClaims[0].storageClass | string | `nil` | Storage class for the first PVC |
+| storage.persistentVolumeClaims[0].volumeMode | string | `"Filesystem"` | Volume mode for the first PVC |
+| storage.persistentVolumeClaims[1].accessModes[0] | string | `"ReadWriteOnce"` | Access modes for the second PVC |
+| storage.persistentVolumeClaims[1].claimName | string | `"meta"` | Claim name for the second PVC |
+| storage.persistentVolumeClaims[1].existingClaimName | string | `nil` | Existing claim name for the second PVC |
+| storage.persistentVolumeClaims[1].mountTargets[0] | string | `"metadata"` | Mount target for the second PVC |
+| storage.persistentVolumeClaims[1].size | string | `"5Gi"` | Size of the second PVC |
+| storage.persistentVolumeClaims[1].storageClass | string | `nil` | Storage class for the second PVC |
+| storage.persistentVolumeClaims[1].volumeMode | string | `"Filesystem"` | Volume mode for the second PVC |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
@@ -210,6 +247,7 @@ You can install BanyanDB with the default configuration as follows.
 export REPO=chart
 git clone https://github.com/apache/skywalking-banyandb-helm
 cd skywalking-banyandb-helm
+helm dependency build ${REPO}
 helm install banyandb ${REPO}
 ```
 

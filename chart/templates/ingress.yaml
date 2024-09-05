@@ -25,12 +25,8 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: standalone
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
     {{- range $key, $value := .Values.standalone.ingress.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
@@ -76,12 +72,8 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.cluster.liaison.ingress.name }}"
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
     {{- range $key, $value := .Values.cluster.liaison.ingress.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
