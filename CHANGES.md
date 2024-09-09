@@ -11,6 +11,7 @@ Release Notes.
 Support Anti-Affinity for banyandb cluster mode
 Align the modern Kubernetes label names
 Opt probe settings to http get /healthz instead of bydbctl health check
+Add standalone UI deployment
 
 #### Chores
 

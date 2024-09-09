@@ -19,7 +19,7 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 17dc8c05f6933517768ab9170e6fc5b1211b4fc3
+  tag: 401613ad63bf67d56a3b5e5f7eff6509237b291b
   pullPolicy: IfNotPresent
 
 standalone:
@@ -337,6 +337,113 @@ cluster:
       timeoutSeconds: 5
       successThreshold: 1
       failureThreshold: 60
+  ui:
+    # Available UI type: 
+    # None: Disable UI
+    # Standalone: Standalone UI deployment
+    # Embedded: Embedded UI in Liaison
+    type: Embedded
+    standalone:
+      replicas: 1
+      podAnnotations:
+      # example: banyandb-foo
+      securityContext: {}
+      # runAsUser: 1000
+      # runAsGroup: 1000
+      # fsGroup: 1000
+      env: []
+      # - name: BANYANDB_FOO
+      #   value: "bar"
+      priorityClassName: ""
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+          maxSurge: 1
+      podDisruptionBudget: {}
+      #  minAvailable: 1
+      # maxUnavailable: 2
+      # paused: false
+      tolerations: []
+      # - key: foo
+      #   value: bar
+      #   operator: Equal
+      #   effect: NoSchedule
+      nodeSelector: []
+      # - key: foo
+      #   value: bar
+      affinity: {}
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #       - matchExpressions:
+      #           - key: foo
+      #             operator: In
+      #             values:
+      #               - bar
+      #               - baz
+      # podAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchLabels:
+      #           - key: app
+      #             value: banyandb
+      #       topologyKey: "kubernetes.io/hostname"
+      #       namespaces: []
+      podAffinityPreset: ""
+      podAntiAffinityPreset: soft
+      resources:
+        requests: []
+        # - key: cpu
+        #   value: "100m"
+        # - key: memory
+        #   value: "256Mi"
+        limits: []
+        # - key: cpu
+        #   value: "500m"
+        # - key: memory
+        #   value: "512Mi"
+      # tls:
+      # grpcSecretName: ""
+      # httpSecretName: ""
+      # etcdSecretName: ""
+
+      httpSvc:
+        labels: {}
+        annotations: {}
+        port: 17913
+        type: LoadBalancer
+        externalIPs: []
+        loadBalancerIP: null
+        loadBalancerSourceRanges: []
+
+      ingress:
+        enabled: false
+        labels: {}
+        annotations: {}
+        rules: []
+        # - host: localhost
+        #   paths:
+        #     - path: /
+        #       port: 17913
+        #       serviceName: banyandb-ui
+        tls: []
+        # - hosts:
+        #     - localhost
+        #   secretName: tls-secret
+      livenessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+
+      readinessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
 
 storage:
   enabled: false
