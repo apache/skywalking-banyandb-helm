@@ -1,44 +1,37 @@
-# Licensed to Apache Software Foundation (ASF) under one or more contributor
-# license agreements. See the NOTICE file distributed with
-# this work for additional information regarding copyright
-# ownership. Apache Software Foundation (ASF) licenses this file to you under
-# the Apache License, Version 2.0 (the "License"); you may
-# not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: liaison
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
-  name: {{ template "banyandb.fullname" . }}
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
+  name: {{ template "banyandb.fullname" . }}-liaison
 spec:
   replicas: {{ .Values.cluster.liaison.replicas }}
   selector:
-    matchLabels:
-      app: {{ template "banyandb.name" . }}
-      component: liaison
-      release: {{ .Release.Name }}
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: liaison
+  strategy: {{ toYaml .Values.cluster.liaison.updateStrategy | nindent 4 }}
   template:
     metadata:
-      labels:
-        app: {{ template "banyandb.name" . }}
-        component: liaison
-        release: {{ .Release.Name }}
+      labels: {{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: liaison
       {{- if .Values.cluster.liaison.podAnnotations }}
       annotations:
 {{ toYaml .Values.cluster.liaison.podAnnotations | indent 8 }}
@@ -52,7 +45,11 @@ spec:
       priorityClassName: {{ .Values.cluster.liaison.priorityClassName }}
       containers:
         - name: liaison
+          {{- if eq .Values.cluster.ui.type "Embedded"  }}
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          {{- else }}
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- range $env := .Values.cluster.liaison.env }}
@@ -87,13 +84,13 @@ spec:
             {{- end }}
             {{- if .Values.etcd.auth.client.secureTransport }}
             - name: BYDB_ETCD_TLS_CA_FILE
-              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/ca.crt"
+              value: "/etc/tls/{{ .Values.cluster.liaison.tls.etcdSecretName }}/ca.crt"
             {{- end }}
             {{- if .Values.etcd.auth.client.enableAuthentication }}
             - name: BYDB_ETCD_TLS_CERT_FILE
-              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/tls.crt"
+              value: "/etc/tls/{{ .Values.cluster.liaison.tls.etcdSecretName }}/tls.crt"
             - name: BYDB_ETCD_TLS_KEY_FILE
-              value: "/etc/tls/{{ .Values.cluster.data.tls.etcdSecretName }}/tls.key"
+              value: "/etc/tls/{{ .Values.cluster.liaison.tls.etcdSecretName }}/tls.key"
             {{- end }}
             {{- if and (not .Values.etcd.enabled) .Values.cluster.etcdEndpoints }}
             - name: BYDB_ETCD_ENDPOINTS
@@ -113,21 +110,33 @@ spec:
             - containerPort: 2121
               name: observebility
           readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls {{- else }} --insecure{{- end}}"
-            initialDelaySeconds: 20
-            periodSeconds: 60
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.cluster.liaison.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.cluster.liaison.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.liaison.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.liaison.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.liaison.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.liaison.readinessProbe.failureThreshold }}
           livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "/bydbctl health {{- if .Values.cluster.liaison.tls }} --enable-tls {{- else }} --insecure{{- end}}"
-            initialDelaySeconds: 20
-            periodSeconds: 60
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.cluster.liaison.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.cluster.liaison.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.liaison.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.liaison.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.liaison.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.liaison.readinessProbe.failureThreshold }}
           
           {{- if.Values.cluster.liaison.resources }}
           resources:
@@ -198,40 +207,46 @@ spec:
       {{- end }}
 
       {{- if .Values.cluster.liaison.affinity }}
-      {{- $affinity := .Values.cluster.liaison.affinity }}
+      affinity: {{ toYaml .Values.cluster.liaison.affinity | nindent 8 }}
+      {{- else if or .Values.cluster.liaison.podAffinityPreset .Values.cluster.liaison.podAntiAffinityPreset }}
       affinity:
-        {{- if $affinity.nodeAffinity }}
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            {{- range $requirement := $affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms }}
-              {{- range $matchExpression := $requirement.matchExpressions }}
-                - matchExpressions:
-                    - key: {{ $matchExpression.key }}
-                      operator: {{ $matchExpression.operator }}
-                      values:
-                        {{- range $v := $matchExpression.values }}
-                        - {{ $v }}
-                        {{- end }}
-              {{- end }}
-            {{- end }}
-        {{- end }}
-
-        {{- if $affinity.podAffinity }}
+        {{- if and .Values.cluster.liaison.podAffinityPreset (not (empty .Values.cluster.liaison.podAffinityPreset)) }}
         podAffinity:
+          {{- if eq .Values.cluster.liaison.podAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: liaison
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.liaison.podAffinityPreset "hard" }}
           requiredDuringSchedulingIgnoredDuringExecution:
-            {{- range $term := $affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution }}
-            - topologyKey: {{ $term.topologyKey }}
-              namespaces:
-                {{- range $ns := $term.namespaces }}
-                - {{ $ns }}
-                {{- end }}
-              labelSelector:
-                matchLabels:
-                  {{- range $label := $term.labelSelector.matchLabels }}
-                  {{ $label.key }}: {{ $label.value }}
-                  {{- end }}
-            {{- end }}
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: liaison
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+        {{- if and .Values.cluster.liaison.podAntiAffinityPreset (not (empty .Values.cluster.liaison.podAntiAffinityPreset)) }}
+        podAntiAffinity:
+          {{- if eq .Values.cluster.liaison.podAntiAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: liaison
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.liaison.podAntiAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: liaison
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
         {{- end }}
       {{- end }}
 {{- end }}

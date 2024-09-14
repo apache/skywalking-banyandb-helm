@@ -1,45 +1,37 @@
-# Licensed to Apache Software Foundation (ASF) under one or more contributor
-# license agreements. See the NOTICE file distributed with
-# this work for additional information regarding copyright
-# ownership. Apache Software Foundation (ASF) licenses this file to you under
-# the Apache License, Version 2.0 (the "License"); you may
-# not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
 
 {{- if .Values.standalone.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: standalone
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
   name: {{ template "banyandb.fullname" . }}
 spec:
   serviceName: banyandb
   replicas: 1
   selector:
-    matchLabels:
-      app: {{ template "banyandb.name" . }}
-      component: standalone
-      release: {{ .Release.Name }}
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: standalone
   template:
     metadata:
-      labels:
-        app: {{ template "banyandb.name" . }}
-        component: standalone
-        release: {{ .Release.Name }}
+      labels: {{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: standalone
       {{- if .Values.standalone.podAnnotations }}
       annotations:
 {{ toYaml .Values.standalone.podAnnotations | indent 8 }}
@@ -92,22 +84,47 @@ spec:
             - containerPort: 2121
               name: observebility
           readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "/bydbctl health {{- if .Values.standalone.tls }} --enable-tls {{- else }} --insecure{{- end}}"
-            initialDelaySeconds: 20
-            periodSeconds: 60
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.readinessProbe.failureThreshold }}
           livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "/bydbctl health {{- if .Values.standalone.tls }} --enable-tls {{- else }} --insecure{{- end}}"
-            initialDelaySeconds: 20
-            periodSeconds: 60
-          
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.startupProbe.failureThreshold }}
           {{- if.Values.standalone.resources }}
           resources:
             {{- if.Values.standalone.resources.requests }}
@@ -256,27 +273,22 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  labels:
-    app: {{ template "banyandb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: data
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
-  name: {{ template "banyandb.fullname" . }}
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: data
+  name: {{ template "banyandb.fullname" . }}-data
 spec:
   serviceName: banyandb
   replicas: {{ .Values.cluster.data.replicas }}
   selector:
-    matchLabels:
-      app: {{ template "banyandb.name" . }}
-      component: data
-      release: {{ .Release.Name }}
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: data
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
   template:
     metadata:
-      labels:
-        app: {{ template "banyandb.name" . }}
-        component: data
-        release: {{ .Release.Name }}
+      labels: {{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: data
       {{- if .Values.cluster.data.podAnnotations }}
       annotations:
 {{ toYaml .Values.cluster.data.podAnnotations | indent 8 }}
@@ -290,7 +302,7 @@ spec:
       priorityClassName: {{ .Values.cluster.data.priorityClassName }}
       containers:
         - name: data
-          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- range $env := .Values.cluster.data.env }}
@@ -342,27 +354,42 @@ spec:
           ports:
             - containerPort: 17912
               name: grpc
+            - containerPort: 17913
+              name: http-healthz
             - containerPort: 6060
               name: pprof
             - containerPort: 2121
               name: observebility
           readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "/bydbctl health --grpc-addr=localhost:17912 {{- if .Values.cluster.data.tls }} --enable-tls  --insecure{{- end}}"
-            initialDelaySeconds: 20
-            periodSeconds: 60
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.cluster.data.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.data.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.data.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.data.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.data.readinessProbe.failureThreshold }}
           livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "/bydbctl health --grpc-addr=localhost:17912 {{- if .Values.cluster.data.tls }} --enable-tls  --insecure{{- end}}"
-            initialDelaySeconds: 20
-            periodSeconds: 60
-          
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.cluster.data.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.data.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.data.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.data.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.data.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.cluster.data.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.data.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.data.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.data.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.data.startupProbe.failureThreshold }}
           {{- if.Values.cluster.data.resources }}
           resources:
             {{- if.Values.cluster.data.resources.requests }}
@@ -477,40 +504,46 @@ spec:
       {{- end }}
 
       {{- if .Values.cluster.data.affinity }}
-      {{- $affinity := .Values.cluster.data.affinity }}
+      affinity: {{ toYaml .Values.cluster.data.affinity | nindent 8 }}
+      {{- else if or .Values.cluster.data.podAffinityPreset .Values.cluster.data.podAntiAffinityPreset }}
       affinity:
-        {{- if $affinity.nodeAffinity }}
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            {{- range $requirement := $affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms }}
-              {{- range $matchExpression := $requirement.matchExpressions }}
-                - matchExpressions:
-                    - key: {{ $matchExpression.key }}
-                      operator: {{ $matchExpression.operator }}
-                      values:
-                        {{- range $v := $matchExpression.values }}
-                        - {{ $v }}
-                        {{- end }}
-              {{- end }}
-            {{- end }}
-        {{- end }}
-
-        {{- if $affinity.podAffinity }}
+        {{- if and .Values.cluster.data.podAffinityPreset (not (empty .Values.cluster.data.podAffinityPreset)) }}
         podAffinity:
+          {{- if eq .Values.cluster.data.podAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: data
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.data.podAffinityPreset "hard" }}
           requiredDuringSchedulingIgnoredDuringExecution:
-            {{- range $term := $affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution }}
-            - topologyKey: {{ $term.topologyKey }}
-              namespaces:
-                {{- range $ns := $term.namespaces }}
-                - {{ $ns }}
-                {{- end }}
-              labelSelector:
-                matchLabels:
-                  {{- range $label := $term.labelSelector.matchLabels }}
-                  {{ $label.key }}: {{ $label.value }}
-                  {{- end }}
-            {{- end }}
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: data
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+        {{- if and .Values.cluster.data.podAntiAffinityPreset (not (empty .Values.cluster.data.podAntiAffinityPreset)) }}
+        podAntiAffinity:
+          {{- if eq .Values.cluster.data.podAntiAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: data
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.data.podAntiAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: data
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
         {{- end }}
       {{- end }}
   {{- if .Values.storage.enabled }}
