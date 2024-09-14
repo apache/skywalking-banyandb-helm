@@ -43,6 +43,10 @@ $ helm uninstall my-release -n <namespace>
 
 The command removes all the banyandb components associated with the chart and deletes the release.
 
+## Compatibility
+
+The chart needs the minimum version of BanyanDB 0.7.0 when the chart version is 0.3.0 or higher.
+
 ## Configuration
 
 | Key | Type | Default | Description |
@@ -114,6 +118,42 @@ The command removes all the banyandb components associated with the chart and de
 | cluster.liaison.resources.requests | list | `[]` | Resource requests for liaison pods |
 | cluster.liaison.securityContext | object | `{}` | Security context for liaison pods |
 | cluster.liaison.tolerations | list | `[]` | Tolerations for liaison pods |
+| cluster.ui.type | string | `"Embedded"` | Type of the UI deployment: `None`, `Embedded`, `Standalone` |
+| cluster.ui.standalone.affinity | object | `{}` | Affinity settings for standalone UI pods |
+| cluster.ui.standalone.podAffinityPreset | string | `""` | podAffinityPreset Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`  |
+| cluster.ui.standalone.podAntiAffinityPreset | string | `""` | podAntiAffinityPreset Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`  |
+| cluster.ui.standalone.env | list | `[]` | Environment variables for the standalone UI pods |
+| cluster.ui.standalone.httpSvc.annotations | object | `{}` | Annotations for the HTTP service |
+| cluster.ui.standalone.httpSvc.externalIPs | list | `[]` | External IPs for the HTTP service |
+| cluster.ui.standalone.httpSvc.labels | object | `{}` | Labels for the HTTP service |
+| cluster.ui.standalone.httpSvc.loadBalancerIP | string | `nil` | Load balancer IP for the HTTP service |
+| cluster.ui.standalone.httpSvc.loadBalancerSourceRanges | list | `[]` | Load balancer source ranges for the HTTP service |
+| cluster.ui.standalone.httpSvc.port | int | `17913` | Port for the HTTP service |
+| cluster.ui.standalone.httpSvc.type | string | `"LoadBalancer"` | Type of the HTTP service |
+| cluster.ui.standalone.ingress.annotations | object | `{}` | Annotations for the ingress |
+| cluster.ui.standalone.ingress.enabled | bool | `false` | Enable or disable the ingress |
+| cluster.ui.standalone.ingress.labels | object | `{}` | Labels for the ingress |
+| cluster.ui.standalone.ingress.rules | list | `[]` | Rules for the ingress |
+| cluster.ui.standalone.ingress.tls | list | `[]` | TLS settings for the ingress |
+| cluster.ui.standalone.livenessProbe.initialDelaySeconds | int | `20` | Initial delay before starting liveness probes |
+| cluster.ui.standalone.livenessProbe.periodSeconds | int | `30` | Period between liveness probes |
+| cluster.ui.standalone.livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probes |
+| cluster.ui.standalone.livenessProbe.successThreshold | int | `1` | Success threshold for liveness probes |
+| cluster.ui.standalone.livenessProbe.failureThreshold | int | `5` | Failure threshold for liveness probes |
+| cluster.ui.standalone.nodeSelector | list | `[]` | Node selector for UI standalone pods |
+| cluster.ui.standalone.podAnnotations | string | `nil` | Annotations for the UI standalone pods |
+| cluster.ui.standalone.podDisruptionBudget | object | `{}` | Pod disruption budget for UI standalone pods |
+| cluster.ui.standalone.priorityClassName | string | `""` | Priority class name for UI standalone pods |
+| cluster.ui.standalone.readinessProbe.initialDelaySeconds | int | `20` | Initial delay before starting readiness probes |
+| cluster.ui.standalone.readinessProbe.periodSeconds | int | `10` | Period between readiness probes |
+| cluster.ui.standalone.readinessProbe.timeoutSeconds | int | `5` | Timeout for readiness probes |
+| cluster.ui.standalone.readinessProbe.successThreshold | int | `1` | Success threshold for readiness probes |
+| cluster.ui.standalone.readinessProbe.failureThreshold | int | `5` | Failure threshold for readiness probes |
+| cluster.ui.standalone.replicas | int | `2` | Number of replicas for UI standalone pods |
+| cluster.ui.standalone.resources.limits | list | `[]` | Resource limits for UI standalone pods |
+| cluster.ui.standalone.resources.requests | list | `[]` | Resource requests for UI standalone pods |
+| cluster.ui.standalone.securityContext | object | `{}` | Security context for UI standalone pods |
+| cluster.ui.standalone.tolerations | list | `[]` | Tolerations for UI standalone pods |
 | etcd.auth.client.caFilename | string | `""` | CA filename for etcd client authentication |
 | etcd.auth.client.certFilename | string | `"tls.crt"` | Certificate filename for etcd client authentication |
 | etcd.auth.client.certKeyFilename | string | `"tls.key"` | Certificate key filename for etcd client authentication |
@@ -131,7 +171,7 @@ The command removes all the banyandb components associated with the chart and de
 | nameOverride | string | `"banyandb"` | Name override for the chart |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.repository | string | `"docker.io/apache/skywalking-banyandb"` | Image repository |
-| image.tag | string | `"0.6.1"` | Image tag |
+| image.tag | string | `"0.7.0-rc0"` | Image tag |
 | serviceAccount.annotations | object | `{}` | Annotations for the service account |
 | serviceAccount.create | bool | `true` | Create a service account |
 | serviceAccount.name | string | `""` | Name of the service account |

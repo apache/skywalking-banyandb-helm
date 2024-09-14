@@ -18,8 +18,8 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: ghcr.io/apache/skywalking-banyandb
-  tag: 401613ad63bf67d56a3b5e5f7eff6509237b291b
+  repository: docker.io/apache/skywalking-banyandb
+  tag: 0.7.0-rc0
   pullPolicy: IfNotPresent
 
 cluster:
