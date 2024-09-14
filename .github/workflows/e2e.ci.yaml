@@ -41,11 +41,11 @@ jobs:
             config: test/e2e/e2e-banyandb-cluster.yaml
     name: ${{ matrix.test.name }}
     env:
-      OAP_TAG: d9c49fa487bd82444bc3890ab971dac55a868ac2
+      OAP_TAG: 14c5778f57cc163b5a7d732555182b14dcff146b
       OAP_REPO: ghcr.io/apache/skywalking/oap
-      UI_TAG: d9c49fa487bd82444bc3890ab971dac55a868ac2
+      UI_TAG: 14c5778f57cc163b5a7d732555182b14dcff146b
       UI_REPO: ghcr.io/apache/skywalking/ui
-      SATELLITE_TAG: v76103da1c204aa45a72d9d61383002bd862b1594
+      SATELLITE_TAG: v35bfaff6352b4dc351a706772796a1f79b651c14
       SATELLITE_REPO: ghcr.io/apache/skywalking-satellite/skywalking-satellite
     steps:
       - uses: actions/checkout@v2
