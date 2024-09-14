@@ -15,7 +15,7 @@ Add standalone UI deployment
 
 #### Chores
 
-- Bump banyandb image version to 0.6.1
+- Bump banyandb image version to 0.7.0
 
 
 0.2.0
