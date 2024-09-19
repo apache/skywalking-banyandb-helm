@@ -137,7 +137,20 @@ spec:
             timeoutSeconds: {{ .Values.cluster.liaison.livenessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.cluster.liaison.livenessProbe.successThreshold }}
             failureThreshold: {{ .Values.cluster.liaison.livenessProbe.failureThreshold }}
-          
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.cluster.liaison.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.cluster.liaison.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.liaison.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.liaison.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.liaison.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.liaison.startupProbe.failureThreshold }}
           {{- if.Values.cluster.liaison.resources }}
           resources:
             {{- if.Values.cluster.liaison.resources.requests }}

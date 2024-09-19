@@ -106,6 +106,13 @@ standalone:
     successThreshold: 1
     failureThreshold: 60
 
+  startupProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 60
+
   grpcSvc:
     labels: {}
     annotations: {}
