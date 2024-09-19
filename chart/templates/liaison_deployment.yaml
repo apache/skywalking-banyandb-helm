@@ -132,11 +132,11 @@ spec:
               {{- else }}
               scheme: HTTP
               {{- end }}
-            initialDelaySeconds: {{ .Values.cluster.liaison.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.cluster.liaison.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.cluster.liaison.readinessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.cluster.liaison.readinessProbe.successThreshold }}
-            failureThreshold: {{ .Values.cluster.liaison.readinessProbe.failureThreshold }}
+            initialDelaySeconds: {{ .Values.cluster.liaison.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.liaison.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.liaison.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.liaison.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.liaison.livenessProbe.failureThreshold }}
           
           {{- if.Values.cluster.liaison.resources }}
           resources:
