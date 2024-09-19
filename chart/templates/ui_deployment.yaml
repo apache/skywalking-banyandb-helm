@@ -116,11 +116,11 @@ spec:
               {{- else }}
               scheme: HTTP
               {{- end }}
-            initialDelaySeconds: {{ .Values.cluster.ui.standalone.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.cluster.ui.standalone.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.cluster.ui.standalone.readinessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.cluster.ui.standalone.readinessProbe.successThreshold }}
-            failureThreshold: {{ .Values.cluster.ui.standalone.readinessProbe.failureThreshold }}
+            initialDelaySeconds: {{ .Values.cluster.ui.standalone.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.ui.standalone.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.ui.standalone.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.ui.standalone.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.ui.standalone.livenessProbe.failureThreshold }}
           
           {{- if.Values.cluster.ui.standalone.resources }}
           resources:
