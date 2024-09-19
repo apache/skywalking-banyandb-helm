@@ -140,6 +140,13 @@ cluster:
       successThreshold: 1
       failureThreshold: 60
 
+    startupProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
   data:
     replicas: 1
     podAnnotations:
@@ -229,6 +236,13 @@ cluster:
 
     readinessProbe:
       initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+    startupProbe:
+      initialDelaySeconds: 0
       periodSeconds: 5
       timeoutSeconds: 5
       successThreshold: 1
@@ -340,6 +354,13 @@ cluster:
         timeoutSeconds: 5
         successThreshold: 1
         failureThreshold: 5
+
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
 
 storage:
   enabled: false

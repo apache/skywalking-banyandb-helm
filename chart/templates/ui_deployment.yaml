@@ -121,6 +121,20 @@ spec:
             timeoutSeconds: {{ .Values.cluster.ui.standalone.livenessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.cluster.ui.standalone.livenessProbe.successThreshold }}
             failureThreshold: {{ .Values.cluster.ui.standalone.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.cluster.ui.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.cluster.ui.standalone.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.ui.standalone.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.ui.standalone.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.ui.standalone.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.ui.standalone.startupProbe.failureThreshold }}
           
           {{- if.Values.cluster.ui.standalone.resources }}
           resources:

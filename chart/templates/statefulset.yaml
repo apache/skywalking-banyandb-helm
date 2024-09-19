@@ -161,6 +161,7 @@ spec:
             {{- end }}
             {{- end }}
 
+            {{- if .Values.standalone.tls -}}
             {{- if .Values.standalone.tls.grpcSecretName }}
             - mountPath: /etc/tls/{{ .Values.standalone.tls.grpcSecretName }}
               name: {{ .Values.standalone.tls.grpcSecretName }}-volume
@@ -169,6 +170,7 @@ spec:
             - mountPath: /etc/tls/{{ .Values.standalone.tls.httpSecretName }}
               name: {{ .Values.standalone.tls.httpSecretName }}-volume
             {{- end }}
+            {{- end -}}
           {{- end }}
 
       {{- if .Values.standalone.tls }}
