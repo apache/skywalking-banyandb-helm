@@ -171,7 +171,7 @@ The chart needs the minimum version of BanyanDB 0.7.0 when the chart version is 
 | nameOverride | string | `"banyandb"` | Name override for the chart |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.repository | string | `"docker.io/apache/skywalking-banyandb"` | Image repository |
-| image.tag | string | `"0.7.0-rc0"` | Image tag |
+| image.tag | string | `"0.7.0"` | Image tag |
 | serviceAccount.annotations | object | `{}` | Annotations for the service account |
 | serviceAccount.create | bool | `true` | Create a service account |
 | serviceAccount.name | string | `""` | Name of the service account |
