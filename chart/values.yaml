@@ -19,7 +19,7 @@
 
 image:
   repository: docker.io/apache/skywalking-banyandb
-  tag: 0.7.0-rc0
+  tag: 0.7.0
   pullPolicy: IfNotPresent
 
 standalone:
