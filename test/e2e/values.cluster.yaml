@@ -18,8 +18,8 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: docker.io/apache/skywalking-banyandb
-  tag: 0.7.0
+  repository: ghcr.io/apache/skywalking-banyandb
+  tag: 552248704797a97decf505c3e53bb6fa1c58fb4e
   pullPolicy: IfNotPresent
 
 cluster:
@@ -92,10 +92,10 @@ cluster:
       #   value: "500m"
       # - key: memory
       #   value: "512Mi"
-    # tls:
-    #   grpcSecretName: ""
-    #   httpSecretName: ""
-    #   etcdSecretName: ""
+      # tls:
+      #   grpcSecretName: ""
+      #   httpSecretName: ""
+      #   etcdSecretName: ""
 
     grpcSvc:
       labels: {}
@@ -226,7 +226,15 @@ cluster:
     #   commands: 
     #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
     #     preStop: ["sh", "-c", "echo cleanup"]
-
+    backupSidecar:
+      enabled: true 
+      dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
+      timeStyle: "daily"
+      schedule: "@every 10s"
+      resources: {}
+    restoreInitContainer:
+      enabled: true
+      resources: {}
     livenessProbe:
       initialDelaySeconds: 20
       periodSeconds: 5
@@ -365,22 +373,22 @@ cluster:
 storage:
   enabled: false
   persistentVolumeClaims:
-    - mountTargets: ["measure", "stream"]
-      existingClaimName: null
-      claimName: data
-      size: 200Gi
-      accessModes:
-        - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: ["metadata"]
-      existingClaimName: null
-      claimName: meta
-      size: 10Gi
-      accessModes:
-        - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
+  - mountTargets: [ "measure", "stream", "property" ]
+    existingClaimName: null
+    claimName: data
+    size: 5Gi
+    accessModes:
+    - ReadWriteOnce
+    storageClass: null
+    volumeMode: Filesystem
+  - mountTargets: [ "backups" ]
+    existingClaimName: null
+    claimName: backups
+    size: 5Gi
+    accessModes:
+    - ReadWriteOnce
+    storageClass: null
+    volumeMode: Filesystem
 
 serviceAccount:
   # Specifies whether a service account should be created

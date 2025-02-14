@@ -26,7 +26,7 @@ on:
 
 env:
   SKIP_TEST: true
-  ISTIO_VERSION: 1.7.1
+  ISTIO_VERSION: 1.20.0
 
 jobs:
   als:
@@ -41,11 +41,11 @@ jobs:
             config: test/e2e/e2e-banyandb-cluster.yaml
     name: ${{ matrix.test.name }}
     env:
-      OAP_TAG: 14c5778f57cc163b5a7d732555182b14dcff146b
+      OAP_TAG: 68ab2edd77288cfb6d7f6c609d00f04fe5ee546b
       OAP_REPO: ghcr.io/apache/skywalking/oap
-      UI_TAG: 14c5778f57cc163b5a7d732555182b14dcff146b
+      UI_TAG: 68ab2edd77288cfb6d7f6c609d00f04fe5ee546b
       UI_REPO: ghcr.io/apache/skywalking/ui
-      SATELLITE_TAG: v35bfaff6352b4dc351a706772796a1f79b651c14
+      SATELLITE_TAG: v4a057219f7dd3d3278bd7b74127b84c45594c437
       SATELLITE_REPO: ghcr.io/apache/skywalking-satellite/skywalking-satellite
     steps:
       - uses: actions/checkout@v2
@@ -60,7 +60,7 @@ jobs:
         with:
           go-version: '1.20'
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
+        uses: apache/skywalking-infra-e2e@5217e1c6cfe8c2a3c58a0d278b0d9097cab02b5e
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}

@@ -24,8 +24,8 @@ etcd:
   enabled: false
 
 image:
-  repository: docker.io/apache/skywalking-banyandb
-  tag: 0.7.0
+  repository: ghcr.io/apache/skywalking-banyandb
+  tag: 552248704797a97decf505c3e53bb6fa1c58fb4e
   pullPolicy: IfNotPresent
 
 standalone:
@@ -145,7 +145,7 @@ standalone:
 storage:
   enabled: false
   persistentVolumeClaims:
-    - mountTargets: ["measure", "stream"]
+    - mountTargets: ["measure", "stream", "property"]
       existingClaimName: null
       claimName: data
       size: 200Gi
