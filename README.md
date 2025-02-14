@@ -25,17 +25,18 @@ The released versions of the helm chart can be found on [Docker Hub](https://hub
 
 `image.tag` is the required value for the chart.
 
-You can set these required values via command line (e.g. `--set oap.image.tag=0.7.1`), or edit them in a separate file(e.g. [`values.yaml`](chart/values.yaml))
+You can set these required values via command line (e.g. `--set image.tag=0.8.0`), or edit them in a separate file(e.g. [`values.yaml`](chart/values.yaml))
 and use `-f <filename>` or `--values=<filename>` to set it.
 
 To install the chart with the release name `my-release`:
 
 ```shell
-helm install my-release" \
-  oci://registry-1.docker.io/apache/skywalking-banyandb-helm \
-  --version "0.3.0" \
-  -n "default" \
-  --set image.tag=0.7.1
+git clone https://github.com/apache/skywalking-banyandb-helm
+cd ./skywalking-banyandb-helm
+helm install my-release \
+  chart \
+  -n <namespace> \
+  --set image.tag=<image-tag>
 ```
 
 The command deploys BanyanDB on the Kubernetes cluster with the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
@@ -54,7 +55,7 @@ The command removes all the banyandb components associated with the chart and de
 
 ## Compatibility
 
-The chart needs the minimum version of BanyanDB 0.7.0 when the chart version is 0.3.0 or higher.
+The chart needs the minimum version of BanyanDB 0.8.0 when the chart version is 0.4.0 or higher.
 
 ## Configuration
 
@@ -65,21 +66,20 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 **Note** You could refer to the [helm install](https://helm.sh/docs/helm/helm_install/) for more command information.
 
 ```console
-$ helm install my-release" \
-  oci://registry-1.docker.io/apache/skywalking-banyandb-helm \
-  --version "0.3.0" \
-  -n "default" \
-  --set image.tag=0.7.1 \
+$ helm install my-release \
+  chart \
+  -n <namespace> \
+  --set image.tag=<image-tag> \
   --set fullnameOverride=newBanyanDB
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install my-release" \
-  oci://registry-1.docker.io/apache/skywalking-banyandb-helm \
-  --version "0.3.0" \
-  -n "default" \
+$ helm install my-release \
+  chart \
+  -n <namespace> \
+  --set image.tag=<image-tag> \
   -f values.yaml
 ```
 

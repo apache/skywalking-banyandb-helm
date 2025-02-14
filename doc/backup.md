@@ -2,6 +2,8 @@
 
 This guide explains how to configure and deploy the backup and restore process for the SkyWalking BanyanDB Helm chart in a Kubernetes environment.
 
+**Caution:** The backup and restore features are supported by the BanyanDB image starting from version 0.8.0. Ensure that you are using the correct image version.
+
 ## 1. Configure Backup Sidecar
 
 The chart supports running a backup sidecar alongside the main BanyanDB container. This sidecar runs the backup and timedir commands. To enable this:
