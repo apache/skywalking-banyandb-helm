@@ -55,7 +55,10 @@ The command removes all the banyandb components associated with the chart and de
 
 ## Compatibility
 
-The chart needs the minimum version of BanyanDB 0.8.0 when the chart version is 0.4.0 or higher.
+| Chart Version | Supported BanyanDB Version |
+|---------------|----------------------------|
+| 0.3.0         | 0.7.x                      |
+| 0.4.0 or later| 0.8.0 or later             |
 
 ## Configuration
 
