@@ -302,6 +302,38 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       priorityClassName: {{ .Values.cluster.data.priorityClassName }}
+      initContainers:
+        {{- if .Values.cluster.data.restoreInitContainer.enabled }}
+        - name: restore-init
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "/restore"
+            - "run"
+            - "--source={{ .Values.cluster.data.backupSidecar.dest }}"
+          {{- if $.Values.storage.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.cluster.data.restoreInitContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
       containers:
         - name: data
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
@@ -439,6 +471,44 @@ spec:
             {{- end }}
             {{- end }}
           {{- end }}
+        {{- if .Values.cluster.data.backupSidecar.enabled }}
+        - name: backup
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "/backup"
+            - "--dest={{ .Values.cluster.data.backupSidecar.dest }}"
+            - "--time-style={{ .Values.cluster.data.backupSidecar.timeStyle }}"
+            - "--schedule={{ .Values.cluster.data.backupSidecar.schedule }}"
+            - "--grpc-addr=127.0.0.1:17912"
+          env:
+            - name: ORDINAL_NUMBER
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+          {{- if $.Values.storage.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.cluster.data.backupSidecar.resources }}
+          resources:
+            {{- toYaml . | nindent 4 }}
+          {{- end }}
+        {{- end }}
         {{- range $sidecar := .Values.cluster.data.sidecar }}
         - name: {{ $sidecar.name }}
           image: {{ $sidecar.image }}

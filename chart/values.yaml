@@ -17,499 +17,722 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+## @section Common configuration
+##
+
+## @param fullnameOverride Override the full name of the chart
+##
+fullnameOverride: ""
+## @param nameOverride Override the name of the chart
+##
+nameOverride: "banyandb"
+
+## @section Container image configuration
+##
 image:
+  ## @param image.repository Docker repository for SkyWalking BanyanDB
+  ##
   repository: docker.io/apache/skywalking-banyandb
-  tag: 0.7.0
+  ## @param image.tag Image tag/version (empty for latest)
+  ##
+  tag: ""
+  ## @param image.pullPolicy Image pull policy (e.g. IfNotPresent)
+  ##
   pullPolicy: IfNotPresent
 
+## @section Configuration for standalone deployment
+##
 standalone:
+  ## @param standalone.enabled Enable standalone mode (boolean)
+  ##
   enabled: false
-  podAnnotations:
-    example: banyandb-foo
+  ## @param standalone.podAnnotations Additional pod annotations
+  ##
+  podAnnotations: {}
+  ## @param standalone.securityContext Security context for the pod
+  ##
   securityContext: {}
-  # runAsUser: 1000
-  # runAsGroup: 1000
-  # fsGroup: 1000
+  ## @param standalone.env Environment variables for the pod
+  ##
   env: []
-  # - name: BANYANDB_FOO
-  #   value: "bar"
+  ## @param standalone.priorityClassName Priority class name for the pod
+  ##
   priorityClassName: ""
+  ## @param standalone.podDisruptionBudget Pod disruption budget configuration
+  ##
   podDisruptionBudget: {}
-  # minAvailable: 1
-  # maxUnavailable: 2
-  # paused: false
+  ## @param standalone.tolerations Tolerations for pod scheduling
+  ##
   tolerations: []
-  # - key: foo
-  #   value: bar
-  #   operator: Equal
-  #   effect: NoSchedule
+  ## @param standalone.nodeSelector Node selector for pod scheduling
+  ##
   nodeSelector: []
-  # - key: foo
-  #   value: bar
+  ## @param standalone.affinity Affinity rules for pod scheduling
+  ##
   affinity: {}
-  # nodeAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #     nodeSelectorTerms:
-  #       - matchExpressions:
-  #           - key: foo
-  #             operator: In
-  #             values:
-  #               - bar
-  #               - baz
-  # podAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #     - labelSelector:
-  #         matchLabels:
-  #           - key: app
-  #             value: banyandb
-  #       topologyKey: "kubernetes.io/hostname"
-  #       namespaces: []
-  resources:
-    requests: []
-    # - key: cpu
-    #   value: "100m"
-    # - key: memory
-    #   value: "256Mi"
-    limits: []
-    # - key: cpu
-    #   value: "500m"
-    # - key: memory
-    #   value: "512Mi"
-  # tls:
-  #   grpcSecretName: ""
-  #   httpSecretName: ""
-
+  ## @param standalone.resources Resource requests/limits for the pod
+  ##
+  resources: {}
+  ## GRPC service settings
+  ##
   grpcSvc:
+    ## @param standalone.grpcSvc.labels Labels for GRPC service
+    ##
     labels: {}
+    ## @param standalone.grpcSvc.annotations Annotations for GRPC service
+    ##
     annotations: {}
+    ## @param standalone.grpcSvc.port Port number for GRPC service
+    ##
     port: 17912
-
+  ## HTTP service settings
+  ##
   httpSvc:
+    ## @param standalone.httpSvc.labels Labels for HTTP service
+    ##
     labels: {}
+    ## @param standalone.httpSvc.annotations Annotations for HTTP service
+    ##
     annotations: {}
+    ## @param standalone.httpSvc.port Port number for HTTP service
+    ##
     port: 17913
+    ## @param standalone.httpSvc.type Service type (e.g., LoadBalancer)
+    ##
     type: LoadBalancer
+    ## @param standalone.httpSvc.externalIPs External IP addresses for the service
+    ##
     externalIPs: []
+    ## @param standalone.httpSvc.loadBalancerIP Load balancer IP address
+    ##
     loadBalancerIP: null
+    ## @param standalone.httpSvc.loadBalancerSourceRanges Allowed source ranges for the load balancer
+    ##
     loadBalancerSourceRanges: []
-
+  ## Ingress configuration
+  ##
   ingress:
+    ## @param standalone.ingress.enabled Enable ingress (boolean)
+    ##
     enabled: false
+    ## @param standalone.ingress.labels Labels for ingress
+    ##
     labels: {}
+    ## @param standalone.ingress.annotations Annotations for ingress
+    ##
     annotations: {}
+    ## @param standalone.ingress.rules Ingress routing rules
+    ##
     rules: []
-    # - host: localhost
-    #   paths:
-    #     - path: /
-    #       port: 17913
-    #       serviceName: banyandb-http
+    ## @param standalone.ingress.tls TLS configuration for ingress
+    ##
     tls: []
-    # - hosts:
-    #     - localhost
-    #   secretName: tls-secret
-
+  ## @param standalone.sidecar Sidecar container configurations
+  ##
   sidecar: []
-  # - name: cleanup-sidecar
-  #   image: busybox:latest
-  #   imagePullPolicy: IfNotPresent
-  #   commands: 
-  #     preStop: ["sh", "-c", "rm -rf /path/to/cleanup"]
+  ## Liveness probe configuration
+  ##
   livenessProbe:
+    ## @param standalone.livenessProbe.initialDelaySeconds Initial delay for liveness probe
+    ##
     initialDelaySeconds: 20
+    ## @param standalone.livenessProbe.periodSeconds Probe period in seconds
+    ##
     periodSeconds: 30
+    ## @param standalone.livenessProbe.timeoutSeconds Probe timeout in seconds
+    ##
     timeoutSeconds: 5
+    ## @param standalone.livenessProbe.successThreshold Number of successful probes
+    ##
     successThreshold: 1
+    ## @param standalone.livenessProbe.failureThreshold Number of failed probes
+    ##
     failureThreshold: 5
-
+  ## Readiness probe configuration
+  ##
   readinessProbe:
+    ## @param standalone.readinessProbe.initialDelaySeconds Initial delay for readiness probe
+    ##
     initialDelaySeconds: 20
+    ## @param standalone.readinessProbe.periodSeconds Probe period for readiness probe
+    ##
     periodSeconds: 30
+    ## @param standalone.readinessProbe.timeoutSeconds Timeout in seconds for readiness probe
+    ##
     timeoutSeconds: 5
+    ## @param standalone.readinessProbe.successThreshold Number of successful readiness probes
+    ##
     successThreshold: 1
+    ## @param standalone.readinessProbe.failureThreshold Number of failed readiness probes before marked unready
+    ##
     failureThreshold: 5
-
+  ## Startup probe configuration
+  ##
   startupProbe:
+    ## @param standalone.startupProbe.initialDelaySeconds Initial delay for startup probe
+    ##
     initialDelaySeconds: 0
+    ## @param standalone.startupProbe.periodSeconds Probe period for startup probe
+    ##
     periodSeconds: 10
+    ## @param standalone.startupProbe.timeoutSeconds Timeout in seconds for startup probe
+    ##
     timeoutSeconds: 5
+    ## @param standalone.startupProbe.successThreshold Number of successful startup probes
+    ##
     successThreshold: 1
+    ## @param standalone.startupProbe.failureThreshold Number of failed startup probes before timeout
+    ##
     failureThreshold: 60
 
+## @section Cluster mode configuration
+##
 cluster:
+  ## @param cluster.enabled Enable cluster mode (boolean)
+  ##
   enabled: true
+  ## @param cluster.etcdEndpoints List of etcd endpoints
+  ##
   etcdEndpoints: []
+  ## @section Configuration for liaison component
+  ##
   liaison:
+    ## @param cluster.liaison.replicas Number of liaison replicas
+    ##
     replicas: 2
-    podAnnotations:
-    # example: banyandb-foo
+    ## @param cluster.liaison.podAnnotations Pod annotations for liaison
+    ##
+    podAnnotations: {}
+    ## @param cluster.liaison.securityContext Security context for liaison pods
+    ##
     securityContext: {}
-    # runAsUser: 1000
-    # runAsGroup: 1000
-    # fsGroup: 1000
+    ## @param cluster.liaison.env Environment variables for liaison pods
+    ##
     env: []
-    # - name: BANYANDB_FOO
-    #   value: "bar"
+    ## @param cluster.liaison.priorityClassName Priority class name for liaison pods
+    ##
     priorityClassName: ""
+    ## Update strategy for liaison pods
+    ##
     updateStrategy:
+      ## @param cluster.liaison.updateStrategy.type Update strategy type for liaison pods
       type: RollingUpdate
       rollingUpdate:
+        ## @param cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods during update
         maxUnavailable: 1
+        ## @param cluster.liaison.updateStrategy.rollingUpdate.maxSurge Maximum surge pods during update
         maxSurge: 1
+    ## @param cluster.liaison.podDisruptionBudget Pod disruption budget for liaison
+    ##
     podDisruptionBudget: {}
-    #  minAvailable: 1
-    # maxUnavailable: 2
-    # paused: false
+    ## @param cluster.liaison.tolerations Tolerations for liaison pods
+    ##
     tolerations: []
-    # - key: foo
-    #   value: bar
-    #   operator: Equal
-    #   effect: NoSchedule
+    ## @param cluster.liaison.nodeSelector Node selector for liaison pods
+    ##
     nodeSelector: []
-    # - key: foo
-    #   value: bar
+    ## @param cluster.liaison.affinity Affinity rules for liaison pods
+    ##
     affinity: {}
-    # nodeAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     nodeSelectorTerms:
-    #       - matchExpressions:
-    #           - key: foo
-    #             operator: In
-    #             values:
-    #               - bar
-    #               - baz
-    # podAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     - labelSelector:
-    #         matchLabels:
-    #           - key: app
-    #             value: banyandb
-    #       topologyKey: "kubernetes.io/hostname"
-    #       namespaces: []
+    ## @param cluster.liaison.podAffinityPreset Pod affinity preset for liaison
+    ##
     podAffinityPreset: ""
+    ## @param cluster.liaison.podAntiAffinityPreset Pod anti-affinity preset for liaison
+    ##
     podAntiAffinityPreset: soft
+    ## Resource requests/limits for liaison
+    ##
     resources:
+      ## @param cluster.liaison.resources.requests Resource requests for liaison pods
       requests: []
-      # - key: cpu
-      #   value: "100m"
-      # - key: memory
-      #   value: "256Mi"
+      ## @param cluster.liaison.resources.limits Resource limits for liaison pods
       limits: []
-      # - key: cpu
-      #   value: "500m"
-      # - key: memory
-      #   value: "512Mi"
-    # tls:
-    # grpcSecretName: ""
-    # httpSecretName: ""
-    # etcdSecretName: ""
-
+    ## GRPC service settings for liaison
+    ##
     grpcSvc:
+      ## @param cluster.liaison.grpcSvc.labels Labels for GRPC service for liaison
       labels: {}
+      ## @param cluster.liaison.grpcSvc.annotations Annotations for GRPC service for liaison
       annotations: {}
+      ## @param cluster.liaison.grpcSvc.port Port number for GRPC service for liaison
       port: 17912
-
+    ## HTTP service settings for liaison
+    ##
     httpSvc:
+      ## @param cluster.liaison.httpSvc.labels Labels for HTTP service for liaison
       labels: {}
+      ## @param cluster.liaison.httpSvc.annotations Annotations for HTTP service for liaison
       annotations: {}
+      ## @param cluster.liaison.httpSvc.port Port number for HTTP service for liaison
       port: 17913
+      ## @param cluster.liaison.httpSvc.type Service type for HTTP service for liaison
       type: LoadBalancer
+      ## @param cluster.liaison.httpSvc.externalIPs External IP addresses for liaison HTTP service
       externalIPs: []
+      ## @param cluster.liaison.httpSvc.loadBalancerIP Load balancer IP for liaison HTTP service
       loadBalancerIP: null
+      ## @param cluster.liaison.httpSvc.loadBalancerSourceRanges Allowed source ranges for liaison HTTP service
       loadBalancerSourceRanges: []
-
+    ## Ingress configuration for liaison
+    ##
     ingress:
+      ## @param cluster.liaison.ingress.enabled Enable ingress for liaison
       enabled: false
+      ## @param cluster.liaison.ingress.labels Labels for ingress of liaison
       labels: {}
+      ## @param cluster.liaison.ingress.annotations Annotations for ingress of liaison
       annotations: {}
+      ## @param cluster.liaison.ingress.rules Ingress rules for liaison
       rules: []
-      # - host: localhost
-      #   paths:
-      #     - path: /
-      #       port: 17913
-      #       serviceName: banyandb-http
+      ## @param cluster.liaison.ingress.tls TLS configuration for liaison ingress
       tls: []
-      # - hosts:
-      #     - localhost
-      #   secretName: tls-secret
+    ## Liveness probe for liaison
+    ##
     livenessProbe:
+      ## @param cluster.liaison.livenessProbe.initialDelaySeconds Initial delay for liaison liveness probe
       initialDelaySeconds: 20
+      ## @param cluster.liaison.livenessProbe.periodSeconds Probe period for liaison liveness probe
       periodSeconds: 30
+      ## @param cluster.liaison.livenessProbe.timeoutSeconds Timeout in seconds for liaison liveness probe
       timeoutSeconds: 5
+      ## @param cluster.liaison.livenessProbe.successThreshold Success threshold for liaison liveness probe
       successThreshold: 1
+      ## @param cluster.liaison.livenessProbe.failureThreshold Failure threshold for liaison liveness probe
       failureThreshold: 5
-
+    ## Readiness probe for liaison
+    ##
     readinessProbe:
+      ## @param cluster.liaison.readinessProbe.initialDelaySeconds Initial delay for liaison readiness probe
+      ##
       initialDelaySeconds: 20
+      ## @param cluster.liaison.readinessProbe.periodSeconds Probe period for liaison readiness probe
+      ##
       periodSeconds: 30
+      ## @param cluster.liaison.readinessProbe.timeoutSeconds Timeout in seconds for liaison readiness probe
+      ##
       timeoutSeconds: 5
+      ## @param cluster.liaison.readinessProbe.successThreshold Success threshold for liaison readiness probe
+      ##
       successThreshold: 1
+      ## @param cluster.liaison.readinessProbe.failureThreshold Failure threshold for liaison readiness probe
+      ##
       failureThreshold: 5
-
+    ## Startup probe for liaison
+    ##
     startupProbe:
+      ## @param cluster.liaison.startupProbe.initialDelaySeconds Initial delay for liaison startup probe
+      ##
       initialDelaySeconds: 0
+      ## @param cluster.liaison.startupProbe.periodSeconds Probe period for liaison startup probe
+      ##
       periodSeconds: 10
+      ## @param cluster.liaison.startupProbe.timeoutSeconds Timeout in seconds for liaison startup probe
+      ##
       timeoutSeconds: 5
+      ## @param cluster.liaison.startupProbe.successThreshold Success threshold for liaison startup probe
+      ##
       successThreshold: 1
+      ## @param cluster.liaison.startupProbe.failureThreshold Failure threshold for liaison startup probe
+      ##
       failureThreshold: 60
-
+  ## @section Configuration for data component
+  ##
   data:
+    ## @param cluster.data.name Name of the data component
+    ##
     name: banyandb
+    ## @param cluster.data.replicas Number of data replicas
+    ##
     replicas: 3
-    podAnnotations:
-    # example: banyandb-foo
+    ## @param cluster.data.podAnnotations Pod annotations for data component
+    ##
+    podAnnotations: {}
+    ## @param cluster.data.securityContext Security context for data pods
+    ##
     securityContext: {}
-    # runAsUser: 1000
-    # runAsGroup: 1000
-    # fsGroup: 1000
+    ## @param cluster.data.env Environment variables for data pods
+    ##
     env: []
-    # - name: BANYANDB_FOO
-    #   value: "bar"
+    ## @param cluster.data.priorityClassName Priority class name for data pods
+    ##
     priorityClassName: ""
+    ## Pod disruption budget for data
+    ##
     podDisruptionBudget:
+      ## @param cluster.data.podDisruptionBudget.maxUnavailable Maximum unavailable pods for data component
       maxUnavailable: 1
-    # minAvailable: 1
-    # paused: false
+    ## @param cluster.data.tolerations Tolerations for data pods
+    ##
     tolerations: []
-    # - key: foo
-    #   value: bar
-    #   operator: Equal
-    #   effect: NoSchedule
+    ## @param cluster.data.nodeSelector Node selector for data pods
+    ##
     nodeSelector: []
-    # - key: foo
-    #   value: bar
+    ## @param cluster.data.affinity Affinity rules for data pods
+    ##
     affinity: {}
-    # nodeAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     nodeSelectorTerms:
-    #       - matchExpressions:
-    #           - key: foo
-    #             operator: In
-    #             values:
-    #               - bar
-    #               - baz
-    # podAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     - labelSelector:
-    #         matchExpressions:
-    #           - key: app.kubernetes.io/component
-    #             operator: In
-    #             values:
-    #               - liaison
-    #       topologyKey: "kubernetes.io/hostname"
-    #       namespaces: []
+    ## @param cluster.data.podAffinityPreset Pod affinity preset for data
+    ##
     podAffinityPreset: ""
+    ## @param cluster.data.podAntiAffinityPreset Pod anti-affinity preset for data
+    ##
     podAntiAffinityPreset: soft
+    ## Resource requests/limits for data
+    ##
     resources:
+      ## @param cluster.data.resources.requests Resource requests for data pods
       requests: []
-      # - key: cpu
-      #   value: "100m"
-      # - key: memory
-      #   value: "256Mi"
+      ## @param cluster.data.resources.limits Resource limits for data pods
       limits: []
-      # - key: cpu
-      #   value: "500m"
-      # - key: memory
-      #   value: "512Mi"
-    # tls:
-    #   grpcSecretName: ""
-    #   etcdSecretName: ""
-
+    ## GRPC service settings for data
+    ##
     grpcSvc:
+      ## @param cluster.data.grpcSvc.labels Labels for GRPC service for data
       labels: {}
+      ## @param cluster.data.grpcSvc.annotations Annotations for GRPC service for data
       annotations: {}
+      ## @param cluster.data.grpcSvc.port Port number for GRPC service for data
       port: 17912
-
+    ## @param cluster.data.sidecar Sidecar containers for data
+    ##
     sidecar: []
-    # - name: cleanup-sidecar
-    #   image: busybox:latest
-    #   imagePullPolicy: IfNotPresent
-    #   commands: 
-    #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
-    #     preStop: ["sh", "-c", "echo cleanup"]
+    ## Backup sidecar configuration
+    ##
+    backupSidecar:
+      ## @param cluster.data.backupSidecar.enabled Enable backup sidecar (boolean)
+      ##
+      enabled: false
+      ## @param cluster.data.backupSidecar.dest Backup destination path
+      ##
+      dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
+      ## @param cluster.data.backupSidecar.timeStyle Backup time style (e.g., daily)
+      ##
+      timeStyle: "daily"
+      ## @param cluster.data.backupSidecar.schedule Backup schedule (cron format)
+      ##
+      schedule: "@hourly"
+      ## @param cluster.data.backupSidecar.resources Resources for backup sidecar
+      ##
+      resources: {}
+    ## Restore init container configuration
+    ##
+    restoreInitContainer:
+      ## @param cluster.data.restoreInitContainer.enabled Enable restore init container (boolean)
+      ##
+      enabled: false
+      ## @param cluster.data.restoreInitContainer.resources Resources for restore init container
+      ##
+      resources: {}
+    ## Liveness probe for data
+    ##
     livenessProbe:
+      ## @param cluster.data.livenessProbe.initialDelaySeconds Initial delay for data liveness probe
       initialDelaySeconds: 20
+      ## @param cluster.data.livenessProbe.periodSeconds Probe period for data liveness probe
       periodSeconds: 30
+      ## @param cluster.data.livenessProbe.timeoutSeconds Timeout in seconds for data liveness probe
       timeoutSeconds: 5
+      ## @param cluster.data.livenessProbe.successThreshold Success threshold for data liveness probe
       successThreshold: 1
+      ## @param cluster.data.livenessProbe.failureThreshold Failure threshold for data liveness probe
       failureThreshold: 5
+    ## Readiness probe for data
+    ##
     readinessProbe:
+      ## @param cluster.data.readinessProbe.initialDelaySeconds Initial delay for data readiness probe
+      ##
       initialDelaySeconds: 20
+      ## @param cluster.data.readinessProbe.periodSeconds Probe period for data readiness probe
+      ##
       periodSeconds: 30
+      ## @param cluster.data.readinessProbe.timeoutSeconds Timeout in seconds for data readiness probe
+      ##
       timeoutSeconds: 5
+      ## @param cluster.data.readinessProbe.successThreshold Success threshold for data readiness probe
+      ##
       successThreshold: 1
+      ## @param cluster.data.readinessProbe.failureThreshold Failure threshold for data readiness probe
+      ##
       failureThreshold: 5
+    ## Startup probe for data
+    ##
     startupProbe:
+      ## @param cluster.data.startupProbe.initialDelaySeconds Initial delay for data startup probe
+      ##
       initialDelaySeconds: 0
+      ## @param cluster.data.startupProbe.periodSeconds Probe period for data startup probe
+      ##
       periodSeconds: 10
+      ## @param cluster.data.startupProbe.timeoutSeconds Timeout in seconds for data startup probe
+      ##
       timeoutSeconds: 5
+      ## @param cluster.data.startupProbe.successThreshold Success threshold for data startup probe
+      ##
       successThreshold: 1
+      ## @param cluster.data.startupProbe.failureThreshold Failure threshold for data startup probe
+      ##
       failureThreshold: 60
+  ## @section Configuration for UI component
+  ##
   ui:
-    # Available UI type: 
-    # None: Disable UI
-    # Standalone: Standalone UI deployment
-    # Embedded: Embedded UI in Liaison
+    ## @param cluster.ui.type UI deployment type (None, Standalone, Embedded)
+    ##
     type: Embedded
+    ## Standalone UI configuration
+    ##
     standalone:
+      ## @param cluster.ui.standalone.replicas Number of UI replicas
+      ##
       replicas: 1
-      podAnnotations:
-      # example: banyandb-foo
+      ## @param cluster.ui.standalone.podAnnotations Pod annotations for UI
+      ##
+      podAnnotations: {}
+      ## @param cluster.ui.standalone.securityContext Security context for UI pods
+      ##
       securityContext: {}
-      # runAsUser: 1000
-      # runAsGroup: 1000
-      # fsGroup: 1000
+      ## @param cluster.ui.standalone.env Environment variables for UI pods
+      ##
       env: []
-      # - name: BANYANDB_FOO
-      #   value: "bar"
+      ## @param cluster.ui.standalone.priorityClassName Priority class name for UI pods
+      ##
       priorityClassName: ""
+      ## Update strategy for UI pods
+      ##
       updateStrategy:
+        ## @param cluster.ui.standalone.updateStrategy.type Update strategy type for UI pods
         type: RollingUpdate
         rollingUpdate:
+          ## @param cluster.ui.standalone.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods for UI update
           maxUnavailable: 1
+          ## @param cluster.ui.standalone.updateStrategy.rollingUpdate.maxSurge Maximum surge pods for UI update
           maxSurge: 1
+      ## @param cluster.ui.standalone.podDisruptionBudget Pod disruption budget for UI
+      ##
       podDisruptionBudget: {}
-      #  minAvailable: 1
-      # maxUnavailable: 2
-      # paused: false
+      ## @param cluster.ui.standalone.tolerations Tolerations for UI pods
+      ##
       tolerations: []
-      # - key: foo
-      #   value: bar
-      #   operator: Equal
-      #   effect: NoSchedule
+      ## @param cluster.ui.standalone.nodeSelector Node selector for UI pods
+      ##
       nodeSelector: []
-      # - key: foo
-      #   value: bar
+      ## @param cluster.ui.standalone.affinity Affinity rules for UI pods
+      ##
       affinity: {}
-      # nodeAffinity:
-      #   requiredDuringSchedulingIgnoredDuringExecution:
-      #     nodeSelectorTerms:
-      #       - matchExpressions:
-      #           - key: foo
-      #             operator: In
-      #             values:
-      #               - bar
-      #               - baz
-      # podAffinity:
-      #   requiredDuringSchedulingIgnoredDuringExecution:
-      #     - labelSelector:
-      #         matchLabels:
-      #           - key: app
-      #             value: banyandb
-      #       topologyKey: "kubernetes.io/hostname"
-      #       namespaces: []
+      ## @param cluster.ui.standalone.podAffinityPreset Pod affinity preset for UI
+      ##
       podAffinityPreset: ""
+      ## @param cluster.ui.standalone.podAntiAffinityPreset Pod anti-affinity preset for UI
+      ##
       podAntiAffinityPreset: soft
+      ## Resource requests/limits for UI
+      ##
       resources:
+        ## @param cluster.ui.standalone.resources.requests Resource requests for UI pods
         requests: []
-        # - key: cpu
-        #   value: "100m"
-        # - key: memory
-        #   value: "256Mi"
+        ## @param cluster.ui.standalone.resources.limits Resource limits for UI pods
         limits: []
-        # - key: cpu
-        #   value: "500m"
-        # - key: memory
-        #   value: "512Mi"
-      # tls:
-      # grpcSecretName: ""
-      # httpSecretName: ""
-      # etcdSecretName: ""
-
+      ## HTTP service settings for UI
+      ##
       httpSvc:
+        ## @param cluster.ui.standalone.httpSvc.labels Labels for UI HTTP service
         labels: {}
+        ## @param cluster.ui.standalone.httpSvc.annotations Annotations for UI HTTP service
         annotations: {}
+        ## @param cluster.ui.standalone.httpSvc.port Port for UI HTTP service
         port: 17913
+        ## @param cluster.ui.standalone.httpSvc.type Service type for UI HTTP service
         type: LoadBalancer
+        ## @param cluster.ui.standalone.httpSvc.externalIPs External IPs for UI HTTP service
         externalIPs: []
+        ## @param cluster.ui.standalone.httpSvc.loadBalancerIP Load balancer IP for UI HTTP service
         loadBalancerIP: null
+        ## @param cluster.ui.standalone.httpSvc.loadBalancerSourceRanges Allowed source ranges for UI HTTP service
         loadBalancerSourceRanges: []
-
+      ## Ingress configuration for UI
+      ##
       ingress:
+        ## @param cluster.ui.standalone.ingress.enabled Enable ingress for UI
         enabled: false
+        ## @param cluster.ui.standalone.ingress.labels Labels for UI ingress
         labels: {}
+        ## @param cluster.ui.standalone.ingress.annotations Annotations for UI ingress
         annotations: {}
+        ## @param cluster.ui.standalone.ingress.rules Ingress rules for UI
         rules: []
-        # - host: localhost
-        #   paths:
-        #     - path: /
-        #       port: 17913
-        #       serviceName: banyandb-ui
+        ## @param cluster.ui.standalone.ingress.tls TLS configuration for UI ingress
         tls: []
-        # - hosts:
-        #     - localhost
-        #   secretName: tls-secret
+      ## Liveness probe for UI
+      ##
       livenessProbe:
+        ## @param cluster.ui.standalone.livenessProbe.initialDelaySeconds Initial delay for UI liveness probe
         initialDelaySeconds: 20
+        ## @param cluster.ui.standalone.livenessProbe.periodSeconds Probe period for UI liveness probe
         periodSeconds: 30
+        ## @param cluster.ui.standalone.livenessProbe.timeoutSeconds Timeout in seconds for UI liveness probe
         timeoutSeconds: 5
+        ## @param cluster.ui.standalone.livenessProbe.successThreshold Success threshold for UI liveness probe
         successThreshold: 1
+        ## @param cluster.ui.standalone.livenessProbe.failureThreshold Failure threshold for UI liveness probe
         failureThreshold: 5
-
+      ## Readiness probe for UI
+      ##
       readinessProbe:
+        ## @param cluster.ui.standalone.readinessProbe.initialDelaySeconds Initial delay for UI readiness probe
+        ##
         initialDelaySeconds: 20
+        ## @param cluster.ui.standalone.readinessProbe.periodSeconds Probe period for UI readiness probe
+        ##
         periodSeconds: 30
+        ## @param cluster.ui.standalone.readinessProbe.timeoutSeconds Timeout in seconds for UI readiness probe
+        ##
         timeoutSeconds: 5
+        ## @param cluster.ui.standalone.readinessProbe.successThreshold Success threshold for UI readiness probe
+        ##
         successThreshold: 1
+        ## @param cluster.ui.standalone.readinessProbe.failureThreshold Failure threshold for UI readiness probe
+        ##
         failureThreshold: 5
-
+      ## Startup probe for UI
+      ##
       startupProbe:
+        ## @param cluster.ui.standalone.startupProbe.initialDelaySeconds Initial delay for UI startup probe
+        ##
         initialDelaySeconds: 0
+        ## @param cluster.ui.standalone.startupProbe.periodSeconds Probe period for UI startup probe
+        ##
         periodSeconds: 10
+        ## @param cluster.ui.standalone.startupProbe.timeoutSeconds Timeout in seconds for UI startup probe
+        ##
         timeoutSeconds: 5
+        ## @param cluster.ui.standalone.startupProbe.successThreshold Success threshold for UI startup probe
+        ##
         successThreshold: 1
+        ## @param cluster.ui.standalone.startupProbe.failureThreshold Failure threshold for UI startup probe
+        ##
         failureThreshold: 60
 
+## @section Storage configuration for persistent volumes
+##
 storage:
+  ## @param storage.enabled Enable persistent storage (boolean)
+  ##
   enabled: false
+  ## @extra storage.persistentVolumeClaims List of PVC configurations
+  ##
   persistentVolumeClaims:
-    - mountTargets: ["measure", "stream"]
-      existingClaimName: null
-      claimName: data
-      size: 50Gi
-      accessModes:
-        - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: ["metadata"]
-      existingClaimName: null
-      claimName: meta
-      size: 5Gi
-      accessModes:
-        - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
+  ## @param storage.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
+  ##
+  - mountTargets: [ "measure" ]
+    ## @param storage.persistentVolumeClaims[0].existingClaimName Existing PVC name (if any)
+    existingClaimName: null
+    ## @param storage.persistentVolumeClaims[0].claimName Name of the PVC
+    claimName: measure-data
+    ## @param storage.persistentVolumeClaims[0].size Size of the PVC
+    size: 50Gi
+    ## @param storage.persistentVolumeClaims[0].accessModes Access modes for the PVC
+    accessModes:
+    - ReadWriteOnce
+    ## @param storage.persistentVolumeClaims[0].storageClass Storage class for the PVC
+    storageClass: null
+    ## @param storage.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
+    volumeMode: Filesystem
+  ## @param storage.persistentVolumeClaims[1].mountTargets Mount targets for the PVC
+  - mountTargets: [ "stream" ]
+    ## @param storage.persistentVolumeClaims[1].existingClaimName Existing PVC name (if any)
+    existingClaimName: null
+    ## @param storage.persistentVolumeClaims[1].claimName Name of the PVC
+    claimName: stream-data
+    ## @param storage.persistentVolumeClaims[1].size Size of the PVC
+    size: 50Gi
+    ## @param storage.persistentVolumeClaims[1].accessModes Access modes for the PVC
+    accessModes:
+    - ReadWriteOnce
+    ## @param storage.persistentVolumeClaims[1].storageClass Storage class for the PVC
+    storageClass: null
+    ## @param storage.persistentVolumeClaims[1].volumeMode Volume mode for the PVC
+    volumeMode: Filesystem
+  ## @param storage.persistentVolumeClaims[2].mountTargets Mount targets for the PVC
+  - mountTargets: [ "property" ]
+    ## @param storage.persistentVolumeClaims[2].existingClaimName Existing PVC name (if any)
+    existingClaimName: null
+    ## @param storage.persistentVolumeClaims[2].claimName Name of the PVC
+    claimName: property-data
+    ## @param storage.persistentVolumeClaims[2].size Size of the PVC
+    size: 5Gi
+    ## @param storage.persistentVolumeClaims[2].accessModes Access modes for the PVC
+    accessModes:
+    - ReadWriteOnce
+    ## @param storage.persistentVolumeClaims[2].storageClass Storage class for the PVC
+    storageClass: null
+    ## @param storage.persistentVolumeClaims[2].volumeMode Volume mode for the PVC
+    volumeMode: Filesystem
 
+## @section Service account configuration
+##
 serviceAccount:
-  # Specifies whether a service account should be created
+  ## @param serviceAccount.create Create a service account (boolean)
+  ##
   create: true
-  # Annotations to add to the service account
+  ## @param serviceAccount.annotations Annotations for the service account
+  ##
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  ## @param serviceAccount.name Name of the service account
+  ##
   name: ""
 
+## @section Etcd configuration for cluster state management
+##
 etcd:
+  ## @param etcd.enabled Enable etcd (boolean)
+  ##
   enabled: true
+  ## @param etcd.replicaCount Number of etcd replicas
+  ##
   replicaCount: 1
+  ## @section Authentication configuration for etcd
+  ##
   auth:
+    ## @section RBAC configuration for etcd
+    ##
     rbac:
+      ## @param etcd.auth.rbac.create Create RBAC roles (boolean)
+      ##
       create: true
+      ## @param etcd.auth.rbac.allowNoneAuthentication Allow unauthenticated access (boolean)
+      ##
       allowNoneAuthentication: false
+      ## @param etcd.auth.rbac.rootPassword Root user password
+      ##
       rootPassword: banyandb
+    ## @section Client TLS configuration
+    ##
     client:
+      ## @param etcd.auth.client.secureTransport Enable TLS for client communication (boolean)
+      ##
       secureTransport: false
+      ## @param etcd.auth.client.existingSecret Existing secret containing TLS certs
+      ##
       existingSecret: ""
+      ## @param etcd.auth.client.enableAuthentication Enable client authentication (boolean)
+      ##
       enableAuthentication: false
+      ## @param etcd.auth.client.certFilename Client certificate filename
+      ##
       certFilename: tls.crt
+      ## @param etcd.auth.client.certKeyFilename Client certificate key filename
+      ##
       certKeyFilename: tls.key
+      ## @param etcd.auth.client.caFilename CA certificate filename for TLS
+      ##
       caFilename: ""
-      # extraEnvVars:
-      #   - name: ETCDCTL_CACERT
-      #     value: /opt/bitnami/etcd/certs/client/ca.crt
+  ## @section Liveness probe configuration for etcd
+  ##
   livenessProbe:
+    ## @param etcd.livenessProbe.initialDelaySeconds Initial delay for liveness probe
+    ##
     initialDelaySeconds: 10
+  ## @section Readiness probe configuration for etcd
+  ##
   readinessProbe:
+    ## @param etcd.readinessProbe.initialDelaySeconds Initial delay for readiness probe
+    ##
     initialDelaySeconds: 10
-
-fullnameOverride: ""
-nameOverride: "banyandb"
