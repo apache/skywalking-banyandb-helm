@@ -148,113 +148,116 @@ cluster:
       failureThreshold: 60
 
   data:
-    replicas: 1
-    podAnnotations:
-      example: banyandb-foo
-    securityContext: {}
-    # runAsUser: 1000
-    # runAsGroup: 1000
-    # fsGroup: 1000
-    env: []
-    # - name: BANYANDB_FOO
-    #   value: "bar"
-    priorityClassName: ""
-    podDisruptionBudget:
-      maxUnavailable: 1
-    # minAvailable: 1
-    # maxUnavailable: 2
-    # matchLabels:
-    #   - key: foo
-    #     value: bar
-    # matchExpressions:
-    #   - key: foo
-    #     operator: In
-    #     values: [bar, baz]
-    # paused: false
-    tolerations: []
-    # - key: foo
-    #   value: bar
-    #   operator: Equal
-    #   effect: NoSchedule
-    nodeSelector: []
-    # - key: foo
-    #   value: bar
-    affinity: {}
-    # nodeAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     nodeSelectorTerms:
-    #       - matchExpressions:
-    #           - key: foo
-    #             operator: In
-    #             values:
-    #               - bar
-    #               - baz
-    # podAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     - labelSelector:
-    #         matchLabels:
-    #           - key: app
-    #             value: banyandb
-    #       topologyKey: "kubernetes.io/hostname"
-    #       namespaces: []
-    podAffinityPreset: ""
-    podAntiAffinityPreset: soft
-    resources:
-      requests: []
-      # - key: cpu
-      #   value: "100m"
-      # - key: memory
-      #   value: "256Mi"
-      limits: []
-      # - key: cpu
-      #   value: "500m"
-      # - key: memory
-      #   value: "512Mi"
-      # tls:
-      #   grpcSecretName: ""
-      #   etcdSecretName: ""
+    nodeTemplate:
+      replicas: 1
+      podAnnotations:
+        example: banyandb-foo
+      securityContext: {}
+      # runAsUser: 1000
+      # runAsGroup: 1000
+      # fsGroup: 1000
+      env: []
+      # - name: BANYANDB_FOO
+      #   value: "bar"
+      priorityClassName: ""
+      podDisruptionBudget:
+        maxUnavailable: 1
+      # minAvailable: 1
+      # maxUnavailable: 2
+      # matchLabels:
+      #   - key: foo
+      #     value: bar
+      # matchExpressions:
+      #   - key: foo
+      #     operator: In
+      #     values: [bar, baz]
+      # paused: false
+      tolerations: []
+      # - key: foo
+      #   value: bar
+      #   operator: Equal
+      #   effect: NoSchedule
+      nodeSelector: []
+      # - key: foo
+      #   value: bar
+      affinity: {}
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #       - matchExpressions:
+      #           - key: foo
+      #             operator: In
+      #             values:
+      #               - bar
+      #               - baz
+      # podAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchLabels:
+      #           - key: app
+      #             value: banyandb
+      #       topologyKey: "kubernetes.io/hostname"
+      #       namespaces: []
+      podAffinityPreset: ""
+      podAntiAffinityPreset: soft
+      resources:
+        requests: []
+        # - key: cpu
+        #   value: "100m"
+        # - key: memory
+        #   value: "256Mi"
+        limits: []
+        # - key: cpu
+        #   value: "500m"
+        # - key: memory
+        #   value: "512Mi"
+        # tls:
+        #   grpcSecretName: ""
+        #   etcdSecretName: ""
 
-    grpcSvc:
-      labels: {}
-      annotations: {}
-      port: 17912
+      grpcSvc:
+        labels: {}
+        annotations: {}
+        port: 17912
 
-    sidecar: []
-    # - name: cleanup-sidecar
-    #   image: busybox:latest
-    #   imagePullPolicy: IfNotPresent
-    #   commands: 
-    #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
-    #     preStop: ["sh", "-c", "echo cleanup"]
-    backupSidecar:
-      enabled: true 
-      dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
-      timeStyle: "daily"
-      schedule: "@every 10s"
-      resources: {}
-    restoreInitContainer:
-      enabled: true
-      resources: {}
-    livenessProbe:
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 60
+      sidecar: []
+      # - name: cleanup-sidecar
+      #   image: busybox:latest
+      #   imagePullPolicy: IfNotPresent
+      #   commands: 
+      #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
+      #     preStop: ["sh", "-c", "echo cleanup"]
+      backupSidecar:
+        enabled: true 
+        dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
+        timeStyle: "daily"
+        schedule: "@every 10s"
+        resources: {}
+      restoreInitContainer:
+        enabled: true
+        resources: {}
+      livenessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
 
-    readinessProbe:
-      initialDelaySeconds: 20
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 60
+      readinessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
 
-    startupProbe:
-      initialDelaySeconds: 0
-      periodSeconds: 5
-      timeoutSeconds: 5
-      successThreshold: 1
-      failureThreshold: 60
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+    roles:
+      hot: {}
   ui:
     # Available UI type: 
     # None: Disable UI

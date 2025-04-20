@@ -17,10 +17,11 @@ Example configuration snippet:
 ```yaml
 cluster:
   data:
-    backupSidecar:
-      enabled: true
-      # Set the remote backup destination (e.g., file:///backups)
-      dest: "file:///backups"
+    nodeTemplate:
+      backupSidecar:
+        enabled: true
+        # Set the remote backup destination (e.g., file:///backups)
+        dest: "file:///backups"
 ```
 
 The backup sidecar container will run with an entrypoint similar to:
@@ -42,10 +43,12 @@ To enable restore:
   ```yaml
   cluster:
     data:
-      restoreInitContainer:
-        enabled: true
-        # Optionally, configure additional parameters such as:
-        command: [ "--source=file:///backups" ]
+      nodeTemplate:
+        # Enable the restore init container
+        restoreInitContainer:
+          enabled: true
+          # Optionally, configure additional parameters such as:
+          command: [ "--source=file:///backups" ]
   ```
 
 - Ensure that the backup, restore, and main containers share the required volumes (e.g., for `/data/stream`, `/data/measure`, and `/data/property`). This is typically configured via the Kubernetes volume definitions in the StatefulSet.

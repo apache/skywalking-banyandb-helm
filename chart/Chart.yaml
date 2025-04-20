@@ -20,9 +20,9 @@ version: 0.4.0
 description: Helm Chart for Apache SkyWalking BanyanDB
 icon: https://raw.githubusercontent.com/apache/skywalking-kubernetes/master/logo/sw-logo-for-chart.jpg
 sources:
-  - https://github.com/apache/skywalking-banyandb-helm
+- https://github.com/apache/skywalking-banyandb-helm
 dependencies:
-  - name: etcd
-    version: 9.14.3
-    repository: oci://registry-1.docker.io/bitnamicharts
-    condition: etcd.enabled
+- name: etcd
+  version: 11.2.4
+  repository: oci://registry-1.docker.io/bitnamicharts
+  condition: etcd.enabled

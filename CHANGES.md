@@ -2,6 +2,14 @@ Changes by Version
 ==================
 Release Notes.
 
+0.5.0
+------------------
+
+#### Features
+
+- Support Lifecycle Sidecar
+- Introduce the data node template to support different node roles
+
 0.4.0
 ------------------
 

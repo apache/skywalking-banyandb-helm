@@ -498,12 +498,24 @@ cluster:
     ## @extra cluster.data.roles List of data roles (hot, warm, cold)
     ##
     roles:
-      ## @param cluster.data.roles.hot Hot data role
+      hot:
+        ## Override lifecycle sidecar settings for hot nodes
+        lifecycleSidecar:
+          ## @param cluster.data.roles.hot.lifecycleSidecar.schedule Schedule for lifecycle sidecar for hot data pods
+          schedule: "@every 1m"
+          enabled: true
+      warm:
+        ## Override lifecycle sidecar settings for warm nodes
+        lifecycleSidecar:
+          ## @param cluster.data.roles.warm.lifecycleSidecar.schedule Schedule for lifecycle sidecar for warm data pods
+          schedule: "@hourly"
+          enabled: true
+      cold:
+        ## @param cluster.data.roles.cold.replicas Override number of cold data replicas
+        replicas: 1
+
+      ## @section Configuration for UI component
       ##
-      hot: {}
-     
-  ## @section Configuration for UI component
-  ##
   ui:
     ## @param cluster.ui.type UI deployment type (None, Standalone, Embedded)
     ##
@@ -705,9 +717,37 @@ storage:
     storageClass: null
     ## @param storage.persistentVolumeClaims[2].volumeMode Volume mode for the PVC
     volumeMode: Filesystem
+  ## Warm storage configuration
+  - mountTargets: [ "measure", "stream" ]
+    ## @param storage.persistentVolumeClaims[3].nodeRole Node role this PVC is bound to
+    ##
+    nodeRole: warm
+    ## @param storage.persistentVolumeClaims[3].claimName Name of the PVC
+    claimName: warm-data
+    ## @param storage.persistentVolumeClaims[3].size Size of the PVC
+    size: 100Gi
+    ## @param storage.persistentVolumeClaims[3].accessModes Access modes for the PVC
+    accessModes:
+    - ReadWriteOnce
+    ## @param storage.persistentVolumeClaims[3].storageClass Storage class for the PVC
+    storageClass: null
+  ## Cold storage configuration
+  - mountTargets: [ "measure", "stream" ]
+    ## @param storage.persistentVolumeClaims[4].nodeRole Node role this PVC is bound to
+    ##
+    nodeRole: cold
+    ## @param storage.persistentVolumeClaims[4].claimName Name of the PVC
+    claimName: cold-data
+    ## @param storage.persistentVolumeClaims[4].size Size of the PVC
+    size: 500Gi
+    ## @param storage.persistentVolumeClaims[4].accessModes Access modes for the PVC
+    accessModes:
+    - ReadWriteOnce
+    ## @param storage.persistentVolumeClaims[4].storageClass Storage class for the PVC
+    storageClass: null
 
-## @section Service account configuration
-##
+  ## @section Service account configuration
+  ##
 serviceAccount:
   ## @param serviceAccount.create Create a service account (boolean)
   ##
@@ -768,10 +808,10 @@ etcd:
     ## ref: https://etcd.io/docs/latest/learning/design-auth-v3/#two-types-of-tokens-simple-and-jwt
     ##
     token:
-      ## @param etcd.auth.token.enabled Enables token authentication
+      ## @param auth.token.enabled Enables token authentication
       ##
       enabled: true
-      ## @param etcd.auth.token.type Authentication token type. Allowed values: 'simple' or 'jwt'
+      ## @param auth.token.type Authentication token type. Allowed values: 'simple' or 'jwt'
       ## ref: https://etcd.io/docs/latest/op-guide/configuration/#--auth-token
       ##
       type: simple

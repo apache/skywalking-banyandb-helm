@@ -1,0 +1,272 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if .Values.standalone.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
+  name: {{ template "banyandb.fullname" . }}
+spec:
+  serviceName: banyandb
+  replicas: 1
+  selector:
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: standalone
+  template:
+    metadata:
+      labels: {{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: standalone
+      {{- if .Values.standalone.podAnnotations }}
+      annotations:
+{{ toYaml .Values.standalone.podAnnotations | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
+      {{- with .Values.standalone.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.standalone.priorityClassName }}
+      containers:
+        - name: standalone
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range $env := .Values.standalone.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+            {{- if .Values.standalone.tls}}
+            {{- if .Values.standalone.tls.grpcSecretName }}
+            - name: BYDB_TLS
+              value: "true"
+            - name: BYDB_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.crt"
+            - name: BYDB_KEY_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.key"
+            - name: BYDB_HTTP_GRPC_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.crt"
+            {{- end }}
+            {{- if .Values.standalone.tls.httpSecretName }}
+            - name: BYDB_HTTP_TLS
+              value: "true"
+            - name: BYDB_HTTP_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.httpSecretName }}/tls.crt"
+            - name: BYDB_HTTP_KEY_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.httpSecretName }}/tls.key"
+            {{- end }}
+            {{- end }}
+          args:
+            - standalone
+          ports:
+            - containerPort: 17912
+              name: grpc
+            - containerPort: 17913
+              name: http
+            - containerPort: 6060
+              name: pprof
+            - containerPort: 2121
+              name: observebility
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.startupProbe.failureThreshold }}
+          {{- if.Values.standalone.resources }}
+          resources:
+            {{- if.Values.standalone.resources.requests }}
+            requests:
+              {{- range $request := .Values.standalone.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if.Values.standalone.resources.limits }}
+            limits:
+              {{- range $limit := .Values.standalone.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+
+          {{- if or .Values.storage.enabled .Values.standalone.tls }}
+          volumeMounts:
+            {{- if .Values.storage.enabled }}
+            {{- range $claim := .Values.storage.persistentVolumeClaims }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+
+            {{- if .Values.standalone.tls -}}
+            {{- if .Values.standalone.tls.grpcSecretName }}
+            - mountPath: /etc/tls/{{ .Values.standalone.tls.grpcSecretName }}
+              name: {{ .Values.standalone.tls.grpcSecretName }}-volume
+            {{- end }}
+            {{- if and .Values.standalone.tls.httpSecretName (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName) }}
+            - mountPath: /etc/tls/{{ .Values.standalone.tls.httpSecretName }}
+              name: {{ .Values.standalone.tls.httpSecretName }}-volume
+            {{- end }}
+            {{- end -}}
+          {{- end }}
+
+      {{- if .Values.standalone.tls }}
+      volumes:
+        {{- if .Values.standalone.tls.grpcSecretName }}
+        - name: {{ .Values.standalone.tls.grpcSecretName }}-volume
+          secret:
+            secretName: {{ .Values.standalone.tls.grpcSecretName }}
+        {{- end }}
+        {{- if and .Values.standalone.tls.httpSecretName (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName) }}
+        - name: {{ .Values.standalone.tls.httpSecretName }}-volume
+          secret:
+            secretName: {{ .Values.standalone.tls.httpSecretName }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.standalone.tolerations }}
+      tolerations:
+        {{- range $toleration := .Values.standalone.tolerations }}
+        - key: {{ $toleration.key }}
+          operator: {{ $toleration.operator }}
+          value: {{ $toleration.value }}
+          effect: {{ $toleration.effect }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.standalone.nodeSelector }}
+      nodeSelector:
+        {{- range $selector := .Values.standalone.nodeSelector }}
+        {{ $selector.key }}: {{ $selector.value }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.standalone.affinity }}
+      {{- $affinity := .Values.standalone.affinity }}
+      affinity:
+        {{- if $affinity.nodeAffinity }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            {{- range $requirement := $affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms }}
+              {{- range $matchExpression := $requirement.matchExpressions }}
+                - matchExpressions:
+                    - key: {{ $matchExpression.key }}
+                      operator: {{ $matchExpression.operator }}
+                      values:
+                        {{- range $v := $matchExpression.values }}
+                        - {{ $v }}
+                        {{- end }}
+              {{- end }}
+            {{- end }}
+        {{- end }}
+
+        {{- if $affinity.podAffinity }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- range $term := $affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution }}
+            - topologyKey: {{ $term.topologyKey }}
+              namespaces:
+                {{- range $ns := $term.namespaces }}
+                - {{ $ns }}
+                {{- end }}
+              labelSelector:
+                matchLabels:
+                  {{- range $label := $term.labelSelector.matchLabels }}
+                  {{ $label.key }}: {{ $label.value }}
+                  {{- end }}
+            {{- end }}
+        {{- end }}
+      {{- end }}
+  {{- if .Values.storage.enabled }}
+  volumeClaimTemplates:
+    {{- range $claim := .Values.storage.persistentVolumeClaims }}
+    - metadata:
+        name: {{ $claim.claimName }}
+      spec:
+        {{- if $claim.accessModes }}
+        accessModes:
+          {{- range $claim.accessModes }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+
+        {{- if $claim.size }}
+        resources:
+          requests:
+            storage: {{ $claim.size }}
+        {{- end }}
+
+        {{- if $claim.storageClass }}
+        storageClassName: {{ $claim.storageClass }}
+        {{- end }}
+
+        {{- if $claim.volumeMode }}
+        volumeMode: {{ $claim.volumeMode }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
