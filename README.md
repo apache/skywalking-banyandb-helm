@@ -123,6 +123,10 @@ spec:
 
 The backup and restore functionalities are supported in the BanyanDB Helm Chart. The detailed configuration can be found in [backup.md](./doc/backup.md).
 
+## Lifecycle Management
+
+The lifecycle management functionalities are supported in the BanyanDB Helm Chart. The detailed configuration can be found in [lifecycle.md](./doc/lifecycle.md).
+
 # Install the development version of BanyanDB using the master branch
 
 This is needed **only** when you want to install [BanyanDB](https://github.com/apache/skywalking-banyandb/tree/main) from the master branch. 
