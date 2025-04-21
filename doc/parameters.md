@@ -125,48 +125,52 @@ The content of this document describes the parameters that can be configured in 
 
 ### Configuration for data component
 
-| Name                                              | Description                                 | Value                                        |
-| ------------------------------------------------- | ------------------------------------------- | -------------------------------------------- |
-| `cluster.data.name`                               | Name of the data component                  | `banyandb`                                   |
-| `cluster.data.replicas`                           | Number of data replicas                     | `3`                                          |
-| `cluster.data.podAnnotations`                     | Pod annotations for data component          | `{}`                                         |
-| `cluster.data.securityContext`                    | Security context for data pods              | `{}`                                         |
-| `cluster.data.env`                                | Environment variables for data pods         | `[]`                                         |
-| `cluster.data.priorityClassName`                  | Priority class name for data pods           | `""`                                         |
-| `cluster.data.podDisruptionBudget.maxUnavailable` | Maximum unavailable pods for data component | `1`                                          |
-| `cluster.data.tolerations`                        | Tolerations for data pods                   | `[]`                                         |
-| `cluster.data.nodeSelector`                       | Node selector for data pods                 | `[]`                                         |
-| `cluster.data.affinity`                           | Affinity rules for data pods                | `{}`                                         |
-| `cluster.data.podAffinityPreset`                  | Pod affinity preset for data                | `""`                                         |
-| `cluster.data.podAntiAffinityPreset`              | Pod anti-affinity preset for data           | `soft`                                       |
-| `cluster.data.resources.requests`                 | Resource requests for data pods             | `[]`                                         |
-| `cluster.data.resources.limits`                   | Resource limits for data pods               | `[]`                                         |
-| `cluster.data.grpcSvc.labels`                     | Labels for GRPC service for data            | `{}`                                         |
-| `cluster.data.grpcSvc.annotations`                | Annotations for GRPC service for data       | `{}`                                         |
-| `cluster.data.grpcSvc.port`                       | Port number for GRPC service for data       | `17912`                                      |
-| `cluster.data.sidecar`                            | Sidecar containers for data                 | `[]`                                         |
-| `cluster.data.backupSidecar.enabled`              | Enable backup sidecar (boolean)             | `false`                                      |
-| `cluster.data.backupSidecar.dest`                 | Backup destination path                     | `file:///tmp/backups/data-$(ORDINAL_NUMBER)` |
-| `cluster.data.backupSidecar.timeStyle`            | Backup time style (e.g., daily)             | `daily`                                      |
-| `cluster.data.backupSidecar.schedule`             | Backup schedule (cron format)               | `@hourly`                                    |
-| `cluster.data.backupSidecar.resources`            | Resources for backup sidecar                | `{}`                                         |
-| `cluster.data.restoreInitContainer.enabled`       | Enable restore init container (boolean)     | `false`                                      |
-| `cluster.data.restoreInitContainer.resources`     | Resources for restore init container        | `{}`                                         |
-| `cluster.data.livenessProbe.initialDelaySeconds`  | Initial delay for data liveness probe       | `20`                                         |
-| `cluster.data.livenessProbe.periodSeconds`        | Probe period for data liveness probe        | `30`                                         |
-| `cluster.data.livenessProbe.timeoutSeconds`       | Timeout in seconds for data liveness probe  | `5`                                          |
-| `cluster.data.livenessProbe.successThreshold`     | Success threshold for data liveness probe   | `1`                                          |
-| `cluster.data.livenessProbe.failureThreshold`     | Failure threshold for data liveness probe   | `5`                                          |
-| `cluster.data.readinessProbe.initialDelaySeconds` | Initial delay for data readiness probe      | `20`                                         |
-| `cluster.data.readinessProbe.periodSeconds`       | Probe period for data readiness probe       | `30`                                         |
-| `cluster.data.readinessProbe.timeoutSeconds`      | Timeout in seconds for data readiness probe | `5`                                          |
-| `cluster.data.readinessProbe.successThreshold`    | Success threshold for data readiness probe  | `1`                                          |
-| `cluster.data.readinessProbe.failureThreshold`    | Failure threshold for data readiness probe  | `5`                                          |
-| `cluster.data.startupProbe.initialDelaySeconds`   | Initial delay for data startup probe        | `0`                                          |
-| `cluster.data.startupProbe.periodSeconds`         | Probe period for data startup probe         | `10`                                         |
-| `cluster.data.startupProbe.timeoutSeconds`        | Timeout in seconds for data startup probe   | `5`                                          |
-| `cluster.data.startupProbe.successThreshold`      | Success threshold for data startup probe    | `1`                                          |
-| `cluster.data.startupProbe.failureThreshold`      | Failure threshold for data startup probe    | `60`                                         |
+| Name                                                           | Description                                           | Value                                        |
+| -------------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------- |
+| `cluster.data.nodeTemplate.replicas`                           | Number of data replicas by default                    | `2`                                          |
+| `cluster.data.nodeTemplate.podAnnotations`                     | Pod annotations for data pods                         | `{}`                                         |
+| `cluster.data.nodeTemplate.securityContext`                    | Security context for data pods                        | `{}`                                         |
+| `cluster.data.nodeTemplate.env`                                | Environment variables for data pods                   | `[]`                                         |
+| `cluster.data.nodeTemplate.priorityClassName`                  | Priority class name for data pods                     | `""`                                         |
+| `cluster.data.nodeTemplate.podDisruptionBudget.maxUnavailable` | Maximum unavailable data pods                         | `1`                                          |
+| `cluster.data.nodeTemplate.tolerations`                        | Tolerations for data pods                             | `[]`                                         |
+| `cluster.data.nodeTemplate.nodeSelector`                       | Node selector for data pods                           | `[]`                                         |
+| `cluster.data.nodeTemplate.affinity`                           | Affinity rules for data pods                          | `{}`                                         |
+| `cluster.data.nodeTemplate.podAffinityPreset`                  | Pod affinity preset for data pods                     | `""`                                         |
+| `cluster.data.nodeTemplate.podAntiAffinityPreset`              | Pod anti-affinity preset for data pods                | `soft`                                       |
+| `cluster.data.nodeTemplate.resources.requests`                 | Resource requests for data pods                       | `[]`                                         |
+| `cluster.data.nodeTemplate.resources.limits`                   | Resource limits for data pods                         | `[]`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.labels`                     | Labels for GRPC service for data pods                 | `{}`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.annotations`                | Annotations for GRPC service for data pods            | `{}`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.port`                       | Port number for GRPC service for data pods            | `17912`                                      |
+| `cluster.data.nodeTemplate.sidecar`                            | Sidecar containers for data pods                      | `[]`                                         |
+| `cluster.data.nodeTemplate.backupSidecar.enabled`              | Enable backup sidecar for data pods (boolean)         | `false`                                      |
+| `cluster.data.nodeTemplate.backupSidecar.dest`                 | Backup destination path for data pods                 | `file:///tmp/backups/data-$(ORDINAL_NUMBER)` |
+| `cluster.data.nodeTemplate.backupSidecar.timeStyle`            | Backup time style for data pods (e.g., daily)         | `daily`                                      |
+| `cluster.data.nodeTemplate.backupSidecar.schedule`             | Backup schedule for data pods (cron format)           | `@hourly`                                    |
+| `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods            | `{}`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)      | `false`                                      |
+| `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)          | `@hourly`                                    |
+| `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods         | `{}`                                         |
+| `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean) | `false`                                      |
+| `cluster.data.nodeTemplate.restoreInitContainer.resources`     | Resources for restore init container for data pods    | `{}`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.initialDelaySeconds`  | Initial delay for data liveness probe                 | `20`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.periodSeconds`        | Probe period for data liveness probe                  | `30`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.timeoutSeconds`       | Timeout in seconds for data liveness probe            | `5`                                          |
+| `cluster.data.nodeTemplate.livenessProbe.successThreshold`     | Success threshold for data liveness probe             | `1`                                          |
+| `cluster.data.nodeTemplate.livenessProbe.failureThreshold`     | Failure threshold for data liveness probe             | `5`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.initialDelaySeconds` | Initial delay for data readiness probe                | `20`                                         |
+| `cluster.data.nodeTemplate.readinessProbe.periodSeconds`       | Probe period for data readiness probe                 | `30`                                         |
+| `cluster.data.nodeTemplate.readinessProbe.timeoutSeconds`      | Timeout in seconds for data readiness probe           | `5`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.successThreshold`    | Success threshold for data readiness probe            | `1`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.failureThreshold`    | Failure threshold for data readiness probe            | `5`                                          |
+| `cluster.data.nodeTemplate.startupProbe.initialDelaySeconds`   | Initial delay for data startup probe                  | `0`                                          |
+| `cluster.data.nodeTemplate.startupProbe.periodSeconds`         | Probe period for data startup probe                   | `10`                                         |
+| `cluster.data.nodeTemplate.startupProbe.timeoutSeconds`        | Timeout in seconds for data startup probe             | `5`                                          |
+| `cluster.data.nodeTemplate.startupProbe.successThreshold`      | Success threshold for data startup probe              | `1`                                          |
+| `cluster.data.nodeTemplate.startupProbe.failureThreshold`      | Failure threshold for data startup probe              | `60`                                         |
+| `cluster.data.roles`                                           | List of data roles (hot, warm, cold)                  |                                              |
+| `cluster.data.roles.hot`                                       | Hot data role                                         | `{}`                                         |
 
 ### Configuration for UI component
 
@@ -219,31 +223,34 @@ The content of this document describes the parameters that can be configured in 
 
 ### Storage configuration for persistent volumes
 
-| Name                                                  | Description                         | Value               |
-| ----------------------------------------------------- | ----------------------------------- | ------------------- |
-| `storage.enabled`                                     | Enable persistent storage (boolean) | `false`             |
-| `storage.persistentVolumeClaims`                      | List of PVC configurations          |                     |
-| `storage.persistentVolumeClaims[0].mountTargets`      | Mount targets for the PVC           | `["measure"]`       |
-| `storage.persistentVolumeClaims[0].existingClaimName` | Existing PVC name (if any)          | `nil`               |
-| `storage.persistentVolumeClaims[0].claimName`         | Name of the PVC                     | `measure-data`      |
-| `storage.persistentVolumeClaims[0].size`              | Size of the PVC                     | `50Gi`              |
-| `storage.persistentVolumeClaims[0].accessModes`       | Access modes for the PVC            | `["ReadWriteOnce"]` |
-| `storage.persistentVolumeClaims[0].storageClass`      | Storage class for the PVC           | `nil`               |
-| `storage.persistentVolumeClaims[0].volumeMode`        | Volume mode for the PVC             | `Filesystem`        |
-| `storage.persistentVolumeClaims[1].mountTargets`      | Mount targets for the PVC           | `["stream"]`        |
-| `storage.persistentVolumeClaims[1].existingClaimName` | Existing PVC name (if any)          | `nil`               |
-| `storage.persistentVolumeClaims[1].claimName`         | Name of the PVC                     | `stream-data`       |
-| `storage.persistentVolumeClaims[1].size`              | Size of the PVC                     | `50Gi`              |
-| `storage.persistentVolumeClaims[1].accessModes`       | Access modes for the PVC            | `["ReadWriteOnce"]` |
-| `storage.persistentVolumeClaims[1].storageClass`      | Storage class for the PVC           | `nil`               |
-| `storage.persistentVolumeClaims[1].volumeMode`        | Volume mode for the PVC             | `Filesystem`        |
-| `storage.persistentVolumeClaims[2].mountTargets`      | Mount targets for the PVC           | `["property"]`      |
-| `storage.persistentVolumeClaims[2].existingClaimName` | Existing PVC name (if any)          | `nil`               |
-| `storage.persistentVolumeClaims[2].claimName`         | Name of the PVC                     | `property-data`     |
-| `storage.persistentVolumeClaims[2].size`              | Size of the PVC                     | `5Gi`               |
-| `storage.persistentVolumeClaims[2].accessModes`       | Access modes for the PVC            | `["ReadWriteOnce"]` |
-| `storage.persistentVolumeClaims[2].storageClass`      | Storage class for the PVC           | `nil`               |
-| `storage.persistentVolumeClaims[2].volumeMode`        | Volume mode for the PVC             | `Filesystem`        |
+| Name                                                  | Description                                      | Value               |
+| ----------------------------------------------------- | ------------------------------------------------ | ------------------- |
+| `storage.enabled`                                     | Enable persistent storage (boolean)              | `false`             |
+| `storage.persistentVolumeClaims`                      | List of PVC configurations                       |                     |
+| `storage.persistentVolumeClaims[0].mountTargets`      | Mount targets for the PVC                        | `["measure"]`       |
+| `storage.persistentVolumeClaims[0].nodeRole`          | Node role this PVC is bound to (hot, warm, cold) | `hot`               |
+| `storage.persistentVolumeClaims[0].existingClaimName` | Existing PVC name (if any)                       | `nil`               |
+| `storage.persistentVolumeClaims[0].claimName`         | Name of the PVC                                  | `hot-measure-data`  |
+| `storage.persistentVolumeClaims[0].size`              | Size of the PVC                                  | `50Gi`              |
+| `storage.persistentVolumeClaims[0].accessModes`       | Access modes for the PVC                         | `["ReadWriteOnce"]` |
+| `storage.persistentVolumeClaims[0].storageClass`      | Storage class for the PVC                        | `nil`               |
+| `storage.persistentVolumeClaims[0].volumeMode`        | Volume mode for the PVC                          | `Filesystem`        |
+| `storage.persistentVolumeClaims[1].mountTargets`      | Mount targets for the PVC                        | `["stream"]`        |
+| `storage.persistentVolumeClaims[1].nodeRole`          | Node role this PVC is bound to                   | `hot`               |
+| `storage.persistentVolumeClaims[1].existingClaimName` | Existing PVC name (if any)                       | `nil`               |
+| `storage.persistentVolumeClaims[1].claimName`         | Name of the PVC                                  | `hot-stream-data`   |
+| `storage.persistentVolumeClaims[1].size`              | Size of the PVC                                  | `50Gi`              |
+| `storage.persistentVolumeClaims[1].accessModes`       | Access modes for the PVC                         | `["ReadWriteOnce"]` |
+| `storage.persistentVolumeClaims[1].storageClass`      | Storage class for the PVC                        | `nil`               |
+| `storage.persistentVolumeClaims[1].volumeMode`        | Volume mode for the PVC                          | `Filesystem`        |
+| `storage.persistentVolumeClaims[2].mountTargets`      | Mount targets for the PVC                        | `["property"]`      |
+| `storage.persistentVolumeClaims[2].nodeRole`          | Node role this PVC is bound to                   | `hot`               |
+| `storage.persistentVolumeClaims[2].existingClaimName` | Existing PVC name (if any)                       | `nil`               |
+| `storage.persistentVolumeClaims[2].claimName`         | Name of the PVC                                  | `hot-property-data` |
+| `storage.persistentVolumeClaims[2].size`              | Size of the PVC                                  | `5Gi`               |
+| `storage.persistentVolumeClaims[2].accessModes`       | Access modes for the PVC                         | `["ReadWriteOnce"]` |
+| `storage.persistentVolumeClaims[2].storageClass`      | Storage class for the PVC                        | `nil`               |
+| `storage.persistentVolumeClaims[2].volumeMode`        | Volume mode for the PVC                          | `Filesystem`        |
 
 ### Service account configuration
 
@@ -273,14 +280,16 @@ The content of this document describes the parameters that can be configured in 
 
 ### Client TLS configuration
 
-| Name                                    | Description                                   | Value     |
-| --------------------------------------- | --------------------------------------------- | --------- |
-| `etcd.auth.client.secureTransport`      | Enable TLS for client communication (boolean) | `false`   |
-| `etcd.auth.client.existingSecret`       | Existing secret containing TLS certs          | `""`      |
-| `etcd.auth.client.enableAuthentication` | Enable client authentication (boolean)        | `false`   |
-| `etcd.auth.client.certFilename`         | Client certificate filename                   | `tls.crt` |
-| `etcd.auth.client.certKeyFilename`      | Client certificate key filename               | `tls.key` |
-| `etcd.auth.client.caFilename`           | CA certificate filename for TLS               | `""`      |
+| Name                                    | Description                                                  | Value     |
+| --------------------------------------- | ------------------------------------------------------------ | --------- |
+| `etcd.auth.client.secureTransport`      | Enable TLS for client communication (boolean)                | `false`   |
+| `etcd.auth.client.existingSecret`       | Existing secret containing TLS certs                         | `""`      |
+| `etcd.auth.client.enableAuthentication` | Enable client authentication (boolean)                       | `false`   |
+| `etcd.auth.client.certFilename`         | Client certificate filename                                  | `tls.crt` |
+| `etcd.auth.client.certKeyFilename`      | Client certificate key filename                              | `tls.key` |
+| `etcd.auth.client.caFilename`           | CA certificate filename for TLS                              | `""`      |
+| `etcd.auth.token.enabled`               | Enables token authentication                                 | `true`    |
+| `etcd.auth.token.type`                  | Authentication token type. Allowed values: 'simple' or 'jwt' | `simple`  |
 
 ### Liveness probe configuration for etcd
 
@@ -290,6 +299,12 @@ The content of this document describes the parameters that can be configured in 
 
 ### Readiness probe configuration for etcd
 
-| Name                                      | Description                       | Value |
-| ----------------------------------------- | --------------------------------- | ----- |
-| `etcd.readinessProbe.initialDelaySeconds` | Initial delay for readiness probe | `10`  |
+| Name                                      | Description                                | Value       |
+| ----------------------------------------- | ------------------------------------------ | ----------- |
+| `etcd.readinessProbe.initialDelaySeconds` | Initial delay for readiness probe          | `10`        |
+| `etcd.autoCompactionMode`                 | Auto-compaction mode (periodic, revision)  | `periodic`  |
+| `etcd.autoCompactionRetention`            | Auto-compaction retention period           | `1`         |
+| `etcd.defrag`                             | Configuration for defragmentation          |             |
+| `etcd.defrag.enabled`                     | Enable defragmentation (boolean)           | `true`      |
+| `etcd.defrag.cronjob`                     | Cron job configuration for defragmentation |             |
+| `etcd.defrag.cronjob.schedule`            | Cron schedule for defragmentation          | `0 0 * * *` |
