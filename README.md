@@ -57,6 +57,8 @@ The command removes all the banyandb components associated with the chart and de
 
 | Chart Version | Supported BanyanDB Version |
 |---------------|----------------------------|
+| 0.5.0         | 0.9.x                      |
+| 0.4.0         | 0.8.x                      |
 | 0.3.0         | 0.7.x                      |
 | 0.4.0 or later| 0.8.0 or later             |
 
