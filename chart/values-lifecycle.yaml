@@ -502,13 +502,13 @@ cluster:
         ## Override lifecycle sidecar settings for hot nodes
         lifecycleSidecar:
           ## @param cluster.data.roles.hot.lifecycleSidecar.schedule Schedule for lifecycle sidecar for hot data pods
-          schedule: "@every 1m"
+          schedule: "@daily"
           enabled: true
       warm:
         ## Override lifecycle sidecar settings for warm nodes
         lifecycleSidecar:
           ## @param cluster.data.roles.warm.lifecycleSidecar.schedule Schedule for lifecycle sidecar for warm data pods
-          schedule: "@hourly"
+          schedule: "@daily"
           enabled: true
       cold:
         ## @param cluster.data.roles.cold.replicas Override number of cold data replicas
