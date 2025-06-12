@@ -117,7 +117,7 @@ spec:
             - name: BYDB_ETCD_USERNAME
               value: "root"
             - name: BYDB_ETCD_PASSWORD
-              value: {{ $.Values.etcd.auth.rbac.rootPassword }}
+              value: "{{ $.Values.etcd.auth.rbac.rootPassword }}"
             {{- end }}
             {{- if $.Values.etcd.auth.client.secureTransport }}
             - name: BYDB_ETCD_TLS_CA_FILE
@@ -282,7 +282,7 @@ spec:
             - name: BYDB_ETCD_USERNAME
               value: "root"
             - name: BYDB_ETCD_PASSWORD
-              value: {{ $.Values.etcd.auth.rbac.rootPassword }}
+              value: "{{ $.Values.etcd.auth.rbac.rootPassword }}"
             {{- end }}
             {{- if $.Values.etcd.auth.client.secureTransport }}
             - name: BYDB_ETCD_TLS_CA_FILE
