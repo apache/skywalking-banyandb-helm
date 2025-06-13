@@ -501,7 +501,7 @@ cluster:
       ## @param cluster.data.roles.hot Hot data role
       ##
       hot: {}
-     
+
   ## @section Configuration for UI component
   ##
   ui:
@@ -755,12 +755,12 @@ etcd:
       ## @param etcd.auth.client.enableAuthentication Enable client authentication (boolean)
       ##
       enableAuthentication: false
-      ## @param etcd.auth.client.certFilename Client certificate filename
+      ## @param auth.client.certFilename Name of the file containing the client certificate
       ##
-      certFilename: tls.crt
-      ## @param etcd.auth.client.certKeyFilename Client certificate key filename
+      certFilename: cert.pem
+      ## @param auth.client.certKeyFilename Name of the file containing the client certificate private key
       ##
-      certKeyFilename: tls.key
+      certKeyFilename: key.pem
       ## @param etcd.auth.client.caFilename CA certificate filename for TLS
       ##
       caFilename: ""
@@ -774,7 +774,7 @@ etcd:
       ## @param etcd.auth.token.type Authentication token type. Allowed values: 'simple' or 'jwt'
       ## ref: https://etcd.io/docs/latest/op-guide/configuration/#--auth-token
       ##
-      type: simple
+      type: jwt
   ## @section Liveness probe configuration for etcd
   ##
   livenessProbe:
