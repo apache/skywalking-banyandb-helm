@@ -16,13 +16,13 @@
 apiVersion: v2
 name: skywalking-banyandb-helm
 home: https://skywalking.apache.org
-version: 0.4.0
+version: 0.5.0-rc1
 description: Helm Chart for Apache SkyWalking BanyanDB
 icon: https://raw.githubusercontent.com/apache/skywalking-kubernetes/master/logo/sw-logo-for-chart.jpg
 sources:
 - https://github.com/apache/skywalking-banyandb-helm
 dependencies:
 - name: etcd
-  version: 11.2.4
+  version: 12.0.4
   repository: oci://registry-1.docker.io/bitnamicharts
   condition: etcd.enabled
