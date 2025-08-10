@@ -83,7 +83,7 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.liaison.priorityClassName`                           | Priority class name for liaison pods           | `""`            |
 | `cluster.liaison.updateStrategy.type`                         | Update strategy type for liaison pods          | `RollingUpdate` |
 | `cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods during update         | `1`             |
-| `cluster.liaison.updateStrategy.rollingUpdate.maxSurge`       | Maximum surge pods during update               | `1`             |
+| `cluster.liaison.podManagementPolicy`                         | Pod management policy for liaison StatefulSet  | `Parallel`      |
 | `cluster.liaison.podDisruptionBudget`                         | Pod disruption budget for liaison              | `{}`            |
 | `cluster.liaison.tolerations`                                 | Tolerations for liaison pods                   | `[]`            |
 | `cluster.liaison.nodeSelector`                                | Node selector for liaison pods                 | `[]`            |
@@ -223,34 +223,50 @@ The content of this document describes the parameters that can be configured in 
 
 ### Storage configuration for persistent volumes
 
-| Name                                                  | Description                                      | Value               |
-| ----------------------------------------------------- | ------------------------------------------------ | ------------------- |
-| `storage.enabled`                                     | Enable persistent storage (boolean)              | `false`             |
-| `storage.persistentVolumeClaims`                      | List of PVC configurations                       |                     |
-| `storage.persistentVolumeClaims[0].mountTargets`      | Mount targets for the PVC                        | `["measure"]`       |
-| `storage.persistentVolumeClaims[0].nodeRole`          | Node role this PVC is bound to (hot, warm, cold) | `hot`               |
-| `storage.persistentVolumeClaims[0].existingClaimName` | Existing PVC name (if any)                       | `nil`               |
-| `storage.persistentVolumeClaims[0].claimName`         | Name of the PVC                                  | `hot-measure-data`  |
-| `storage.persistentVolumeClaims[0].size`              | Size of the PVC                                  | `50Gi`              |
-| `storage.persistentVolumeClaims[0].accessModes`       | Access modes for the PVC                         | `["ReadWriteOnce"]` |
-| `storage.persistentVolumeClaims[0].storageClass`      | Storage class for the PVC                        | `nil`               |
-| `storage.persistentVolumeClaims[0].volumeMode`        | Volume mode for the PVC                          | `Filesystem`        |
-| `storage.persistentVolumeClaims[1].mountTargets`      | Mount targets for the PVC                        | `["stream"]`        |
-| `storage.persistentVolumeClaims[1].nodeRole`          | Node role this PVC is bound to                   | `hot`               |
-| `storage.persistentVolumeClaims[1].existingClaimName` | Existing PVC name (if any)                       | `nil`               |
-| `storage.persistentVolumeClaims[1].claimName`         | Name of the PVC                                  | `hot-stream-data`   |
-| `storage.persistentVolumeClaims[1].size`              | Size of the PVC                                  | `50Gi`              |
-| `storage.persistentVolumeClaims[1].accessModes`       | Access modes for the PVC                         | `["ReadWriteOnce"]` |
-| `storage.persistentVolumeClaims[1].storageClass`      | Storage class for the PVC                        | `nil`               |
-| `storage.persistentVolumeClaims[1].volumeMode`        | Volume mode for the PVC                          | `Filesystem`        |
-| `storage.persistentVolumeClaims[2].mountTargets`      | Mount targets for the PVC                        | `["property"]`      |
-| `storage.persistentVolumeClaims[2].nodeRole`          | Node role this PVC is bound to                   | `hot`               |
-| `storage.persistentVolumeClaims[2].existingClaimName` | Existing PVC name (if any)                       | `nil`               |
-| `storage.persistentVolumeClaims[2].claimName`         | Name of the PVC                                  | `hot-property-data` |
-| `storage.persistentVolumeClaims[2].size`              | Size of the PVC                                  | `5Gi`               |
-| `storage.persistentVolumeClaims[2].accessModes`       | Access modes for the PVC                         | `["ReadWriteOnce"]` |
-| `storage.persistentVolumeClaims[2].storageClass`      | Storage class for the PVC                        | `nil`               |
-| `storage.persistentVolumeClaims[2].volumeMode`        | Volume mode for the PVC                          | `Filesystem`        |
+| Name                                                        | Description                                             | Value                             |
+| ----------------------------------------------------------- | ------------------------------------------------------- | --------------------------------- |
+| `storage.data.enabled`                                      | Enable persistent storage for data nodes (boolean)      | `true`                            |
+| `storage.data.persistentVolumeClaims`                       | List of PVC configurations for data nodes               |                                   |
+| `storage.data.persistentVolumeClaims[0].mountTargets`       | Mount targets for the PVC                               | `["measure"]`                     |
+| `storage.data.persistentVolumeClaims[0].nodeRole`           | Node role this PVC is bound to (hot, warm, cold)        | `hot`                             |
+| `storage.data.persistentVolumeClaims[0].existingClaimName`  | Existing PVC name (if any)                              | `nil`                             |
+| `storage.data.persistentVolumeClaims[0].claimName`          | Name of the PVC                                         | `hot-measure-data`                |
+| `storage.data.persistentVolumeClaims[0].size`               | Size of the PVC                                         | `50Gi`                            |
+| `storage.data.persistentVolumeClaims[0].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
+| `storage.data.persistentVolumeClaims[0].storageClass`       | Storage class for the PVC                               | `nil`                             |
+| `storage.data.persistentVolumeClaims[0].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
+| `storage.data.persistentVolumeClaims[1].mountTargets`       | Mount targets for the PVC                               | `["stream"]`                      |
+| `storage.data.persistentVolumeClaims[1].nodeRole`           | Node role this PVC is bound to                          | `hot`                             |
+| `storage.data.persistentVolumeClaims[1].existingClaimName`  | Existing PVC name (if any)                              | `nil`                             |
+| `storage.data.persistentVolumeClaims[1].claimName`          | Name of the PVC                                         | `hot-stream-data`                 |
+| `storage.data.persistentVolumeClaims[1].size`               | Size of the PVC                                         | `50Gi`                            |
+| `storage.data.persistentVolumeClaims[1].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
+| `storage.data.persistentVolumeClaims[1].storageClass`       | Storage class for the PVC                               | `nil`                             |
+| `storage.data.persistentVolumeClaims[1].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
+| `storage.data.persistentVolumeClaims[2].mountTargets`       | Mount targets for the PVC                               | `["property"]`                    |
+| `storage.data.persistentVolumeClaims[2].nodeRole`           | Node role this PVC is bound to                          | `hot`                             |
+| `storage.data.persistentVolumeClaims[2].existingClaimName`  | Existing PVC name (if any)                              | `nil`                             |
+| `storage.data.persistentVolumeClaims[2].claimName`          | Name of the PVC                                         | `hot-property-data`               |
+| `storage.data.persistentVolumeClaims[2].size`               | Size of the PVC                                         | `5Gi`                             |
+| `storage.data.persistentVolumeClaims[2].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
+| `storage.data.persistentVolumeClaims[2].storageClass`       | Storage class for the PVC                               | `nil`                             |
+| `storage.data.persistentVolumeClaims[2].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
+| `storage.liaison.enabled`                                   | Enable persistent storage for liaison nodes (boolean)   | `true`                            |
+| `storage.liaison.persistentVolumeClaims`                    | List of PVC configurations for liaison nodes            |                                   |
+| `storage.liaison.persistentVolumeClaims[0].mountTargets`    | Mount targets for the PVC                               | `["measure","stream"]`            |
+| `storage.liaison.persistentVolumeClaims[0].claimName`       | Name of the PVC                                         | `liaison-data`                    |
+| `storage.liaison.persistentVolumeClaims[0].size`            | Size of the PVC                                         | `10Gi`                            |
+| `storage.liaison.persistentVolumeClaims[0].accessModes`     | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
+| `storage.liaison.persistentVolumeClaims[0].storageClass`    | Storage class for the PVC                               | `nil`                             |
+| `storage.liaison.persistentVolumeClaims[0].volumeMode`      | Volume mode for the PVC                                 | `Filesystem`                      |
+| `storage.standalone.enabled`                                | Enable persistent storage for standalone mode (boolean) | `false`                           |
+| `storage.standalone.persistentVolumeClaims`                 | List of PVC configurations for standalone               |                                   |
+| `storage.standalone.persistentVolumeClaims[0].mountTargets` | Mount targets for the PVC                               | `["measure","stream","property"]` |
+| `storage.standalone.persistentVolumeClaims[0].claimName`    | Name of the PVC                                         | `standalone-data`                 |
+| `storage.standalone.persistentVolumeClaims[0].size`         | Size of the PVC                                         | `200Gi`                           |
+| `storage.standalone.persistentVolumeClaims[0].accessModes`  | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
+| `storage.standalone.persistentVolumeClaims[0].storageClass` | Storage class for the PVC                               | `nil`                             |
+| `storage.standalone.persistentVolumeClaims[0].volumeMode`   | Volume mode for the PVC                                 | `Filesystem`                      |
 
 ### Service account configuration
 
@@ -280,16 +296,16 @@ The content of this document describes the parameters that can be configured in 
 
 ### Client TLS configuration
 
-| Name                                    | Description                                                  | Value     |
-| --------------------------------------- | ------------------------------------------------------------ | --------- |
-| `etcd.auth.client.secureTransport`      | Enable TLS for client communication (boolean)                | `false`   |
-| `etcd.auth.client.existingSecret`       | Existing secret containing TLS certs                         | `""`      |
-| `etcd.auth.client.enableAuthentication` | Enable client authentication (boolean)                       | `false`   |
-| `etcd.auth.client.certFilename`         | Client certificate filename                                  | `tls.crt` |
-| `etcd.auth.client.certKeyFilename`      | Client certificate key filename                              | `tls.key` |
-| `etcd.auth.client.caFilename`           | CA certificate filename for TLS                              | `""`      |
-| `etcd.auth.token.enabled`               | Enables token authentication                                 | `true`    |
-| `etcd.auth.token.type`                  | Authentication token type. Allowed values: 'simple' or 'jwt' | `simple`  |
+| Name                                    | Description                                                    | Value      |
+| --------------------------------------- | -------------------------------------------------------------- | ---------- |
+| `etcd.auth.client.secureTransport`      | Enable TLS for client communication (boolean)                  | `false`    |
+| `etcd.auth.client.existingSecret`       | Existing secret containing TLS certs                           | `""`       |
+| `etcd.auth.client.enableAuthentication` | Enable client authentication (boolean)                         | `false`    |
+| `etcd.auth.client.certFilename`         | Name of the file containing the client certificate             | `cert.pem` |
+| `etcd.auth.client.certKeyFilename`      | Name of the file containing the client certificate private key | `key.pem`  |
+| `etcd.auth.client.caFilename`           | CA certificate filename for TLS                                | `""`       |
+| `etcd.auth.token.enabled`               | Enables token authentication                                   | `true`     |
+| `etcd.auth.token.type`                  | Authentication token type. Allowed values: 'simple' or 'jwt'   | `jwt`      |
 
 ### Liveness probe configuration for etcd
 

@@ -9,6 +9,11 @@ Release Notes.
 
 - Support Lifecycle Sidecar
 - Introduce the data node template to support different node roles
+- Convert liaison component from Deployment to StatefulSet 
+- Implement component-based storage configuration with separate data, liaison, and standalone sections. Enable the external data and liaison stroage by default.
+- Add headless services for StatefulSet pod discovery and stable network identities
+- Add internal-grpc port 18912 for liaison pod-to-pod communication
+- Enable etcd defragmentation by default with daily scheduling
 
 0.4.0
 ------------------

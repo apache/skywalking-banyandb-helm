@@ -143,9 +143,11 @@ standalone:
     #   secretName: tls-secret
 
 storage:
-  enabled: false
-  persistentVolumeClaims:
+  data:
+    enabled: false
+    persistentVolumeClaims:
     - mountTargets: ["measure", "stream", "property"]
+      nodeRole: hot
       existingClaimName: null
       claimName: data
       size: 200Gi
@@ -154,11 +156,32 @@ storage:
       storageClass: null
       volumeMode: Filesystem
     - mountTargets: ["metadata"]
+      nodeRole: hot
       existingClaimName: null
       claimName: meta
       size: 10Gi
       accessModes:
         - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  liaison:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream" ]
+      claimName: liaison-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  standalone:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property" ]
+      claimName: standalone-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
 

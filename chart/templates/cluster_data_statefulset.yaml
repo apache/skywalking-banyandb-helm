@@ -28,7 +28,7 @@ metadata:
     app.kubernetes.io/role: {{ $roleName }}
   name: {{ template "banyandb.fullname" $ }}-data-{{ $roleName }}
 spec:
-  serviceName: banyandb
+  serviceName: {{ template "banyandb.fullname" $ }}-data-{{ $roleName }}-headless
   replicas: {{ $roleConfig.replicas }}
   selector:
     matchLabels: {{ include "banyandb.selectorLabels" $ | nindent 6 }}
@@ -64,19 +64,19 @@ spec:
             - "/restore"
             - "run"
             - "--source={{ $roleConfig.backupSidecar.dest }}"
-          {{- if $.Values.storage.enabled }}
+          {{- if $.Values.storage.data.enabled }}
           volumeMounts:
-            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -94,6 +94,13 @@ spec:
           image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
+            # Hostname configuration for headless service
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "hostname"
+            - name: BYDB_NODE_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
             {{- range $env := $mergedEnv }}
             - name: {{ $env.name }}
@@ -205,13 +212,13 @@ spec:
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -246,19 +253,19 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
-          {{- if $.Values.storage.enabled }}
+          {{- if $.Values.storage.data.enabled }}
           volumeMounts:
-            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -303,19 +310,19 @@ spec:
           command:
             - "/lifecycle"
             - "--schedule={{ $roleConfig.lifecycleSidecar.schedule }}"
-          {{- if $.Values.storage.enabled }}
+          {{- if $.Values.storage.data.enabled }}
           volumeMounts:
-            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -343,19 +350,19 @@ spec:
                   {{- range $sidecar.commands.preStop }}
                   - {{ . | quote }}
                   {{- end }}
-          {{- if $.Values.storage.enabled }}
+          {{- if $.Values.storage.data.enabled }}
           volumeMounts:
-            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -443,9 +450,9 @@ spec:
           {{- end }}
         {{- end }}
       {{- end }}
-  {{- if $.Values.storage.enabled }}
+  {{- if $.Values.storage.data.enabled }}
   volumeClaimTemplates:
-    {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+    {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
     {{- if eq $claim.nodeRole $roleName }}
     - metadata:
         name: {{ $claim.claimName }}

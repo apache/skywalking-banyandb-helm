@@ -48,6 +48,13 @@ spec:
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            # Hostname configuration for headless service
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "hostname"
+            - name: BYDB_NODE_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             {{- range $env := .Values.standalone.env }}
             - name: {{ $env.name }}
               value: {{ $env.value }}
@@ -141,19 +148,19 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or .Values.storage.enabled .Values.standalone.tls }}
+          {{- if or .Values.storage.standalone.enabled .Values.standalone.tls }}
           volumeMounts:
-            {{- if .Values.storage.enabled }}
-            {{- range $claim := .Values.storage.persistentVolumeClaims }}
+            {{- if .Values.storage.standalone.enabled }}
+            {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /tmp/{{ . }}
+            - mountPath: /data/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -241,9 +248,9 @@ spec:
             {{- end }}
         {{- end }}
       {{- end }}
-  {{- if .Values.storage.enabled }}
+  {{- if .Values.storage.standalone.enabled }}
   volumeClaimTemplates:
-    {{- range $claim := .Values.storage.persistentVolumeClaims }}
+    {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
     - metadata:
         name: {{ $claim.claimName }}
       spec:
