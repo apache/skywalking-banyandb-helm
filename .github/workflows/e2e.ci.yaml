@@ -26,7 +26,7 @@ on:
 
 env:
   SKIP_TEST: true
-  ISTIO_VERSION: 1.20.0
+  ISTIO_VERSION: 1.24.0
 
 jobs:
   als:
@@ -41,12 +41,10 @@ jobs:
             config: test/e2e/e2e-banyandb-cluster.yaml
     name: ${{ matrix.test.name }}
     env:
-      OAP_TAG: 68ab2edd77288cfb6d7f6c609d00f04fe5ee546b
+      OAP_TAG: bf04afdb2a841c60d5e27f5a9fc62d0879a5600c
       OAP_REPO: ghcr.io/apache/skywalking/oap
-      UI_TAG: 68ab2edd77288cfb6d7f6c609d00f04fe5ee546b
+      UI_TAG: bf04afdb2a841c60d5e27f5a9fc62d0879a5600c
       UI_REPO: ghcr.io/apache/skywalking/ui
-      SATELLITE_TAG: v4a057219f7dd3d3278bd7b74127b84c45594c437
-      SATELLITE_REPO: ghcr.io/apache/skywalking-satellite/skywalking-satellite
     steps:
       - uses: actions/checkout@v2
       - name: Login to ghcr
@@ -58,7 +56,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.24'
       - name: ${{ matrix.test.name }}
         uses: apache/skywalking-infra-e2e@5217e1c6cfe8c2a3c58a0d278b0d9097cab02b5e
         with:

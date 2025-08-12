@@ -15,6 +15,10 @@ Release Notes.
 - Add internal-grpc port 18912 for liaison pod-to-pod communication
 - Enable etcd defragmentation by default with daily scheduling
 
+#### Chores
+
+- Bump up e2e test cases.
+
 0.4.0
 ------------------
 

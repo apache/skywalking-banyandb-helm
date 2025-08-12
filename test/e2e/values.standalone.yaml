@@ -25,7 +25,7 @@ etcd:
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 552248704797a97decf505c3e53bb6fa1c58fb4e
+  tag: 7e5b2d0404e8ad6d5835eee6fe589a2544d0decb
   pullPolicy: IfNotPresent
 
 standalone:

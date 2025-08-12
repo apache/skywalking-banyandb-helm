@@ -19,7 +19,7 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 552248704797a97decf505c3e53bb6fa1c58fb4e
+  tag: 7e5b2d0404e8ad6d5835eee6fe589a2544d0decb
   pullPolicy: IfNotPresent
 
 cluster:
@@ -228,7 +228,7 @@ cluster:
       #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
       #     preStop: ["sh", "-c", "echo cleanup"]
       backupSidecar:
-        enabled: true 
+        enabled: true
         dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
         timeStyle: "daily"
         schedule: "@every 10s"
@@ -266,8 +266,8 @@ cluster:
     type: Embedded
     standalone:
       replicas: 1
-      podAnnotations:
-      # example: banyandb-foo
+      podAnnotations: # example: banyandb-foo
+
       securityContext: {}
       # runAsUser: 1000
       # runAsGroup: 1000
@@ -324,10 +324,10 @@ cluster:
         #   value: "500m"
         # - key: memory
         #   value: "512Mi"
-      # tls:
-      # grpcSecretName: ""
-      # httpSecretName: ""
-      # etcdSecretName: ""
+        # tls:
+        # grpcSecretName: ""
+        # httpSecretName: ""
+        # etcdSecretName: ""
 
       httpSvc:
         labels: {}
@@ -375,7 +375,7 @@ cluster:
 
 storage:
   data:
-    enabled: false
+    enabled: true
     persistentVolumeClaims:
     - mountTargets: [ "measure", "stream", "property" ]
       nodeRole: hot
@@ -396,7 +396,7 @@ storage:
       storageClass: null
       volumeMode: Filesystem
   liaison:
-    enabled: false
+    enabled: true
     persistentVolumeClaims:
     - mountTargets: [ "measure", "stream" ]
       claimName: liaison-data
