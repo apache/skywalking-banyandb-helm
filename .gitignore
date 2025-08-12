@@ -14,3 +14,6 @@ chart/NOTICE
 *.tgz.asc
 *.tgz.sha512
 build/
+.claude
+CLAUDE.md
+.cursor

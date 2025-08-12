@@ -17,17 +17,19 @@ limitations under the License.
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels: {{ include "banyandb.labels" . | nindent 4 }}
     app.kubernetes.io/component: liaison
   name: {{ template "banyandb.fullname" . }}-liaison
 spec:
+  serviceName: {{ template "banyandb.fullname" . }}-liaison-headless
   replicas: {{ .Values.cluster.liaison.replicas }}
   selector:
     matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: liaison
-  strategy: {{ toYaml .Values.cluster.liaison.updateStrategy | nindent 4 }}
+  updateStrategy: {{ toYaml .Values.cluster.liaison.updateStrategy | nindent 4 }}
+  podManagementPolicy: {{ .Values.cluster.liaison.podManagementPolicy }}
   template:
     metadata:
       labels: {{ include "banyandb.labels" . | nindent 8 }}
@@ -52,6 +54,13 @@ spec:
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            # Hostname configuration for headless service
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "hostname"
+            - name: BYDB_NODE_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             {{- range $env := .Values.cluster.liaison.env }}
             - name: {{ $env.name }}
               value: {{ $env.value }}
@@ -105,6 +114,8 @@ spec:
               name: grpc
             - containerPort: 17913
               name: http
+            - containerPort: 18912
+              name: internal-grpc
             - containerPort: 6060
               name: pprof
             - containerPort: 2121
@@ -167,8 +178,18 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if .Values.cluster.liaison.tls }}
+          {{- if or .Values.storage.liaison.enabled .Values.cluster.liaison.tls }}
           volumeMounts:
+            {{- if .Values.storage.liaison.enabled }}
+            {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /data/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.cluster.liaison.tls }}
             {{- if .Values.cluster.liaison.tls.grpcSecretName }}
             - mountPath: /etc/tls/{{ .Values.cluster.liaison.tls.grpcSecretName }}
               name: {{ .Values.cluster.liaison.tls.grpcSecretName }}-volume
@@ -180,6 +201,7 @@ spec:
             {{- if and .Values.cluster.liaison.tls.httpSecretName (ne .Values.cluster.liaison.tls.httpSecretName .Values.cluster.liaison.tls.grpcSecretName) }}
             - mountPath: /etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}
               name: {{ .Values.cluster.liaison.tls.httpSecretName }}-volume
+            {{- end }}
             {{- end }}
           {{- end }}
 
@@ -262,4 +284,32 @@ spec:
           {{- end }}
         {{- end }}
       {{- end }}
+  {{- if .Values.storage.liaison.enabled }}
+  volumeClaimTemplates:
+    {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
+    - metadata:
+        name: {{ $claim.claimName }}
+      spec:
+        {{- if $claim.accessModes }}
+        accessModes:
+          {{- range $claim.accessModes }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+        
+        {{- if $claim.size }}
+        resources:
+          requests:
+            storage: {{ $claim.size }}
+        {{- end }}
+        
+        {{- if $claim.storageClass }}
+        storageClassName: {{ $claim.storageClass }}
+        {{- end }}
+        
+        {{- if $claim.volumeMode }}
+        volumeMode: {{ $claim.volumeMode }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}

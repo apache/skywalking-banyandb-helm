@@ -220,8 +220,9 @@ cluster:
       rollingUpdate:
         ## @param cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods during update
         maxUnavailable: 1
-        ## @param cluster.liaison.updateStrategy.rollingUpdate.maxSurge Maximum surge pods during update
-        maxSurge: 1
+    ## @param cluster.liaison.podManagementPolicy Pod management policy for liaison StatefulSet
+    ##
+    podManagementPolicy: Parallel
     ## @param cluster.liaison.podDisruptionBudget Pod disruption budget for liaison
     ##
     podDisruptionBudget: {}
@@ -644,67 +645,118 @@ cluster:
 ## @section Storage configuration for persistent volumes
 ##
 storage:
-  ## @param storage.enabled Enable persistent storage (boolean)
+  ## Data node storage configuration
   ##
-  enabled: false
-  ## @extra storage.persistentVolumeClaims List of PVC configurations
+  data:
+    ## @param storage.data.enabled Enable persistent storage for data nodes (boolean)
+    ##
+    enabled: true
+    ## @extra storage.data.persistentVolumeClaims List of PVC configurations for data nodes
+    ##
+    persistentVolumeClaims:
+    ## @param storage.data.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
+    ##
+    - mountTargets: [ "measure" ]
+      ## @param storage.data.persistentVolumeClaims[0].nodeRole Node role this PVC is bound to (hot, warm, cold)
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[0].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[0].claimName Name of the PVC
+      claimName: hot-measure-data
+      ## @param storage.data.persistentVolumeClaims[0].size Size of the PVC
+      size: 50Gi
+      ## @param storage.data.persistentVolumeClaims[0].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[0].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[1].mountTargets Mount targets for the PVC
+    - mountTargets: [ "stream" ]
+      ## @param storage.data.persistentVolumeClaims[1].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[1].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[1].claimName Name of the PVC
+      claimName: hot-stream-data
+      ## @param storage.data.persistentVolumeClaims[1].size Size of the PVC
+      size: 50Gi
+      ## @param storage.data.persistentVolumeClaims[1].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[1].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[1].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[2].mountTargets Mount targets for the PVC
+    - mountTargets: [ "property" ]
+      ## @param storage.data.persistentVolumeClaims[2].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[2].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[2].claimName Name of the PVC
+      claimName: hot-property-data
+      ## @param storage.data.persistentVolumeClaims[2].size Size of the PVC
+      size: 5Gi
+      ## @param storage.data.persistentVolumeClaims[2].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[2].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[2].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+
+  ## Liaison storage configuration
   ##
-  persistentVolumeClaims:
-  ## @param storage.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
+  liaison:
+    ## @param storage.liaison.enabled Enable persistent storage for liaison nodes (boolean)
+    ##
+    enabled: true
+    ## @extra storage.liaison.persistentVolumeClaims List of PVC configurations for liaison nodes
+    ##
+    persistentVolumeClaims:
+    ## @param storage.liaison.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
+    ##
+    - mountTargets: [ "measure", "stream" ]
+      ## @param storage.liaison.persistentVolumeClaims[0].claimName Name of the PVC
+      claimName: liaison-data
+      ## @param storage.liaison.persistentVolumeClaims[0].size Size of the PVC
+      size: 10Gi
+      ## @param storage.liaison.persistentVolumeClaims[0].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.liaison.persistentVolumeClaims[0].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.liaison.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+
+  ## Standalone storage configuration
   ##
-  - mountTargets: [ "measure" ]
-    ## @param storage.persistentVolumeClaims[0].nodeRole Node role this PVC is bound to (hot, warm, cold)
+  standalone:
+    ## @param storage.standalone.enabled Enable persistent storage for standalone mode (boolean)
     ##
-    nodeRole: hot
-    ## @param storage.persistentVolumeClaims[0].existingClaimName Existing PVC name (if any)
-    existingClaimName: null
-    ## @param storage.persistentVolumeClaims[0].claimName Name of the PVC
-    claimName: hot-measure-data
-    ## @param storage.persistentVolumeClaims[0].size Size of the PVC
-    size: 50Gi
-    ## @param storage.persistentVolumeClaims[0].accessModes Access modes for the PVC
-    accessModes:
-    - ReadWriteOnce
-    ## @param storage.persistentVolumeClaims[0].storageClass Storage class for the PVC
-    storageClass: null
-    ## @param storage.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
-    volumeMode: Filesystem
-  ## @param storage.persistentVolumeClaims[1].mountTargets Mount targets for the PVC
-  - mountTargets: [ "stream" ]
-    ## @param storage.persistentVolumeClaims[1].nodeRole Node role this PVC is bound to
+    enabled: false
+    ## @extra storage.standalone.persistentVolumeClaims List of PVC configurations for standalone
     ##
-    nodeRole: hot
-    ## @param storage.persistentVolumeClaims[1].existingClaimName Existing PVC name (if any)
-    existingClaimName: null
-    ## @param storage.persistentVolumeClaims[1].claimName Name of the PVC
-    claimName: hot-stream-data
-    ## @param storage.persistentVolumeClaims[1].size Size of the PVC
-    size: 50Gi
-    ## @param storage.persistentVolumeClaims[1].accessModes Access modes for the PVC
-    accessModes:
-    - ReadWriteOnce
-    ## @param storage.persistentVolumeClaims[1].storageClass Storage class for the PVC
-    storageClass: null
-    ## @param storage.persistentVolumeClaims[1].volumeMode Volume mode for the PVC
-    volumeMode: Filesystem
-  ## @param storage.persistentVolumeClaims[2].mountTargets Mount targets for the PVC
-  - mountTargets: [ "property" ]
-    ## @param storage.persistentVolumeClaims[2].nodeRole Node role this PVC is bound to
+    persistentVolumeClaims:
+    ## @param storage.standalone.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
     ##
-    nodeRole: hot
-    ## @param storage.persistentVolumeClaims[2].existingClaimName Existing PVC name (if any)
-    existingClaimName: null
-    ## @param storage.persistentVolumeClaims[2].claimName Name of the PVC
-    claimName: hot-property-data
-    ## @param storage.persistentVolumeClaims[2].size Size of the PVC
-    size: 5Gi
-    ## @param storage.persistentVolumeClaims[2].accessModes Access modes for the PVC
-    accessModes:
-    - ReadWriteOnce
-    ## @param storage.persistentVolumeClaims[2].storageClass Storage class for the PVC
-    storageClass: null
-    ## @param storage.persistentVolumeClaims[2].volumeMode Volume mode for the PVC
-    volumeMode: Filesystem
+    - mountTargets: [ "measure", "stream", "property" ]
+      ## @param storage.standalone.persistentVolumeClaims[0].claimName Name of the PVC
+      claimName: standalone-data
+      ## @param storage.standalone.persistentVolumeClaims[0].size Size of the PVC
+      size: 200Gi
+      ## @param storage.standalone.persistentVolumeClaims[0].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.standalone.persistentVolumeClaims[0].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.standalone.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
 
 ## @section Service account configuration
 ##
@@ -755,12 +807,12 @@ etcd:
       ## @param etcd.auth.client.enableAuthentication Enable client authentication (boolean)
       ##
       enableAuthentication: false
-      ## @param auth.client.certFilename Name of the file containing the client certificate
+      ## @param etcd.auth.client.certFilename Client certificate filename
       ##
-      certFilename: cert.pem
-      ## @param auth.client.certKeyFilename Name of the file containing the client certificate private key
+      certFilename: tls.crt
+      ## @param etcd.auth.client.certKeyFilename Client certificate key filename
       ##
-      certKeyFilename: key.pem
+      certKeyFilename: tls.key
       ## @param etcd.auth.client.caFilename CA certificate filename for TLS
       ##
       caFilename: ""
@@ -774,7 +826,7 @@ etcd:
       ## @param etcd.auth.token.type Authentication token type. Allowed values: 'simple' or 'jwt'
       ## ref: https://etcd.io/docs/latest/op-guide/configuration/#--auth-token
       ##
-      type: jwt
+      type: simple
   ## @section Liveness probe configuration for etcd
   ##
   livenessProbe:

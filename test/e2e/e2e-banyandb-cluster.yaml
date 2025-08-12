@@ -25,6 +25,8 @@ setup:
         resource: service/skywalking-ui
         port: 80
   steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
     - name: install yq
       command: bash test/e2e/setup-e2e-shell/install.sh yq
     - name: install swctl
@@ -35,7 +37,7 @@ setup:
       command: |
         bash test/e2e/setup-e2e-shell/install.sh istioctl
         istioctl install -y --set profile=demo \
-          --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-satellite.istio-system:11800 \
+          --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 \
           --set meshConfig.enableEnvoyAccessLogService=true
         kubectl label namespace default istio-injection=enabled
     - name: Install helm
@@ -63,16 +65,10 @@ setup:
                        --set oap.storageType=banyandb \
                        --set elasticsearch.enabled=false \
                        --set banyandb.enabled=false \
-                       --set satellite.enabled=true \
-                       --set satellite.image.repository=$SATELLITE_REPO \
-                       --set satellite.image.tag=$SATELLITE_TAG \
                        -f test/e2e/values.yaml
       wait:
         - namespace: istio-system
           resource: deployments/skywalking-oap
-          for: condition=available
-        - namespace: istio-system
-          resource: deployments/skywalking-satellite
           for: condition=available
     - name: Deploy demo services
       command: |
@@ -98,7 +94,7 @@ setup:
 verify:
   retry:
     count: 20
-    interval: 10s
+    interval: 15s
   cases:
     # service list
     - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls

@@ -19,7 +19,7 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 552248704797a97decf505c3e53bb6fa1c58fb4e
+  tag: 7e5b2d0404e8ad6d5835eee6fe589a2544d0decb
   pullPolicy: IfNotPresent
 
 cluster:
@@ -42,7 +42,7 @@ cluster:
       type: RollingUpdate
       rollingUpdate:
         maxUnavailable: 1
-        maxSurge: 1
+    podManagementPolicy: Parallel
     # minAvailable: 1
     # maxUnavailable: 2
     # matchLabels:
@@ -228,7 +228,7 @@ cluster:
       #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
       #     preStop: ["sh", "-c", "echo cleanup"]
       backupSidecar:
-        enabled: true 
+        enabled: true
         dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
         timeStyle: "daily"
         schedule: "@every 10s"
@@ -266,8 +266,8 @@ cluster:
     type: Embedded
     standalone:
       replicas: 1
-      podAnnotations:
-      # example: banyandb-foo
+      podAnnotations: # example: banyandb-foo
+
       securityContext: {}
       # runAsUser: 1000
       # runAsGroup: 1000
@@ -324,10 +324,10 @@ cluster:
         #   value: "500m"
         # - key: memory
         #   value: "512Mi"
-      # tls:
-      # grpcSecretName: ""
-      # httpSecretName: ""
-      # etcdSecretName: ""
+        # tls:
+        # grpcSecretName: ""
+        # httpSecretName: ""
+        # etcdSecretName: ""
 
       httpSvc:
         labels: {}
@@ -374,24 +374,47 @@ cluster:
         failureThreshold: 60
 
 storage:
-  enabled: false
-  persistentVolumeClaims:
-  - mountTargets: [ "measure", "stream", "property" ]
-    existingClaimName: null
-    claimName: data
-    size: 5Gi
-    accessModes:
-    - ReadWriteOnce
-    storageClass: null
-    volumeMode: Filesystem
-  - mountTargets: [ "backups" ]
-    existingClaimName: null
-    claimName: backups
-    size: 5Gi
-    accessModes:
-    - ReadWriteOnce
-    storageClass: null
-    volumeMode: Filesystem
+  data:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: data
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "backups" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: backups
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  liaison:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream" ]
+      claimName: liaison-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  standalone:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property" ]
+      claimName: standalone-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -420,6 +443,9 @@ etcd:
       # extraEnvVars:
       #   - name: ETCDCTL_CACERT
       #     value: /opt/bitnami/etcd/certs/client/ca.crt
+    token:
+      enabled: true
+      type: simple
 
 fullnameOverride: ""
 nameOverride: "banyandb"

@@ -25,7 +25,7 @@ etcd:
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 552248704797a97decf505c3e53bb6fa1c58fb4e
+  tag: 7e5b2d0404e8ad6d5835eee6fe589a2544d0decb
   pullPolicy: IfNotPresent
 
 standalone:
@@ -143,9 +143,11 @@ standalone:
     #   secretName: tls-secret
 
 storage:
-  enabled: false
-  persistentVolumeClaims:
+  data:
+    enabled: false
+    persistentVolumeClaims:
     - mountTargets: ["measure", "stream", "property"]
+      nodeRole: hot
       existingClaimName: null
       claimName: data
       size: 200Gi
@@ -154,11 +156,32 @@ storage:
       storageClass: null
       volumeMode: Filesystem
     - mountTargets: ["metadata"]
+      nodeRole: hot
       existingClaimName: null
       claimName: meta
       size: 10Gi
       accessModes:
         - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  liaison:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream" ]
+      claimName: liaison-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  standalone:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property" ]
+      claimName: standalone-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
 
