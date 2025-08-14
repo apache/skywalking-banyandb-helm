@@ -39,6 +39,8 @@ jobs:
             config: test/e2e/e2e-banyandb-standalone.yaml
           - name: Run Skywalking E2E Test (BanyanDB cluster as database)
             config: test/e2e/e2e-banyandb-cluster.yaml
+          - name: Run Skywalking E2E Test (BanyanDB lifecycle as database)
+            config: test/e2e/e2e-banyandb-lifecycle.yaml
     name: ${{ matrix.test.name }}
     env:
       OAP_TAG: bf04afdb2a841c60d5e27f5a9fc62d0879a5600c
