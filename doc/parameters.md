@@ -26,6 +26,11 @@ The content of this document describes the parameters that can be configured in 
 | `standalone.enabled`                            | Enable standalone mode (boolean)                        | `false`        |
 | `standalone.podAnnotations`                     | Additional pod annotations                              | `{}`           |
 | `standalone.securityContext`                    | Security context for the pod                            | `{}`           |
+| `standalone.containerSecurityContext`           | Container-level security context                        | `{}`           |
+| `standalone.volumePermissions.enabled`          | Enable volume permissions init container                | `false`        |
+| `standalone.volumePermissions.chownUser`        | User ID to chown the mounted volumes                    | `1000`         |
+| `standalone.volumePermissions.chownGroup`       | Group ID to chown the mounted volumes                   | `1000`         |
+| `standalone.volumePermissions.image`            | Image for the volume permissions init container         | `busybox:1.36` |
 | `standalone.env`                                | Environment variables for the pod                       | `[]`           |
 | `standalone.priorityClassName`                  | Priority class name for the pod                         | `""`           |
 | `standalone.podDisruptionBudget`                | Pod disruption budget configuration                     | `{}`           |
@@ -74,103 +79,115 @@ The content of this document describes the parameters that can be configured in 
 
 ### Configuration for liaison component
 
-| Name                                                          | Description                                    | Value           |
-| ------------------------------------------------------------- | ---------------------------------------------- | --------------- |
-| `cluster.liaison.replicas`                                    | Number of liaison replicas                     | `2`             |
-| `cluster.liaison.podAnnotations`                              | Pod annotations for liaison                    | `{}`            |
-| `cluster.liaison.securityContext`                             | Security context for liaison pods              | `{}`            |
-| `cluster.liaison.env`                                         | Environment variables for liaison pods         | `[]`            |
-| `cluster.liaison.priorityClassName`                           | Priority class name for liaison pods           | `""`            |
-| `cluster.liaison.updateStrategy.type`                         | Update strategy type for liaison pods          | `RollingUpdate` |
-| `cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods during update         | `1`             |
-| `cluster.liaison.podManagementPolicy`                         | Pod management policy for liaison StatefulSet  | `Parallel`      |
-| `cluster.liaison.podDisruptionBudget`                         | Pod disruption budget for liaison              | `{}`            |
-| `cluster.liaison.tolerations`                                 | Tolerations for liaison pods                   | `[]`            |
-| `cluster.liaison.nodeSelector`                                | Node selector for liaison pods                 | `[]`            |
-| `cluster.liaison.affinity`                                    | Affinity rules for liaison pods                | `{}`            |
-| `cluster.liaison.podAffinityPreset`                           | Pod affinity preset for liaison                | `""`            |
-| `cluster.liaison.podAntiAffinityPreset`                       | Pod anti-affinity preset for liaison           | `soft`          |
-| `cluster.liaison.resources.requests`                          | Resource requests for liaison pods             | `[]`            |
-| `cluster.liaison.resources.limits`                            | Resource limits for liaison pods               | `[]`            |
-| `cluster.liaison.grpcSvc.labels`                              | Labels for GRPC service for liaison            | `{}`            |
-| `cluster.liaison.grpcSvc.annotations`                         | Annotations for GRPC service for liaison       | `{}`            |
-| `cluster.liaison.grpcSvc.port`                                | Port number for GRPC service for liaison       | `17912`         |
-| `cluster.liaison.httpSvc.labels`                              | Labels for HTTP service for liaison            | `{}`            |
-| `cluster.liaison.httpSvc.annotations`                         | Annotations for HTTP service for liaison       | `{}`            |
-| `cluster.liaison.httpSvc.port`                                | Port number for HTTP service for liaison       | `17913`         |
-| `cluster.liaison.httpSvc.type`                                | Service type for HTTP service for liaison      | `LoadBalancer`  |
-| `cluster.liaison.httpSvc.externalIPs`                         | External IP addresses for liaison HTTP service | `[]`            |
-| `cluster.liaison.httpSvc.loadBalancerIP`                      | Load balancer IP for liaison HTTP service      | `nil`           |
-| `cluster.liaison.httpSvc.loadBalancerSourceRanges`            | Allowed source ranges for liaison HTTP service | `[]`            |
-| `cluster.liaison.ingress.enabled`                             | Enable ingress for liaison                     | `false`         |
-| `cluster.liaison.ingress.labels`                              | Labels for ingress of liaison                  | `{}`            |
-| `cluster.liaison.ingress.annotations`                         | Annotations for ingress of liaison             | `{}`            |
-| `cluster.liaison.ingress.rules`                               | Ingress rules for liaison                      | `[]`            |
-| `cluster.liaison.ingress.tls`                                 | TLS configuration for liaison ingress          | `[]`            |
-| `cluster.liaison.livenessProbe.initialDelaySeconds`           | Initial delay for liaison liveness probe       | `20`            |
-| `cluster.liaison.livenessProbe.periodSeconds`                 | Probe period for liaison liveness probe        | `30`            |
-| `cluster.liaison.livenessProbe.timeoutSeconds`                | Timeout in seconds for liaison liveness probe  | `5`             |
-| `cluster.liaison.livenessProbe.successThreshold`              | Success threshold for liaison liveness probe   | `1`             |
-| `cluster.liaison.livenessProbe.failureThreshold`              | Failure threshold for liaison liveness probe   | `5`             |
-| `cluster.liaison.readinessProbe.initialDelaySeconds`          | Initial delay for liaison readiness probe      | `20`            |
-| `cluster.liaison.readinessProbe.periodSeconds`                | Probe period for liaison readiness probe       | `30`            |
-| `cluster.liaison.readinessProbe.timeoutSeconds`               | Timeout in seconds for liaison readiness probe | `5`             |
-| `cluster.liaison.readinessProbe.successThreshold`             | Success threshold for liaison readiness probe  | `1`             |
-| `cluster.liaison.readinessProbe.failureThreshold`             | Failure threshold for liaison readiness probe  | `5`             |
-| `cluster.liaison.startupProbe.initialDelaySeconds`            | Initial delay for liaison startup probe        | `0`             |
-| `cluster.liaison.startupProbe.periodSeconds`                  | Probe period for liaison startup probe         | `10`            |
-| `cluster.liaison.startupProbe.timeoutSeconds`                 | Timeout in seconds for liaison startup probe   | `5`             |
-| `cluster.liaison.startupProbe.successThreshold`               | Success threshold for liaison startup probe    | `1`             |
-| `cluster.liaison.startupProbe.failureThreshold`               | Failure threshold for liaison startup probe    | `60`            |
+| Name                                                          | Description                                                 | Value           |
+| ------------------------------------------------------------- | ----------------------------------------------------------- | --------------- |
+| `cluster.liaison.replicas`                                    | Number of liaison replicas                                  | `2`             |
+| `cluster.liaison.podAnnotations`                              | Pod annotations for liaison                                 | `{}`            |
+| `cluster.liaison.securityContext`                             | Security context for liaison pods                           | `{}`            |
+| `cluster.liaison.containerSecurityContext`                    | Container-level security context for liaison                | `{}`            |
+| `cluster.liaison.volumePermissions.enabled`                   | Enable volume permissions init container for liaison        | `false`         |
+| `cluster.liaison.volumePermissions.chownUser`                 | User ID to chown the mounted volumes for liaison            | `1000`          |
+| `cluster.liaison.volumePermissions.chownGroup`                | Group ID to chown the mounted volumes for liaison           | `1000`          |
+| `cluster.liaison.volumePermissions.image`                     | Image for the volume permissions init container for liaison | `busybox:1.36`  |
+| `cluster.liaison.env`                                         | Environment variables for liaison pods                      | `[]`            |
+| `cluster.liaison.priorityClassName`                           | Priority class name for liaison pods                        | `""`            |
+| `cluster.liaison.updateStrategy.type`                         | Update strategy type for liaison pods                       | `RollingUpdate` |
+| `cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods during update                      | `1`             |
+| `cluster.liaison.podManagementPolicy`                         | Pod management policy for liaison StatefulSet               | `Parallel`      |
+| `cluster.liaison.podDisruptionBudget`                         | Pod disruption budget for liaison                           | `{}`            |
+| `cluster.liaison.tolerations`                                 | Tolerations for liaison pods                                | `[]`            |
+| `cluster.liaison.nodeSelector`                                | Node selector for liaison pods                              | `[]`            |
+| `cluster.liaison.affinity`                                    | Affinity rules for liaison pods                             | `{}`            |
+| `cluster.liaison.podAffinityPreset`                           | Pod affinity preset for liaison                             | `""`            |
+| `cluster.liaison.podAntiAffinityPreset`                       | Pod anti-affinity preset for liaison                        | `soft`          |
+| `cluster.liaison.resources.requests`                          | Resource requests for liaison pods                          | `[]`            |
+| `cluster.liaison.resources.limits`                            | Resource limits for liaison pods                            | `[]`            |
+| `cluster.liaison.grpcSvc.labels`                              | Labels for GRPC service for liaison                         | `{}`            |
+| `cluster.liaison.grpcSvc.annotations`                         | Annotations for GRPC service for liaison                    | `{}`            |
+| `cluster.liaison.grpcSvc.port`                                | Port number for GRPC service for liaison                    | `17912`         |
+| `cluster.liaison.httpSvc.labels`                              | Labels for HTTP service for liaison                         | `{}`            |
+| `cluster.liaison.httpSvc.annotations`                         | Annotations for HTTP service for liaison                    | `{}`            |
+| `cluster.liaison.httpSvc.port`                                | Port number for HTTP service for liaison                    | `17913`         |
+| `cluster.liaison.httpSvc.type`                                | Service type for HTTP service for liaison                   | `LoadBalancer`  |
+| `cluster.liaison.httpSvc.externalIPs`                         | External IP addresses for liaison HTTP service              | `[]`            |
+| `cluster.liaison.httpSvc.loadBalancerIP`                      | Load balancer IP for liaison HTTP service                   | `nil`           |
+| `cluster.liaison.httpSvc.loadBalancerSourceRanges`            | Allowed source ranges for liaison HTTP service              | `[]`            |
+| `cluster.liaison.ingress.enabled`                             | Enable ingress for liaison                                  | `false`         |
+| `cluster.liaison.ingress.labels`                              | Labels for ingress of liaison                               | `{}`            |
+| `cluster.liaison.ingress.annotations`                         | Annotations for ingress of liaison                          | `{}`            |
+| `cluster.liaison.ingress.rules`                               | Ingress rules for liaison                                   | `[]`            |
+| `cluster.liaison.ingress.tls`                                 | TLS configuration for liaison ingress                       | `[]`            |
+| `cluster.liaison.livenessProbe.initialDelaySeconds`           | Initial delay for liaison liveness probe                    | `20`            |
+| `cluster.liaison.livenessProbe.periodSeconds`                 | Probe period for liaison liveness probe                     | `30`            |
+| `cluster.liaison.livenessProbe.timeoutSeconds`                | Timeout in seconds for liaison liveness probe               | `5`             |
+| `cluster.liaison.livenessProbe.successThreshold`              | Success threshold for liaison liveness probe                | `1`             |
+| `cluster.liaison.livenessProbe.failureThreshold`              | Failure threshold for liaison liveness probe                | `5`             |
+| `cluster.liaison.readinessProbe.initialDelaySeconds`          | Initial delay for liaison readiness probe                   | `20`            |
+| `cluster.liaison.readinessProbe.periodSeconds`                | Probe period for liaison readiness probe                    | `30`            |
+| `cluster.liaison.readinessProbe.timeoutSeconds`               | Timeout in seconds for liaison readiness probe              | `5`             |
+| `cluster.liaison.readinessProbe.successThreshold`             | Success threshold for liaison readiness probe               | `1`             |
+| `cluster.liaison.readinessProbe.failureThreshold`             | Failure threshold for liaison readiness probe               | `5`             |
+| `cluster.liaison.startupProbe.initialDelaySeconds`            | Initial delay for liaison startup probe                     | `0`             |
+| `cluster.liaison.startupProbe.periodSeconds`                  | Probe period for liaison startup probe                      | `10`            |
+| `cluster.liaison.startupProbe.timeoutSeconds`                 | Timeout in seconds for liaison startup probe                | `5`             |
+| `cluster.liaison.startupProbe.successThreshold`               | Success threshold for liaison startup probe                 | `1`             |
+| `cluster.liaison.startupProbe.failureThreshold`               | Failure threshold for liaison startup probe                 | `60`            |
 
 ### Configuration for data component
 
-| Name                                                           | Description                                           | Value                                        |
-| -------------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------- |
-| `cluster.data.nodeTemplate.replicas`                           | Number of data replicas by default                    | `2`                                          |
-| `cluster.data.nodeTemplate.podAnnotations`                     | Pod annotations for data pods                         | `{}`                                         |
-| `cluster.data.nodeTemplate.securityContext`                    | Security context for data pods                        | `{}`                                         |
-| `cluster.data.nodeTemplate.env`                                | Environment variables for data pods                   | `[]`                                         |
-| `cluster.data.nodeTemplate.priorityClassName`                  | Priority class name for data pods                     | `""`                                         |
-| `cluster.data.nodeTemplate.podDisruptionBudget.maxUnavailable` | Maximum unavailable data pods                         | `1`                                          |
-| `cluster.data.nodeTemplate.tolerations`                        | Tolerations for data pods                             | `[]`                                         |
-| `cluster.data.nodeTemplate.nodeSelector`                       | Node selector for data pods                           | `[]`                                         |
-| `cluster.data.nodeTemplate.affinity`                           | Affinity rules for data pods                          | `{}`                                         |
-| `cluster.data.nodeTemplate.podAffinityPreset`                  | Pod affinity preset for data pods                     | `""`                                         |
-| `cluster.data.nodeTemplate.podAntiAffinityPreset`              | Pod anti-affinity preset for data pods                | `soft`                                       |
-| `cluster.data.nodeTemplate.resources.requests`                 | Resource requests for data pods                       | `[]`                                         |
-| `cluster.data.nodeTemplate.resources.limits`                   | Resource limits for data pods                         | `[]`                                         |
-| `cluster.data.nodeTemplate.grpcSvc.labels`                     | Labels for GRPC service for data pods                 | `{}`                                         |
-| `cluster.data.nodeTemplate.grpcSvc.annotations`                | Annotations for GRPC service for data pods            | `{}`                                         |
-| `cluster.data.nodeTemplate.grpcSvc.port`                       | Port number for GRPC service for data pods            | `17912`                                      |
-| `cluster.data.nodeTemplate.sidecar`                            | Sidecar containers for data pods                      | `[]`                                         |
-| `cluster.data.nodeTemplate.backupSidecar.enabled`              | Enable backup sidecar for data pods (boolean)         | `false`                                      |
-| `cluster.data.nodeTemplate.backupSidecar.dest`                 | Backup destination path for data pods                 | `file:///tmp/backups/data-$(ORDINAL_NUMBER)` |
-| `cluster.data.nodeTemplate.backupSidecar.timeStyle`            | Backup time style for data pods (e.g., daily)         | `daily`                                      |
-| `cluster.data.nodeTemplate.backupSidecar.schedule`             | Backup schedule for data pods (cron format)           | `@hourly`                                    |
-| `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods            | `{}`                                         |
-| `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)      | `false`                                      |
-| `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)          | `@hourly`                                    |
-| `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods         | `{}`                                         |
-| `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean) | `false`                                      |
-| `cluster.data.nodeTemplate.restoreInitContainer.resources`     | Resources for restore init container for data pods    | `{}`                                         |
-| `cluster.data.nodeTemplate.livenessProbe.initialDelaySeconds`  | Initial delay for data liveness probe                 | `20`                                         |
-| `cluster.data.nodeTemplate.livenessProbe.periodSeconds`        | Probe period for data liveness probe                  | `30`                                         |
-| `cluster.data.nodeTemplate.livenessProbe.timeoutSeconds`       | Timeout in seconds for data liveness probe            | `5`                                          |
-| `cluster.data.nodeTemplate.livenessProbe.successThreshold`     | Success threshold for data liveness probe             | `1`                                          |
-| `cluster.data.nodeTemplate.livenessProbe.failureThreshold`     | Failure threshold for data liveness probe             | `5`                                          |
-| `cluster.data.nodeTemplate.readinessProbe.initialDelaySeconds` | Initial delay for data readiness probe                | `20`                                         |
-| `cluster.data.nodeTemplate.readinessProbe.periodSeconds`       | Probe period for data readiness probe                 | `30`                                         |
-| `cluster.data.nodeTemplate.readinessProbe.timeoutSeconds`      | Timeout in seconds for data readiness probe           | `5`                                          |
-| `cluster.data.nodeTemplate.readinessProbe.successThreshold`    | Success threshold for data readiness probe            | `1`                                          |
-| `cluster.data.nodeTemplate.readinessProbe.failureThreshold`    | Failure threshold for data readiness probe            | `5`                                          |
-| `cluster.data.nodeTemplate.startupProbe.initialDelaySeconds`   | Initial delay for data startup probe                  | `0`                                          |
-| `cluster.data.nodeTemplate.startupProbe.periodSeconds`         | Probe period for data startup probe                   | `10`                                         |
-| `cluster.data.nodeTemplate.startupProbe.timeoutSeconds`        | Timeout in seconds for data startup probe             | `5`                                          |
-| `cluster.data.nodeTemplate.startupProbe.successThreshold`      | Success threshold for data startup probe              | `1`                                          |
-| `cluster.data.nodeTemplate.startupProbe.failureThreshold`      | Failure threshold for data startup probe              | `60`                                         |
-| `cluster.data.roles`                                           | List of data roles (hot, warm, cold)                  |                                              |
-| `cluster.data.roles.hot`                                       | Hot data role                                         | `{}`                                         |
+| Name                                                           | Description                                                                  | Value                                        |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------- |
+| `cluster.data.nodeTemplate.replicas`                           | Number of data replicas by default                                           | `2`                                          |
+| `cluster.data.nodeTemplate.podAnnotations`                     | Pod annotations for data pods                                                | `{}`                                         |
+| `cluster.data.nodeTemplate.securityContext`                    | Security context for data pods                                               | `{}`                                         |
+| `cluster.data.nodeTemplate.containerSecurityContext`           | Container-level security context for data pods                               | `{}`                                         |
+| `cluster.data.nodeTemplate.volumePermissions.enabled`          | Enable volume permissions init container for data pods                       | `false`                                      |
+| `cluster.data.nodeTemplate.volumePermissions.chownUser`        | User ID to chown the mounted volumes for data pods                           | `1000`                                       |
+| `cluster.data.nodeTemplate.volumePermissions.chownGroup`       | Group ID to chown the mounted volumes for data pods                          | `1000`                                       |
+| `cluster.data.nodeTemplate.volumePermissions.image`            | Image for the volume permissions init container for data pods                | `busybox:1.36`                               |
+| `cluster.data.nodeTemplate.env`                                | Environment variables for data pods                                          | `[]`                                         |
+| `cluster.data.nodeTemplate.priorityClassName`                  | Priority class name for data pods                                            | `""`                                         |
+| `cluster.data.nodeTemplate.podDisruptionBudget.maxUnavailable` | Maximum unavailable data pods                                                | `1`                                          |
+| `cluster.data.nodeTemplate.tolerations`                        | Tolerations for data pods                                                    | `[]`                                         |
+| `cluster.data.nodeTemplate.nodeSelector`                       | Node selector for data pods                                                  | `[]`                                         |
+| `cluster.data.nodeTemplate.affinity`                           | Affinity rules for data pods                                                 | `{}`                                         |
+| `cluster.data.nodeTemplate.podAffinityPreset`                  | Pod affinity preset for data pods                                            | `""`                                         |
+| `cluster.data.nodeTemplate.podAntiAffinityPreset`              | Pod anti-affinity preset for data pods                                       | `soft`                                       |
+| `cluster.data.nodeTemplate.resources.requests`                 | Resource requests for data pods                                              | `[]`                                         |
+| `cluster.data.nodeTemplate.resources.limits`                   | Resource limits for data pods                                                | `[]`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.labels`                     | Labels for GRPC service for data pods                                        | `{}`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.annotations`                | Annotations for GRPC service for data pods                                   | `{}`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.port`                       | Port number for GRPC service for data pods                                   | `17912`                                      |
+| `cluster.data.nodeTemplate.sidecar`                            | Sidecar containers for data pods                                             | `[]`                                         |
+| `cluster.data.nodeTemplate.backupSidecar.enabled`              | Enable backup sidecar for data pods (boolean)                                | `false`                                      |
+| `cluster.data.nodeTemplate.backupSidecar.dest`                 | Backup destination path for data pods                                        | `file:///tmp/backups/data-$(ORDINAL_NUMBER)` |
+| `cluster.data.nodeTemplate.backupSidecar.timeStyle`            | Backup time style for data pods (e.g., daily)                                | `daily`                                      |
+| `cluster.data.nodeTemplate.backupSidecar.schedule`             | Backup schedule for data pods (cron format)                                  | `@hourly`                                    |
+| `cluster.data.nodeTemplate.backupSidecar.customFlags`          | Custom flags for backup sidecar (e.g., S3, Azure, GCS configuration)         | `[]`                                         |
+| `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods                                   | `{}`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)                             | `false`                                      |
+| `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)                                 | `@hourly`                                    |
+| `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods                                | `{}`                                         |
+| `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean)                        | `false`                                      |
+| `cluster.data.nodeTemplate.restoreInitContainer.customFlags`   | Custom flags for restore init container (e.g., S3, Azure, GCS configuration) | `[]`                                         |
+| `cluster.data.nodeTemplate.restoreInitContainer.resources`     | Resources for restore init container for data pods                           | `{}`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.initialDelaySeconds`  | Initial delay for data liveness probe                                        | `20`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.periodSeconds`        | Probe period for data liveness probe                                         | `30`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.timeoutSeconds`       | Timeout in seconds for data liveness probe                                   | `5`                                          |
+| `cluster.data.nodeTemplate.livenessProbe.successThreshold`     | Success threshold for data liveness probe                                    | `1`                                          |
+| `cluster.data.nodeTemplate.livenessProbe.failureThreshold`     | Failure threshold for data liveness probe                                    | `5`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.initialDelaySeconds` | Initial delay for data readiness probe                                       | `20`                                         |
+| `cluster.data.nodeTemplate.readinessProbe.periodSeconds`       | Probe period for data readiness probe                                        | `30`                                         |
+| `cluster.data.nodeTemplate.readinessProbe.timeoutSeconds`      | Timeout in seconds for data readiness probe                                  | `5`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.successThreshold`    | Success threshold for data readiness probe                                   | `1`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.failureThreshold`    | Failure threshold for data readiness probe                                   | `5`                                          |
+| `cluster.data.nodeTemplate.startupProbe.initialDelaySeconds`   | Initial delay for data startup probe                                         | `0`                                          |
+| `cluster.data.nodeTemplate.startupProbe.periodSeconds`         | Probe period for data startup probe                                          | `10`                                         |
+| `cluster.data.nodeTemplate.startupProbe.timeoutSeconds`        | Timeout in seconds for data startup probe                                    | `5`                                          |
+| `cluster.data.nodeTemplate.startupProbe.successThreshold`      | Success threshold for data startup probe                                     | `1`                                          |
+| `cluster.data.nodeTemplate.startupProbe.failureThreshold`      | Failure threshold for data startup probe                                     | `60`                                         |
+| `cluster.data.roles`                                           | List of data roles (hot, warm, cold)                                         |                                              |
+| `cluster.data.roles.hot`                                       | Hot data role                                                                | `{}`                                         |
 
 ### Configuration for UI component
 
@@ -296,16 +313,16 @@ The content of this document describes the parameters that can be configured in 
 
 ### Client TLS configuration
 
-| Name                                    | Description                                                    | Value      |
-| --------------------------------------- | -------------------------------------------------------------- | ---------- |
-| `etcd.auth.client.secureTransport`      | Enable TLS for client communication (boolean)                  | `false`    |
-| `etcd.auth.client.existingSecret`       | Existing secret containing TLS certs                           | `""`       |
-| `etcd.auth.client.enableAuthentication` | Enable client authentication (boolean)                         | `false`    |
-| `etcd.auth.client.certFilename`         | Name of the file containing the client certificate             | `cert.pem` |
-| `etcd.auth.client.certKeyFilename`      | Name of the file containing the client certificate private key | `key.pem`  |
-| `etcd.auth.client.caFilename`           | CA certificate filename for TLS                                | `""`       |
-| `etcd.auth.token.enabled`               | Enables token authentication                                   | `true`     |
-| `etcd.auth.token.type`                  | Authentication token type. Allowed values: 'simple' or 'jwt'   | `jwt`      |
+| Name                                    | Description                                                  | Value     |
+| --------------------------------------- | ------------------------------------------------------------ | --------- |
+| `etcd.auth.client.secureTransport`      | Enable TLS for client communication (boolean)                | `false`   |
+| `etcd.auth.client.existingSecret`       | Existing secret containing TLS certs                         | `""`      |
+| `etcd.auth.client.enableAuthentication` | Enable client authentication (boolean)                       | `false`   |
+| `etcd.auth.client.certFilename`         | Client certificate filename                                  | `tls.crt` |
+| `etcd.auth.client.certKeyFilename`      | Client certificate key filename                              | `tls.key` |
+| `etcd.auth.client.caFilename`           | CA certificate filename for TLS                              | `""`      |
+| `etcd.auth.token.enabled`               | Enables token authentication                                 | `true`    |
+| `etcd.auth.token.type`                  | Authentication token type. Allowed values: 'simple' or 'jwt' | `simple`  |
 
 ### Liveness probe configuration for etcd
 

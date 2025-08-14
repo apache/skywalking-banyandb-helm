@@ -51,7 +51,7 @@ To enable restore:
           command: [ "--source=file:///backups" ]
   ```
 
-- Ensure that the backup, restore, and main containers share the required volumes (e.g., for `/data/stream`, `/data/measure`, and `/data/property`). This is typically configured via the Kubernetes volume definitions in the StatefulSet.
+- Ensure that the backup, restore, and main containers share the required volumes (e.g., for `/tmp/stream`, `/tmp/measure`, and `/tmp/property`). This is typically configured via the Kubernetes volume definitions in the StatefulSet.
 
 ## 3. Shared Volumes
 
@@ -92,18 +92,18 @@ Before triggering a restore, you may need to create and verify timedir marker fi
 
 ```sh
 restore timedir create 2025-02-12 \
-  --stream-root /data \
-  --measure-root /data \
-  --property-root /data
+  --stream-root /tmp \
+  --measure-root /tmp \
+  --property-root /tmp
 ```
 
 #### Verify Timedir Files
 
 ```sh
 restore timedir read \
-  --stream-root /data \
-  --measure-root /data \
-  --property-root /data
+  --stream-root /tmp \
+  --measure-root /tmp \
+  --property-root /tmp
 ```
 
 ### Triggering the Restore
@@ -120,7 +120,7 @@ Follow these steps to restore data:
    ```
 
 3. The new pod will start, and the init container will perform the restore process by:
-   - Reading the timedir marker files (e.g., `/data/stream/time-dir`).
+   - Reading the timedir marker files (e.g., `/tmp/stream/time-dir`).
    - Comparing local data with the remote backup snapshot.
    - Removing orphaned files and deleting the marker files upon successful restoration.
 

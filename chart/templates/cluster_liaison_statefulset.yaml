@@ -45,6 +45,33 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       priorityClassName: {{ .Values.cluster.liaison.priorityClassName }}
+      {{- if and .Values.storage.liaison.enabled .Values.cluster.liaison.volumePermissions.enabled }}
+      initContainers:
+        - name: volume-permissions
+          image: {{ default "busybox:1.36" .Values.cluster.liaison.volumePermissions.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              CHOWN_USER={{ default 1000 .Values.cluster.liaison.volumePermissions.chownUser }}
+              CHOWN_GROUP={{ default 1000 .Values.cluster.liaison.volumePermissions.chownGroup }}
+              {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
+              {{- range $mt := $claim.mountTargets }}
+              mkdir -p /mnt/{{ $claim.claimName }}/{{ $mt }}
+              chown -R ${CHOWN_USER}:${CHOWN_GROUP} /mnt/{{ $claim.claimName }}/{{ $mt }}
+              chmod -R 0770 /mnt/{{ $claim.claimName }}/{{ $mt }}
+              {{- end }}
+              {{- end }}
+          volumeMounts:
+            {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
+            - mountPath: /mnt/{{ $claim.claimName }}
+              name: {{ $claim.claimName }}
+            {{- end }}
+      {{- end }}
       containers:
         - name: liaison
           {{- if eq .Values.cluster.ui.type "Embedded"  }}
@@ -53,18 +80,25 @@ spec:
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.cluster.liaison.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
-            # Hostname configuration for headless service
-            - name: BYDB_NODE_HOST_PROVIDER
-              value: "hostname"
-            - name: BYDB_NODE_HOST
+            # Pod metadata for hostname construction
+            - name: POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            {{- range $env := .Values.cluster.liaison.env }}
-            - name: {{ $env.name }}
-              value: {{ $env.value }}
-            {{- end }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # Hostname configuration for headless service
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "flag"
+            - name: BYDB_NODE_HOST
+              value: "$(POD_NAME).{{ template "banyandb.fullname" . }}-liaison-headless.$(POD_NAMESPACE)"
             {{- if .Values.cluster.liaison.tls }}
             {{- if .Values.cluster.liaison.tls.grpcSecretName }}
             - name: BYDB_TLS
@@ -106,6 +140,10 @@ spec:
               value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
             {{- else }}
             {{- include "banyandb.etcdEndpoints" . | nindent 12 }}
+            {{- end }}
+            {{- range $env := .Values.cluster.liaison.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
             {{- end }}
           args:
             - liaison
@@ -183,7 +221,7 @@ spec:
             {{- if .Values.storage.liaison.enabled }}
             {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}

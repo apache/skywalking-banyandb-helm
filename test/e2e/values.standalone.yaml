@@ -33,10 +33,10 @@ standalone:
   name: banyandb
   podAnnotations:
     example: banyandb-foo
-  securityContext: {}
-  # runAsUser: 1000
-  # runAsGroup: 1000
-  # fsGroup: 1000
+  securityContext: 
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
   env: []
   # - name: BANYANDB_FOO
   #   value: "bar"
@@ -177,7 +177,7 @@ storage:
   standalone:
     enabled: false
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property" ]
+    - mountTargets: [ "measure", "stream", "metadata", "property" ]
       claimName: standalone-data
       size: 200Gi
       accessModes:

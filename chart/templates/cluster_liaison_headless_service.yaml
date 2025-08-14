@@ -26,12 +26,6 @@ spec:
   clusterIP: None
   publishNotReadyAddresses: true
   ports:
-    - port: {{ .Values.cluster.liaison.grpcSvc.port }}
-      name: grpc
-      targetPort: grpc
-    - port: {{ .Values.cluster.liaison.httpSvc.port }}
-      name: http
-      targetPort: http
     - port: 18912
       name: internal-grpc
       targetPort: internal-grpc
