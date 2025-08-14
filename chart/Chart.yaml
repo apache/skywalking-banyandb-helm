@@ -16,7 +16,7 @@
 apiVersion: v2
 name: skywalking-banyandb-helm
 home: https://skywalking.apache.org
-version: 0.5.0-rc2
+version: 0.5.0-rc3
 description: Helm Chart for Apache SkyWalking BanyanDB
 icon: https://raw.githubusercontent.com/apache/skywalking-kubernetes/master/logo/sw-logo-for-chart.jpg
 sources:
