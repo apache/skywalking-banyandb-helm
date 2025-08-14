@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
+# This file is used to test BanyanDB with lifecycle features enabled.
 
 setup:
   env: kind
@@ -47,8 +47,8 @@ setup:
         helm repo add bitnami https://charts.bitnami.com/bitnami
         cd chart
         helm dependency update
-    - name: Install BanyanDB
-      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.standalone.yaml
+    - name: Install BanyanDB with lifecycle features
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.lifecycle.yaml
       wait:
         - namespace: istio-system
           resource: pod

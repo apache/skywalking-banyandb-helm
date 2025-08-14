@@ -7,13 +7,15 @@ Release Notes.
 
 #### Features
 
-- Support Lifecycle Sidecar
-- Introduce the data node template to support different node roles
-- Convert liaison component from Deployment to StatefulSet 
-- Implement component-based storage configuration with separate data, liaison, and standalone sections. Enable the external data and liaison stroage by default.
-- Add headless services for StatefulSet pod discovery and stable network identities
-- Add internal-grpc port 18912 for liaison pod-to-pod communication
-- Enable etcd defragmentation by default with daily scheduling
+- Support Lifecycle Sidecar for automated data management across hot/warm/cold node roles with configurable schedules
+- Introduce the data node template system to support different node roles (hot, warm, cold) with role-specific configurations
+- Convert liaison component from Deployment to StatefulSet for improved state management and stable network identities
+- Implement component-based storage configuration with separate data, liaison, and standalone sections. Enable external data and liaison storage by default with persistent volume claims
+- Add headless services for StatefulSet pod discovery and stable network identities, enabling reliable pod-to-pod communication
+- Add internal-grpc port 18912 for liaison pod-to-pod communication, enhancing cluster internal networking
+- Enable etcd defragmentation by default with daily scheduling (0 0 * * *) to maintain optimal etcd performance
+- Enhance pod hostname configuration using headless services for improved service discovery and networking
+- Implement volume permissions init containers for proper file ownership and permissions on mounted volumes
 
 #### Chores
 

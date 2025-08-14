@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Default values for banyandb.
-# This is a YAML-formatted file.
+# Lifecycle-enabled values for banyandb cluster mode.
+# This is a YAML-formatted file with lifecycle configuration enabled.
 # Declare variables to be passed into your templates.
 
 image:
@@ -44,12 +44,9 @@ cluster:
       chownUser: 1000
       chownGroup: 1000
       image: busybox:1.36
-    # runAsUser: 1000
-    # runAsGroup: 1000
-    # fsGroup: 1000
-    env: []
-    # - name: BANYANDB_FOO
-    #   value: "bar"
+    env:
+      - name: BYDB_DATA_NODE_SELECTOR
+        value: "type=hot"
     priorityClassName: ""
     podDisruptionBudget: {}
     updateStrategy:
@@ -57,59 +54,14 @@ cluster:
       rollingUpdate:
         maxUnavailable: 1
     podManagementPolicy: Parallel
-    # minAvailable: 1
-    # maxUnavailable: 2
-    # matchLabels:
-    #   - key: foo
-    #     value: bar
-    # matchExpressions:
-    #   - key: foo
-    #     operator: In
-    #     values: [bar, baz]
-    # paused: false
     tolerations: []
-    # - key: foo
-    #   value: bar
-    #   operator: Equal
-    #   effect: NoSchedule
     nodeSelector: []
-    # - key: foo
-    #   value: bar
     affinity: {}
-    # nodeAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     nodeSelectorTerms:
-    #       - matchExpressions:
-    #           - key: foo
-    #             operator: In
-    #             values:
-    #               - bar
-    #               - baz
-    # podAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     - labelSelector:
-    #         matchLabels:
-    #           - key: app
-    #             value: banyandb
-    #       topologyKey: "kubernetes.io/hostname"
-    #       namespaces: []
     podAffinityPreset: ""
     podAntiAffinityPreset: soft
     resources:
       requests: []
-      # - key: cpu
-      #   value: "100m"
-      # - key: memory
-      #   value: "256Mi"
       limits: []
-      # - key: cpu
-      #   value: "500m"
-      # - key: memory
-      #   value: "512Mi"
-      # tls:
-      #   grpcSecretName: ""
-      #   httpSecretName: ""
-      #   etcdSecretName: ""
 
     grpcSvc:
       labels: {}
@@ -130,15 +82,7 @@ cluster:
       labels: {}
       annotations: {}
       rules: []
-      # - host: localhost
-      #   paths:
-      #     - path: /
-      #       port: 17913
-      #       serviceName: banyandb-http
       tls: []
-      # - hosts:
-      #     - localhost
-      #   secretName: tls-secret
 
     livenessProbe:
       initialDelaySeconds: 20
@@ -181,67 +125,18 @@ cluster:
         chownUser: 1000
         chownGroup: 1000
         image: busybox:1.36
-      # runAsUser: 1000
-      # runAsGroup: 1000
-      # fsGroup: 1000
       env: []
-      # - name: BANYANDB_FOO
-      #   value: "bar"
       priorityClassName: ""
       podDisruptionBudget:
         maxUnavailable: 1
-      # minAvailable: 1
-      # maxUnavailable: 2
-      # matchLabels:
-      #   - key: foo
-      #     value: bar
-      # matchExpressions:
-      #   - key: foo
-      #     operator: In
-      #     values: [bar, baz]
-      # paused: false
       tolerations: []
-      # - key: foo
-      #   value: bar
-      #   operator: Equal
-      #   effect: NoSchedule
       nodeSelector: []
-      # - key: foo
-      #   value: bar
       affinity: {}
-      # nodeAffinity:
-      #   requiredDuringSchedulingIgnoredDuringExecution:
-      #     nodeSelectorTerms:
-      #       - matchExpressions:
-      #           - key: foo
-      #             operator: In
-      #             values:
-      #               - bar
-      #               - baz
-      # podAffinity:
-      #   requiredDuringSchedulingIgnoredDuringExecution:
-      #     - labelSelector:
-      #         matchLabels:
-      #           - key: app
-      #             value: banyandb
-      #       topologyKey: "kubernetes.io/hostname"
-      #       namespaces: []
       podAffinityPreset: ""
       podAntiAffinityPreset: soft
       resources:
         requests: []
-        # - key: cpu
-        #   value: "100m"
-        # - key: memory
-        #   value: "256Mi"
         limits: []
-        # - key: cpu
-        #   value: "500m"
-        # - key: memory
-        #   value: "512Mi"
-        # tls:
-        #   grpcSecretName: ""
-        #   etcdSecretName: ""
 
       grpcSvc:
         labels: {}
@@ -249,23 +144,25 @@ cluster:
         port: 17912
 
       sidecar: []
-      # - name: cleanup-sidecar
-      #   image: busybox:latest
-      #   imagePullPolicy: IfNotPresent
-      #   commands: 
-      #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
-      #     preStop: ["sh", "-c", "echo cleanup"]
+
       backupSidecar:
         enabled: true
         dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
         timeStyle: "daily"
-        schedule: "@every 10s"
+        schedule: "@hourly"
         customFlags: []
         resources: {}
+
+      lifecycleSidecar:
+        enabled: true
+        schedule: "@hourly"
+        resources: {}
+
       restoreInitContainer:
         enabled: true
         customFlags: []
         resources: {}
+
       livenessProbe:
         initialDelaySeconds: 20
         periodSeconds: 5
@@ -286,25 +183,26 @@ cluster:
         timeoutSeconds: 5
         successThreshold: 1
         failureThreshold: 60
+
     roles:
-      hot: {}
+      hot:
+        lifecycleSidecar:
+          schedule: "@daily"
+          enabled: true
+      warm:
+        lifecycleSidecar:
+          schedule: "@daily"
+          enabled: true
+      cold:
+        replicas: 1
+
   ui:
-    # Available UI type: 
-    # None: Disable UI
-    # Standalone: Standalone UI deployment
-    # Embedded: Embedded UI in Liaison
     type: Embedded
     standalone:
       replicas: 1
-      podAnnotations: # example: banyandb-foo
-
+      podAnnotations:
       securityContext: {}
-      # runAsUser: 1000
-      # runAsGroup: 1000
-      # fsGroup: 1000
       env: []
-      # - name: BANYANDB_FOO
-      #   value: "bar"
       priorityClassName: ""
       updateStrategy:
         type: RollingUpdate
@@ -312,52 +210,14 @@ cluster:
           maxUnavailable: 1
           maxSurge: 1
       podDisruptionBudget: {}
-      #  minAvailable: 1
-      # maxUnavailable: 2
-      # paused: false
       tolerations: []
-      # - key: foo
-      #   value: bar
-      #   operator: Equal
-      #   effect: NoSchedule
       nodeSelector: []
-      # - key: foo
-      #   value: bar
       affinity: {}
-      # nodeAffinity:
-      #   requiredDuringSchedulingIgnoredDuringExecution:
-      #     nodeSelectorTerms:
-      #       - matchExpressions:
-      #           - key: foo
-      #             operator: In
-      #             values:
-      #               - bar
-      #               - baz
-      # podAffinity:
-      #   requiredDuringSchedulingIgnoredDuringExecution:
-      #     - labelSelector:
-      #         matchLabels:
-      #           - key: app
-      #             value: banyandb
-      #       topologyKey: "kubernetes.io/hostname"
-      #       namespaces: []
       podAffinityPreset: ""
       podAntiAffinityPreset: soft
       resources:
         requests: []
-        # - key: cpu
-        #   value: "100m"
-        # - key: memory
-        #   value: "256Mi"
         limits: []
-        # - key: cpu
-        #   value: "500m"
-        # - key: memory
-        #   value: "512Mi"
-        # tls:
-        # grpcSecretName: ""
-        # httpSecretName: ""
-        # etcdSecretName: ""
 
       httpSvc:
         labels: {}
@@ -373,15 +233,8 @@ cluster:
         labels: {}
         annotations: {}
         rules: []
-        # - host: localhost
-        #   paths:
-        #     - path: /
-        #       port: 17913
-        #       serviceName: banyandb-ui
         tls: []
-        # - hosts:
-        #     - localhost
-        #   secretName: tls-secret
+
       livenessProbe:
         initialDelaySeconds: 20
         periodSeconds: 30
@@ -407,11 +260,83 @@ storage:
   data:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property" ]
+    - mountTargets: [ "measure" ]
       nodeRole: hot
       existingClaimName: null
-      claimName: data
+      claimName: hot-measure-data
+      size: 50Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "stream" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-stream-data
+      size: 50Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "property" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-property-data
       size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "measure" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-measure-data
+      size: 100Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "stream" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-stream-data
+      size: 100Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "property" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-property-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "measure" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-measure-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "stream" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-stream-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "property" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-property-data
+      size: 20Gi
       accessModes:
       - ReadWriteOnce
       storageClass: null
@@ -419,12 +344,13 @@ storage:
     - mountTargets: [ "backups" ]
       nodeRole: hot
       existingClaimName: null
-      claimName: backups
-      size: 5Gi
+      claimName: hot-backups
+      size: 10Gi
       accessModes:
       - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
+
   liaison:
     enabled: true
     persistentVolumeClaims:
@@ -435,6 +361,7 @@ storage:
       - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
+
   standalone:
     enabled: false
     persistentVolumeClaims:
@@ -447,12 +374,8 @@ storage:
       volumeMode: Filesystem
 
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 etcd:
@@ -470,12 +393,19 @@ etcd:
       certFilename: tls.crt
       certKeyFilename: tls.key
       caFilename: ""
-      # extraEnvVars:
-      #   - name: ETCDCTL_CACERT
-      #     value: /opt/bitnami/etcd/certs/client/ca.crt
     token:
       enabled: true
       type: simple
+  livenessProbe:
+    initialDelaySeconds: 10
+  readinessProbe:
+    initialDelaySeconds: 10
+  autoCompactionMode: periodic
+  autoCompactionRetention: "1"
+  defrag:
+    enabled: true
+    cronjob:
+      schedule: "0 0 * * *"
 
 fullnameOverride: ""
 nameOverride: "banyandb"

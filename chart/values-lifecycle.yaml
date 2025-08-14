@@ -52,6 +52,19 @@ standalone:
   ## @param standalone.securityContext Security context for the pod
   ##
   securityContext: {}
+  ## @param standalone.containerSecurityContext Container-level security context
+  ## e.g. { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false, runAsNonRoot: true }
+  containerSecurityContext: {}
+  ## Volume permissions init container
+  ## @param standalone.volumePermissions.enabled Enable volume permissions init container
+  volumePermissions:
+    enabled: false
+    ## @param standalone.volumePermissions.chownUser User ID to chown the mounted volumes
+    chownUser: 1000
+    ## @param standalone.volumePermissions.chownGroup Group ID to chown the mounted volumes
+    chownGroup: 1000
+    ## @param standalone.volumePermissions.image Image for the volume permissions init container
+    image: busybox:1.36
   ## @param standalone.env Environment variables for the pod
   ##
   env: []
@@ -206,9 +219,24 @@ cluster:
     ## @param cluster.liaison.securityContext Security context for liaison pods
     ##
     securityContext: {}
+    ## @param cluster.liaison.containerSecurityContext Container-level security context for liaison
+    ## e.g. { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false, runAsNonRoot: true }
+    containerSecurityContext: {}
+    ## Volume permissions init container
+    ## @param cluster.liaison.volumePermissions.enabled Enable volume permissions init container for liaison
+    volumePermissions:
+      enabled: false
+      ## @param cluster.liaison.volumePermissions.chownUser User ID to chown the mounted volumes for liaison
+      chownUser: 1000
+      ## @param cluster.liaison.volumePermissions.chownGroup Group ID to chown the mounted volumes for liaison
+      chownGroup: 1000
+      ## @param cluster.liaison.volumePermissions.image Image for the volume permissions init container for liaison
+      image: busybox:1.36
     ## @param cluster.liaison.env Environment variables for liaison pods
     ##
-    env: []
+    env:
+      - name: BYDB_DATA_NODE_SELECTOR
+        value: "type=hot"
     ## @param cluster.liaison.priorityClassName Priority class name for liaison pods
     ##
     priorityClassName: ""
@@ -351,6 +379,19 @@ cluster:
       ## @param cluster.data.nodeTemplate.securityContext Security context for data pods
       ##
       securityContext: {}
+      ## @param cluster.data.nodeTemplate.containerSecurityContext Container-level security context for data pods
+      ## e.g. { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false, runAsNonRoot: true }
+      containerSecurityContext: {}
+      ## Volume permissions init container
+      ## @param cluster.data.nodeTemplate.volumePermissions.enabled Enable volume permissions init container for data pods
+      volumePermissions:
+        enabled: false
+        ## @param cluster.data.nodeTemplate.volumePermissions.chownUser User ID to chown the mounted volumes for data pods
+        chownUser: 1000
+        ## @param cluster.data.nodeTemplate.volumePermissions.chownGroup Group ID to chown the mounted volumes for data pods
+        chownGroup: 1000
+        ## @param cluster.data.nodeTemplate.volumePermissions.image Image for the volume permissions init container for data pods
+        image: busybox:1.36
       ## @param cluster.data.nodeTemplate.env Environment variables for data pods
       ##
       env: []
@@ -416,6 +457,9 @@ cluster:
         timeStyle: "daily"
         ## @param cluster.data.nodeTemplate.backupSidecar.schedule Backup schedule for data pods (cron format)
         schedule: "@hourly"
+        ## @param cluster.data.nodeTemplate.backupSidecar.customFlags Custom flags for backup sidecar (e.g., S3, Azure, GCS configuration)
+        ##
+        customFlags: []
         ##
         ## @param cluster.data.nodeTemplate.backupSidecar.resources Resources for backup sidecar for data pods
         ##
@@ -438,6 +482,9 @@ cluster:
         ## @param cluster.data.nodeTemplate.restoreInitContainer.enabled Enable restore init container for data pods (boolean)
         ##
         enabled: false
+        ## @param cluster.data.nodeTemplate.restoreInitContainer.customFlags Custom flags for restore init container (e.g., S3, Azure, GCS configuration)
+        ##
+        customFlags: []
         ## @param cluster.data.nodeTemplate.restoreInitContainer.resources Resources for restore init container for data pods
         ##
         resources: {}
@@ -499,18 +546,24 @@ cluster:
     ## @extra cluster.data.roles List of data roles (hot, warm, cold)
     ##
     roles:
+      ## @param cluster.data.roles.hot Hot data role
+      ##
       hot:
         ## Override lifecycle sidecar settings for hot nodes
         lifecycleSidecar:
           ## @param cluster.data.roles.hot.lifecycleSidecar.schedule Schedule for lifecycle sidecar for hot data pods
           schedule: "@daily"
           enabled: true
+      ## @param cluster.data.roles.warm Warm data role
+      ##
       warm:
         ## Override lifecycle sidecar settings for warm nodes
         lifecycleSidecar:
           ## @param cluster.data.roles.warm.lifecycleSidecar.schedule Schedule for lifecycle sidecar for warm data pods
           schedule: "@daily"
           enabled: true
+      ## @param cluster.data.roles.cold Cold data role
+      ##
       cold:
         ## @param cluster.data.roles.cold.replicas Override number of cold data replicas
         replicas: 1

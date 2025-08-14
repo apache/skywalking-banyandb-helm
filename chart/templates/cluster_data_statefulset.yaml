@@ -56,6 +56,41 @@ spec:
       {{- end }}
       priorityClassName: {{ $roleConfig.priorityClassName }}
       initContainers:
+        {{- if $roleConfig.volumePermissions.enabled }}
+        - name: volume-permissions
+          image: {{ default "busybox:1.36" $roleConfig.volumePermissions.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              {{- $chownUser := default 1000 $roleConfig.volumePermissions.chownUser -}}
+              {{- $chownGroup := default 1000 $roleConfig.volumePermissions.chownGroup -}}
+              {{- if $.Values.storage.data.enabled }}
+              {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+              {{- if eq $claim.nodeRole $roleName }}
+              {{- $mountName := (ternary $claim.existingClaimName $claim.claimName (not (empty $claim.existingClaimName))) }}
+              {{- range $mt := $claim.mountTargets }}
+              mkdir -p /mnt/{{ $mountName }}/{{ $mt }}
+              chown -R {{ $chownUser }}:{{ $chownGroup }} /mnt/{{ $mountName }}/{{ $mt }}
+              chmod -R 0770 /mnt/{{ $mountName }}/{{ $mt }}
+              {{- end }}
+              {{- end }}
+              {{- end }}
+              {{- end }}
+          {{- if $.Values.storage.data.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+            {{- if eq $claim.nodeRole $roleName }}
+            - mountPath: /mnt/{{ ternary $claim.existingClaimName $claim.claimName (not (empty $claim.existingClaimName)) }}
+              name: {{ ternary $claim.existingClaimName $claim.claimName (not (empty $claim.existingClaimName)) }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
         {{- if $roleConfig.restoreInitContainer.enabled }}
         - name: restore-init
           image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
@@ -64,19 +99,24 @@ spec:
             - "/restore"
             - "run"
             - "--source={{ $roleConfig.backupSidecar.dest }}"
+            {{- if $roleConfig.restoreInitContainer.customFlags }}
+            {{- range $flag := $roleConfig.restoreInitContainer.customFlags }}
+            - {{ $flag | quote }}
+            {{- end }}
+            {{- end }}
           {{- if $.Values.storage.data.enabled }}
           volumeMounts:
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -93,19 +133,25 @@ spec:
         - name: data
           image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          {{- with $roleConfig.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
-            # Hostname configuration for headless service
-            - name: BYDB_NODE_HOST_PROVIDER
-              value: "hostname"
-            - name: BYDB_NODE_HOST
+            # Pod metadata for hostname construction
+            - name: POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
-            {{- range $env := $mergedEnv }}
-            - name: {{ $env.name }}
-              value: {{ $env.value }}
-            {{- end }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # Hostname configuration for headless service
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "flag"
+            - name: BYDB_NODE_HOST
+              value: "$(POD_NAME).{{ template "banyandb.fullname" $ }}-data-{{ $roleName }}-headless.$(POD_NAMESPACE)"
             - name: BYDB_NODE_LABELS
               value: "type={{ $roleName }}"
             {{- if $roleConfig.tls}}
@@ -142,12 +188,12 @@ spec:
             {{- else }}
             {{- include "banyandb.etcdEndpoints" $ | nindent 12 }}
             {{- end }}
-            - name: BYDB_NODE_HOST_PROVIDER
-              value: "ip"
-            - name: BYDB_NODE_HOST
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
+            {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
+            {{- range $env := $mergedEnv }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+           
           args:
             - data 
           ports:
@@ -205,20 +251,20 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or $.Values.storage.enabled $roleConfig.tls }}
+          {{- if or $.Values.storage.data.enabled $roleConfig.tls }}
           volumeMounts:
-            {{- if $.Values.storage.enabled }}
-            {{- range $claim := $.Values.storage.persistentVolumeClaims }}
+            {{- if $.Values.storage.data.enabled }}
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -248,6 +294,11 @@ spec:
             - "--time-style={{ $roleConfig.backupSidecar.timeStyle }}"
             - "--schedule={{ $roleConfig.backupSidecar.schedule }}"
             - "--grpc-addr=127.0.0.1:17912"
+            {{- if $roleConfig.backupSidecar.customFlags }}
+            {{- range $flag := $roleConfig.backupSidecar.customFlags }}
+            - {{ $flag | quote }}
+            {{- end }}
+            {{- end }}
           env:
             - name: ORDINAL_NUMBER
               valueFrom:
@@ -259,13 +310,13 @@ spec:
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -316,13 +367,13 @@ spec:
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
@@ -356,13 +407,13 @@ spec:
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.existingClaimName }}
               subPath: {{ . }}
             {{- end }}
             {{- else }}
             {{- range $claim.mountTargets }}
-            - mountPath: /data/{{ . }}
+            - mountPath: /tmp/{{ . }}
               name: {{ $claim.claimName }}
               subPath: {{ . }}
             {{- end }}
