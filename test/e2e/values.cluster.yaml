@@ -407,7 +407,7 @@ storage:
   data:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property" ]
+    - mountTargets: [ "measure", "stream", "property", "trace" ]
       nodeRole: hot
       existingClaimName: null
       claimName: data
@@ -428,7 +428,7 @@ storage:
   liaison:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream" ]
+    - mountTargets: [ "measure", "stream", "trace" ]
       claimName: liaison-data
       size: 10Gi
       accessModes:
@@ -438,7 +438,7 @@ storage:
   standalone:
     enabled: false
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property" ]
+    - mountTargets: [ "measure", "stream", "property", "trace" ]
       claimName: standalone-data
       size: 200Gi
       accessModes:

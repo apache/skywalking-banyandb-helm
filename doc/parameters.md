@@ -268,9 +268,17 @@ The content of this document describes the parameters that can be configured in 
 | `storage.data.persistentVolumeClaims[2].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
 | `storage.data.persistentVolumeClaims[2].storageClass`       | Storage class for the PVC                               | `nil`                             |
 | `storage.data.persistentVolumeClaims[2].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
+| `storage.data.persistentVolumeClaims[3].mountTargets`       | Mount targets for the PVC                               | `["trace"]`                       |
+| `storage.data.persistentVolumeClaims[3].nodeRole`           | Node role this PVC is bound to                          | `hot`                             |
+| `storage.data.persistentVolumeClaims[3].existingClaimName`  | Existing PVC name (if any)                              | `nil`                             |
+| `storage.data.persistentVolumeClaims[3].claimName`          | Name of the PVC                                         | `hot-trace-data`                  |
+| `storage.data.persistentVolumeClaims[3].size`               | Size of the PVC                                         | `50Gi`                            |
+| `storage.data.persistentVolumeClaims[3].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
+| `storage.data.persistentVolumeClaims[3].storageClass`       | Storage class for the PVC                               | `nil`                             |
+| `storage.data.persistentVolumeClaims[3].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
 | `storage.liaison.enabled`                                   | Enable persistent storage for liaison nodes (boolean)   | `true`                            |
 | `storage.liaison.persistentVolumeClaims`                    | List of PVC configurations for liaison nodes            |                                   |
-| `storage.liaison.persistentVolumeClaims[0].mountTargets`    | Mount targets for the PVC                               | `["measure","stream"]`            |
+| `storage.liaison.persistentVolumeClaims[0].mountTargets`    | Mount targets for the PVC                               | `["measure","stream","trace"]`    |
 | `storage.liaison.persistentVolumeClaims[0].claimName`       | Name of the PVC                                         | `liaison-data`                    |
 | `storage.liaison.persistentVolumeClaims[0].size`            | Size of the PVC                                         | `10Gi`                            |
 | `storage.liaison.persistentVolumeClaims[0].accessModes`     | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
@@ -278,7 +286,7 @@ The content of this document describes the parameters that can be configured in 
 | `storage.liaison.persistentVolumeClaims[0].volumeMode`      | Volume mode for the PVC                                 | `Filesystem`                      |
 | `storage.standalone.enabled`                                | Enable persistent storage for standalone mode (boolean) | `false`                           |
 | `storage.standalone.persistentVolumeClaims`                 | List of PVC configurations for standalone               |                                   |
-| `storage.standalone.persistentVolumeClaims[0].mountTargets` | Mount targets for the PVC                               | `["measure","stream","property"]` |
+| `storage.standalone.persistentVolumeClaims[0].mountTargets` | Mount targets for the PVC                               | `["measure","stream","property","trace"]` |
 | `storage.standalone.persistentVolumeClaims[0].claimName`    | Name of the PVC                                         | `standalone-data`                 |
 | `storage.standalone.persistentVolumeClaims[0].size`         | Size of the PVC                                         | `200Gi`                           |
 | `storage.standalone.persistentVolumeClaims[0].accessModes`  | Access modes for the PVC                                | `["ReadWriteOnce"]`               |

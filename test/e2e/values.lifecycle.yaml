@@ -287,6 +287,15 @@ storage:
       - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
+    - mountTargets: [ "trace" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-trace-data
+      size: 50Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
     - mountTargets: [ "measure" ]
       nodeRole: warm
       existingClaimName: null
@@ -314,6 +323,15 @@ storage:
       - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
+    - mountTargets: [ "trace" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-trace-data
+      size: 100Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
     - mountTargets: [ "measure" ]
       nodeRole: cold
       existingClaimName: null
@@ -337,6 +355,15 @@ storage:
       existingClaimName: null
       claimName: cold-property-data
       size: 20Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "trace" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-trace-data
+      size: 200Gi
       accessModes:
       - ReadWriteOnce
       storageClass: null
