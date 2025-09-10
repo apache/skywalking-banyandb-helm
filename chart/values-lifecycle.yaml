@@ -473,6 +473,12 @@ cluster:
         ## @param cluster.data.nodeTemplate.lifecycleSidecar.schedule Schedule for lifecycle sidecar (cron format)
         ##
         schedule: "@hourly"
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.progressFile Progress file path for lifecycle sidecar
+        ##
+        progressFile: "/tmp/stream/lifecycle/progress.json"
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.reportDir Report directory path for lifecycle sidecar
+        ##
+        reportDir: "/tmp/stream/lifecycle/reports"
         ## @param cluster.data.nodeTemplate.lifecycleSidecar.resources Resources for lifecycle sidecar for data pods
         ##
         resources: {}

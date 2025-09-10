@@ -361,6 +361,12 @@ spec:
           command:
             - "/lifecycle"
             - "--schedule={{ $roleConfig.lifecycleSidecar.schedule }}"
+            {{- if $roleConfig.lifecycleSidecar.progressFile }}
+            - "--progress-file={{ $roleConfig.lifecycleSidecar.progressFile }}"
+            {{- end }}
+            {{- if $roleConfig.lifecycleSidecar.reportDir }}
+            - "--report-dir={{ $roleConfig.lifecycleSidecar.reportDir }}"
+            {{- end }}
           {{- if $.Values.storage.data.enabled }}
           volumeMounts:
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}

@@ -167,6 +167,8 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods                                   | `{}`                                         |
 | `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)                             | `false`                                      |
 | `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)                                 | `@hourly`                                    |
+| `cluster.data.nodeTemplate.lifecycleSidecar.progressFile`      | Progress file path for lifecycle sidecar                                     | `""`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.reportDir`         | Report directory path for lifecycle sidecar                                  | `""`                                         |
 | `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods                                | `{}`                                         |
 | `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean)                        | `false`                                      |
 | `cluster.data.nodeTemplate.restoreInitContainer.customFlags`   | Custom flags for restore init container (e.g., S3, Azure, GCS configuration) | `[]`                                         |

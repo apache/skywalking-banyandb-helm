@@ -156,6 +156,8 @@ cluster:
       lifecycleSidecar:
         enabled: true
         schedule: "@hourly"
+        progressFile: "/tmp/stream/lifecycle/progress.json"
+        reportDir: "/tmp/stream/lifecycle/reports"
         resources: {}
 
       restoreInitContainer:
@@ -189,10 +191,14 @@ cluster:
         lifecycleSidecar:
           schedule: "@daily"
           enabled: true
+          progressFile: "/tmp/stream/lifecycle/progress.json"
+          reportDir: "/tmp/stream/lifecycle/reports"
       warm:
         lifecycleSidecar:
           schedule: "@daily"
           enabled: true
+          progressFile: "/tmp/stream/lifecycle/progress.json"
+          reportDir: "/tmp/stream/lifecycle/reports"
       cold:
         replicas: 1
 
