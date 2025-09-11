@@ -40,6 +40,40 @@ image:
   ##
   pullPolicy: IfNotPresent
 
+## @section Authentication configuration for BanyanDB
+##
+auth:
+  ## @param auth.enabled Enable basic authentication (boolean)
+  ## Defaults to false. When enabled, the chart mounts a credentials file and
+  ## passes --auth-config-file to liaison/standalone.
+  ##
+  enabled: false
+
+  ## @param auth.existingSecret Use an existing Secret for credentials
+  ## If set, the chart will NOT create a Secret and will mount this Secret
+  ## instead. The Secret must contain a key specified by auth.credentialsFileKey
+  ## whose value is the YAML-formatted credentials content.
+  ##
+  existingSecret: ""
+
+  ## @param auth.credentialsFileKey Key name in the Secret that stores the
+  ## credentials YAML. This filename will also be used inside the pod via subPath.
+  ##
+  credentialsFileKey: "credentials.yaml"
+
+  ## @param auth.users List of users to configure when not using existingSecret
+  ## Each user item must include plaintext fields: username, password.
+  ## If empty and auth.enabled=true, a default 'admin' user with a random
+  ## password will be generated.
+  ## Example:
+  ## users:
+  ##   - username: admin
+  ##     password: "changeme"
+  ##   - username: viewer
+  ##     password: "123456"
+  ##
+  users: []
+
 ## @section Configuration for standalone deployment
 ##
 standalone:
@@ -55,6 +89,13 @@ standalone:
   ## @param standalone.containerSecurityContext Container-level security context
   ## e.g. { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false, runAsNonRoot: true }
   containerSecurityContext: {}
+  ## @param standalone.tls TLS configuration for the standalone pod
+  ## When set, provide optional secret names to mount TLS materials.
+  ## Example:
+  ## tls:
+  ##   grpcSecretName: "my-grpc-tls"
+  ##   httpSecretName: "my-http-tls"
+  tls: {}
   ## Volume permissions init container
   ## @param standalone.volumePermissions.enabled Enable volume permissions init container
   volumePermissions:
@@ -471,6 +512,12 @@ cluster:
         ## @param cluster.data.nodeTemplate.lifecycleSidecar.schedule Schedule for lifecycle sidecar (cron format)
         ##
         schedule: "@hourly"
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.progressFile Progress file path for lifecycle sidecar
+        ##
+        progressFile: ""
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.reportDir Report directory path for lifecycle sidecar
+        ##
+        reportDir: ""
         ## @param cluster.data.nodeTemplate.lifecycleSidecar.resources Resources for lifecycle sidecar for data pods
         ##
         resources: {}

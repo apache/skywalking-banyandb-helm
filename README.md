@@ -90,6 +90,41 @@ $ helm install my-release \
 
 > **Tip**: You can use the default [values.yaml](chart/values.yaml)
 
+## Authentication
+
+Basic authentication can be enabled for liaison and standalone modes. When enabled, the chart mounts a credentials file and adds `--auth-config-file` to BanyanDB.
+
+- Enable auth and provide users (plaintext passwords):
+
+```yaml
+auth:
+  enabled: true
+  users:
+    - username: admin
+      password: "changeme"
+```
+
+- Use an existing Secret (recommended for production). The Secret must contain a key `credentials.yaml` (configurable via `auth.credentialsFileKey`) whose value is the YAML content in the format required by BanyanDB ([docs](https://github.com/apache/skywalking-banyandb/blob/main/docs/operation/security.md#basic-authentication)):
+
+```yaml
+auth:
+  enabled: true
+  existingSecret: my-banyandb-auth
+  credentialsFileKey: credentials.yaml
+```
+
+The Secret name defaults to `<release>-banyandb-auth` when auto-created.
+
+### Retrieve credentials after install
+
+If the chart created the Secret (no `auth.existingSecret`), you can decode it:
+
+```bash
+kubectl get secret <release-name>-banyandb-auth -n <namespace> -o jsonpath='{.data.credentials\.yaml}' | base64 --decode
+```
+
+Adjust the key if you changed `auth.credentialsFileKey`.
+
 ## Use external certificate authorities for TLS
 If you'd like to use external certificate authorities, such as Vault, corresponding annotations can be injected into [banyandb](./chart/templates/statefulset.yaml).
 

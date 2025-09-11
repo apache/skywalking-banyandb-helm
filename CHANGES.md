@@ -16,6 +16,8 @@ Release Notes.
 - Enable etcd defragmentation by default with daily scheduling (0 0 * * *) to maintain optimal etcd performance
 - Enhance pod hostname configuration using headless services for improved service discovery and networking
 - Implement volume permissions init containers for proper file ownership and permissions on mounted volumes
+- Add the mount target for the trace mode
+- Add `auth` to configure the basic credential file.
 
 #### Chores
 

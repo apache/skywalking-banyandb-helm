@@ -43,9 +43,9 @@ jobs:
             config: test/e2e/e2e-banyandb-lifecycle.yaml
     name: ${{ matrix.test.name }}
     env:
-      OAP_TAG: bf04afdb2a841c60d5e27f5a9fc62d0879a5600c
+      OAP_TAG: 79860ca5c76a77bbd93e76ce4861b24707dd5ee3
       OAP_REPO: ghcr.io/apache/skywalking/oap
-      UI_TAG: bf04afdb2a841c60d5e27f5a9fc62d0879a5600c
+      UI_TAG: 79860ca5c76a77bbd93e76ce4861b24707dd5ee3
       UI_REPO: ghcr.io/apache/skywalking/ui
     steps:
       - uses: actions/checkout@v2

@@ -19,6 +19,15 @@ The content of this document describes the parameters that can be configured in 
 | `image.tag`        | Image tag/version (empty for latest)      | `""`                                   |
 | `image.pullPolicy` | Image pull policy (e.g. IfNotPresent)     | `IfNotPresent`                         |
 
+### Authentication configuration for BanyanDB
+
+| Name                      | Description                                              | Value              |
+| ------------------------- | -------------------------------------------------------- | ------------------ |
+| `auth.enabled`            | Enable basic authentication (boolean)                    | `false`            |
+| `auth.existingSecret`     | Use an existing Secret for credentials                   | `""`               |
+| `auth.credentialsFileKey` | Key name in the Secret that stores the                   | `credentials.yaml` |
+| `auth.users`              | List of users to configure when not using existingSecret | `[]`               |
+
 ### Configuration for standalone deployment
 
 | Name                                            | Description                                             | Value          |
@@ -27,6 +36,7 @@ The content of this document describes the parameters that can be configured in 
 | `standalone.podAnnotations`                     | Additional pod annotations                              | `{}`           |
 | `standalone.securityContext`                    | Security context for the pod                            | `{}`           |
 | `standalone.containerSecurityContext`           | Container-level security context                        | `{}`           |
+| `standalone.tls`                                | TLS configuration for the standalone pod                | `{}`           |
 | `standalone.volumePermissions.enabled`          | Enable volume permissions init container                | `false`        |
 | `standalone.volumePermissions.chownUser`        | User ID to chown the mounted volumes                    | `1000`         |
 | `standalone.volumePermissions.chownGroup`       | Group ID to chown the mounted volumes                   | `1000`         |
@@ -167,6 +177,8 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods                                   | `{}`                                         |
 | `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)                             | `false`                                      |
 | `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)                                 | `@hourly`                                    |
+| `cluster.data.nodeTemplate.lifecycleSidecar.progressFile`      | Progress file path for lifecycle sidecar                                     | `""`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.reportDir`         | Report directory path for lifecycle sidecar                                  | `""`                                         |
 | `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods                                | `{}`                                         |
 | `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean)                        | `false`                                      |
 | `cluster.data.nodeTemplate.restoreInitContainer.customFlags`   | Custom flags for restore init container (e.g., S3, Azure, GCS configuration) | `[]`                                         |
@@ -240,50 +252,50 @@ The content of this document describes the parameters that can be configured in 
 
 ### Storage configuration for persistent volumes
 
-| Name                                                        | Description                                             | Value                             |
-| ----------------------------------------------------------- | ------------------------------------------------------- | --------------------------------- |
-| `storage.data.enabled`                                      | Enable persistent storage for data nodes (boolean)      | `true`                            |
-| `storage.data.persistentVolumeClaims`                       | List of PVC configurations for data nodes               |                                   |
-| `storage.data.persistentVolumeClaims[0].mountTargets`       | Mount targets for the PVC                               | `["measure"]`                     |
-| `storage.data.persistentVolumeClaims[0].nodeRole`           | Node role this PVC is bound to (hot, warm, cold)        | `hot`                             |
-| `storage.data.persistentVolumeClaims[0].existingClaimName`  | Existing PVC name (if any)                              | `nil`                             |
-| `storage.data.persistentVolumeClaims[0].claimName`          | Name of the PVC                                         | `hot-measure-data`                |
-| `storage.data.persistentVolumeClaims[0].size`               | Size of the PVC                                         | `50Gi`                            |
-| `storage.data.persistentVolumeClaims[0].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
-| `storage.data.persistentVolumeClaims[0].storageClass`       | Storage class for the PVC                               | `nil`                             |
-| `storage.data.persistentVolumeClaims[0].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
-| `storage.data.persistentVolumeClaims[1].mountTargets`       | Mount targets for the PVC                               | `["stream"]`                      |
-| `storage.data.persistentVolumeClaims[1].nodeRole`           | Node role this PVC is bound to                          | `hot`                             |
-| `storage.data.persistentVolumeClaims[1].existingClaimName`  | Existing PVC name (if any)                              | `nil`                             |
-| `storage.data.persistentVolumeClaims[1].claimName`          | Name of the PVC                                         | `hot-stream-data`                 |
-| `storage.data.persistentVolumeClaims[1].size`               | Size of the PVC                                         | `50Gi`                            |
-| `storage.data.persistentVolumeClaims[1].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
-| `storage.data.persistentVolumeClaims[1].storageClass`       | Storage class for the PVC                               | `nil`                             |
-| `storage.data.persistentVolumeClaims[1].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
-| `storage.data.persistentVolumeClaims[2].mountTargets`       | Mount targets for the PVC                               | `["property"]`                    |
-| `storage.data.persistentVolumeClaims[2].nodeRole`           | Node role this PVC is bound to                          | `hot`                             |
-| `storage.data.persistentVolumeClaims[2].existingClaimName`  | Existing PVC name (if any)                              | `nil`                             |
-| `storage.data.persistentVolumeClaims[2].claimName`          | Name of the PVC                                         | `hot-property-data`               |
-| `storage.data.persistentVolumeClaims[2].size`               | Size of the PVC                                         | `5Gi`                             |
-| `storage.data.persistentVolumeClaims[2].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
-| `storage.data.persistentVolumeClaims[2].storageClass`       | Storage class for the PVC                               | `nil`                             |
-| `storage.data.persistentVolumeClaims[2].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                      |
-| `storage.liaison.enabled`                                   | Enable persistent storage for liaison nodes (boolean)   | `true`                            |
-| `storage.liaison.persistentVolumeClaims`                    | List of PVC configurations for liaison nodes            |                                   |
-| `storage.liaison.persistentVolumeClaims[0].mountTargets`    | Mount targets for the PVC                               | `["measure","stream"]`            |
-| `storage.liaison.persistentVolumeClaims[0].claimName`       | Name of the PVC                                         | `liaison-data`                    |
-| `storage.liaison.persistentVolumeClaims[0].size`            | Size of the PVC                                         | `10Gi`                            |
-| `storage.liaison.persistentVolumeClaims[0].accessModes`     | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
-| `storage.liaison.persistentVolumeClaims[0].storageClass`    | Storage class for the PVC                               | `nil`                             |
-| `storage.liaison.persistentVolumeClaims[0].volumeMode`      | Volume mode for the PVC                                 | `Filesystem`                      |
-| `storage.standalone.enabled`                                | Enable persistent storage for standalone mode (boolean) | `false`                           |
-| `storage.standalone.persistentVolumeClaims`                 | List of PVC configurations for standalone               |                                   |
-| `storage.standalone.persistentVolumeClaims[0].mountTargets` | Mount targets for the PVC                               | `["measure","stream","property"]` |
-| `storage.standalone.persistentVolumeClaims[0].claimName`    | Name of the PVC                                         | `standalone-data`                 |
-| `storage.standalone.persistentVolumeClaims[0].size`         | Size of the PVC                                         | `200Gi`                           |
-| `storage.standalone.persistentVolumeClaims[0].accessModes`  | Access modes for the PVC                                | `["ReadWriteOnce"]`               |
-| `storage.standalone.persistentVolumeClaims[0].storageClass` | Storage class for the PVC                               | `nil`                             |
-| `storage.standalone.persistentVolumeClaims[0].volumeMode`   | Volume mode for the PVC                                 | `Filesystem`                      |
+| Name                                                        | Description                                             | Value                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------- |
+| `storage.data.enabled`                                      | Enable persistent storage for data nodes (boolean)      | `true`                                       |
+| `storage.data.persistentVolumeClaims`                       | List of PVC configurations for data nodes               |                                              |
+| `storage.data.persistentVolumeClaims[0].mountTargets`       | Mount targets for the PVC                               | `["measure"]`                                |
+| `storage.data.persistentVolumeClaims[0].nodeRole`           | Node role this PVC is bound to (hot, warm, cold)        | `hot`                                        |
+| `storage.data.persistentVolumeClaims[0].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                        |
+| `storage.data.persistentVolumeClaims[0].claimName`          | Name of the PVC                                         | `hot-measure-data`                           |
+| `storage.data.persistentVolumeClaims[0].size`               | Size of the PVC                                         | `50Gi`                                       |
+| `storage.data.persistentVolumeClaims[0].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                          |
+| `storage.data.persistentVolumeClaims[0].storageClass`       | Storage class for the PVC                               | `nil`                                        |
+| `storage.data.persistentVolumeClaims[0].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                 |
+| `storage.data.persistentVolumeClaims[1].mountTargets`       | Mount targets for the PVC                               | `["stream"]`                                 |
+| `storage.data.persistentVolumeClaims[1].nodeRole`           | Node role this PVC is bound to                          | `hot`                                        |
+| `storage.data.persistentVolumeClaims[1].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                        |
+| `storage.data.persistentVolumeClaims[1].claimName`          | Name of the PVC                                         | `hot-stream-data`                            |
+| `storage.data.persistentVolumeClaims[1].size`               | Size of the PVC                                         | `50Gi`                                       |
+| `storage.data.persistentVolumeClaims[1].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                          |
+| `storage.data.persistentVolumeClaims[1].storageClass`       | Storage class for the PVC                               | `nil`                                        |
+| `storage.data.persistentVolumeClaims[1].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                 |
+| `storage.data.persistentVolumeClaims[2].mountTargets`       | Mount targets for the PVC                               | `["property"]`                               |
+| `storage.data.persistentVolumeClaims[2].nodeRole`           | Node role this PVC is bound to                          | `hot`                                        |
+| `storage.data.persistentVolumeClaims[2].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                        |
+| `storage.data.persistentVolumeClaims[2].claimName`          | Name of the PVC                                         | `hot-property-data`                          |
+| `storage.data.persistentVolumeClaims[2].size`               | Size of the PVC                                         | `5Gi`                                        |
+| `storage.data.persistentVolumeClaims[2].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                          |
+| `storage.data.persistentVolumeClaims[2].storageClass`       | Storage class for the PVC                               | `nil`                                        |
+| `storage.data.persistentVolumeClaims[2].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                 |
+| `storage.liaison.enabled`                                   | Enable persistent storage for liaison nodes (boolean)   | `true`                                       |
+| `storage.liaison.persistentVolumeClaims`                    | List of PVC configurations for liaison nodes            |                                              |
+| `storage.liaison.persistentVolumeClaims[0].mountTargets`    | Mount targets for the PVC                               | `["measure","stream"]`                       |
+| `storage.liaison.persistentVolumeClaims[0].claimName`       | Name of the PVC                                         | `liaison-data`                               |
+| `storage.liaison.persistentVolumeClaims[0].size`            | Size of the PVC                                         | `10Gi`                                       |
+| `storage.liaison.persistentVolumeClaims[0].accessModes`     | Access modes for the PVC                                | `["ReadWriteOnce"]`                          |
+| `storage.liaison.persistentVolumeClaims[0].storageClass`    | Storage class for the PVC                               | `nil`                                        |
+| `storage.liaison.persistentVolumeClaims[0].volumeMode`      | Volume mode for the PVC                                 | `Filesystem`                                 |
+| `storage.standalone.enabled`                                | Enable persistent storage for standalone mode (boolean) | `false`                                      |
+| `storage.standalone.persistentVolumeClaims`                 | List of PVC configurations for standalone               |                                              |
+| `storage.standalone.persistentVolumeClaims[0].mountTargets` | Mount targets for the PVC                               | `["measure","stream","metadata","property"]` |
+| `storage.standalone.persistentVolumeClaims[0].claimName`    | Name of the PVC                                         | `standalone-data`                            |
+| `storage.standalone.persistentVolumeClaims[0].size`         | Size of the PVC                                         | `200Gi`                                      |
+| `storage.standalone.persistentVolumeClaims[0].accessModes`  | Access modes for the PVC                                | `["ReadWriteOnce"]`                          |
+| `storage.standalone.persistentVolumeClaims[0].storageClass` | Storage class for the PVC                               | `nil`                                        |
+| `storage.standalone.persistentVolumeClaims[0].volumeMode`   | Volume mode for the PVC                                 | `Filesystem`                                 |
 
 ### Service account configuration
 
