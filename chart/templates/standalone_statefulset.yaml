@@ -43,8 +43,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       priorityClassName: {{ .Values.standalone.priorityClassName }}
-      {{- if and .Values.storage.standalone.enabled .Values.standalone.volumePermissions.enabled }}
+      {{- if or (and .Values.storage.standalone.enabled .Values.standalone.volumePermissions.enabled) .Values.auth.enabled }}
       initContainers:
+        {{- if and .Values.storage.standalone.enabled .Values.standalone.volumePermissions.enabled }}
         - name: volume-permissions
           image: {{ default "busybox:1.36" .Values.standalone.volumePermissions.image }}
           imagePullPolicy: IfNotPresent
@@ -69,6 +70,30 @@ spec:
             - mountPath: /mnt/{{ $claim.claimName }}
               name: {{ $claim.claimName }}
             {{- end }}
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        - name: auth-config-prepare
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              cp "/var/run/banyandb-auth/{{ .Values.auth.credentialsFileKey }}" "/etc/banyandb/{{ .Values.auth.credentialsFileKey }}"
+              CHOWN_UID={{ default 1000 .Values.standalone.securityContext.runAsUser }}
+              CHOWN_GID={{ default 1000 .Values.standalone.securityContext.runAsGroup }}
+              chown ${CHOWN_UID}:${CHOWN_GID} "/etc/banyandb/{{ .Values.auth.credentialsFileKey }}"
+              chmod 0600 "/etc/banyandb/{{ .Values.auth.credentialsFileKey }}"
+          volumeMounts:
+            - mountPath: /var/run/banyandb-auth
+              name: banyandb-auth
+              readOnly: true
+            - mountPath: /etc/banyandb
+              name: banyandb-auth-writable
+        {{- end }}
       {{- end }}
       containers:
         - name: standalone
@@ -105,6 +130,9 @@ spec:
             {{- end }}
           args:
             - standalone
+            {{- if .Values.auth.enabled }}
+            - --auth-config-file=/etc/banyandb/{{ .Values.auth.credentialsFileKey }}
+            {{- end }}
           ports:
             - containerPort: 17912
               name: grpc
@@ -172,7 +200,7 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or .Values.storage.standalone.enabled .Values.standalone.tls }}
+          {{- if or .Values.storage.standalone.enabled .Values.standalone.tls .Values.auth.enabled }}
           volumeMounts:
             {{- if .Values.storage.standalone.enabled }}
             {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
@@ -202,19 +230,39 @@ spec:
               name: {{ .Values.standalone.tls.httpSecretName }}-volume
             {{- end }}
             {{- end -}}
+            {{- if .Values.auth.enabled }}
+            - mountPath: /etc/banyandb
+              name: banyandb-auth-writable
+            {{- end }}
           {{- end }}
 
-      {{- if .Values.standalone.tls }}
+      {{- if or .Values.standalone.tls .Values.auth.enabled }}
       volumes:
+        {{- if .Values.standalone.tls }}
         {{- if .Values.standalone.tls.grpcSecretName }}
         - name: {{ .Values.standalone.tls.grpcSecretName }}-volume
           secret:
             secretName: {{ .Values.standalone.tls.grpcSecretName }}
         {{- end }}
-        {{- if and .Values.standalone.tls.httpSecretName (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName) }}
+        {{- if and .Values.standalone.tls.httpSecretName (or (not .Values.standalone.tls.grpcSecretName) (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName)) }}
         - name: {{ .Values.standalone.tls.httpSecretName }}-volume
           secret:
             secretName: {{ .Values.standalone.tls.httpSecretName }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        {{- $useExisting := ne .Values.auth.existingSecret "" }}
+        {{- $authSecret := ternary .Values.auth.existingSecret (printf "%s-auth" (include "banyandb.fullname" .)) $useExisting }}
+        - name: banyandb-auth
+          secret:
+            secretName: {{ $authSecret }}
+            defaultMode: 0600
+            items:
+              - key: {{ .Values.auth.credentialsFileKey }}
+                path: {{ .Values.auth.credentialsFileKey }}
+                mode: 0600
+        - name: banyandb-auth-writable
+          emptyDir: {}
         {{- end }}
       {{- end }}
 

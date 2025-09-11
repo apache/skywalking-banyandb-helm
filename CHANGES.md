@@ -17,6 +17,7 @@ Release Notes.
 - Enhance pod hostname configuration using headless services for improved service discovery and networking
 - Implement volume permissions init containers for proper file ownership and permissions on mounted volumes
 - Add the mount target for the trace mode
+- Add `auth` to configure the basic credential file.
 
 #### Chores
 

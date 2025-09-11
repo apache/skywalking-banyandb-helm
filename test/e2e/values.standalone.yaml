@@ -25,7 +25,7 @@ etcd:
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 7e5b2d0404e8ad6d5835eee6fe589a2544d0decb
+  tag: 46083529398b73504e9ca929ef367cd1776aef82
   pullPolicy: IfNotPresent
 
 standalone:
@@ -90,8 +90,7 @@ standalone:
     # - key: memory
     #   value: "512Mi"
   # tls:
-  #   grpcSecretName: ""
-  #   httpSecretName: ""
+  tls: {}
   livenessProbe:
     initialDelaySeconds: 20
     periodSeconds: 5
@@ -196,3 +195,11 @@ serviceAccount:
 
 fullnameOverride: ""
 nameOverride: "banyandb"
+
+auth:
+  enabled: true
+  existingSecret: ""
+  credentialsFileKey: "credentials.yaml"
+  users:
+    - username: admin
+      password: banyandb
