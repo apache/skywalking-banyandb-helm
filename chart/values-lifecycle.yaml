@@ -869,6 +869,10 @@ etcd:
   ## @param etcd.replicaCount Number of etcd replicas
   ##
   replicaCount: 1
+  ## @param etcd.image.repository Docker repository for etcd
+  ##
+  image:
+    repository: bitnamilegacy/etcd
   ## @section Authentication configuration for etcd
   ##
   auth:
