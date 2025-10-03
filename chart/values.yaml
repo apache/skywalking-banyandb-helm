@@ -855,7 +855,7 @@ storage:
     persistentVolumeClaims:
     ## @param storage.standalone.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
     ##
-    - mountTargets: [ "measure", "stream", "metadata", "property" ]
+    - mountTargets: [ "measure", "stream", "metadata", "property", "trace" ]
       ## @param storage.standalone.persistentVolumeClaims[0].claimName Name of the PVC
       claimName: standalone-data
       ## @param storage.standalone.persistentVolumeClaims[0].size Size of the PVC
