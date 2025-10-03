@@ -801,6 +801,24 @@ storage:
       storageClass: null
       ## @param storage.data.persistentVolumeClaims[2].volumeMode Volume mode for the PVC
       volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[3].mountTargets Mount targets for the PVC
+    - mountTargets: [ "trace" ]
+      ## @param storage.data.persistentVolumeClaims[3].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[3].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[3].claimName Name of the PVC
+      claimName: hot-trace-data
+      ## @param storage.data.persistentVolumeClaims[3].size Size of the PVC
+      size: 50Gi
+      ## @param storage.data.persistentVolumeClaims[3].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[3].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[3].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
 
   ## Liaison storage configuration
   ##
@@ -813,7 +831,7 @@ storage:
     persistentVolumeClaims:
     ## @param storage.liaison.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
     ##
-    - mountTargets: [ "measure", "stream" ]
+    - mountTargets: [ "measure", "stream", "trace" ]
       ## @param storage.liaison.persistentVolumeClaims[0].claimName Name of the PVC
       claimName: liaison-data
       ## @param storage.liaison.persistentVolumeClaims[0].size Size of the PVC
@@ -837,7 +855,7 @@ storage:
     persistentVolumeClaims:
     ## @param storage.standalone.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
     ##
-    - mountTargets: [ "measure", "stream", "metadata", "property" ]
+    - mountTargets: [ "measure", "stream", "metadata", "property", "trace" ]
       ## @param storage.standalone.persistentVolumeClaims[0].claimName Name of the PVC
       claimName: standalone-data
       ## @param storage.standalone.persistentVolumeClaims[0].size Size of the PVC
@@ -872,6 +890,10 @@ etcd:
   ## @param etcd.replicaCount Number of etcd replicas
   ##
   replicaCount: 1
+  ## @param etcd.image.repository Docker repository for etcd
+  ##
+  image:
+    repository: bitnamilegacy/etcd
   ## @section Authentication configuration for etcd
   ##
   auth:

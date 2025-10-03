@@ -18,6 +18,7 @@ Release Notes.
 - Implement volume permissions init containers for proper file ownership and permissions on mounted volumes
 - Add the mount target for the trace mode
 - Add `auth` to configure the basic credential file.
+- Set etcd's reposiotry to "bitnamilegacy". Bitnami removed non-hardened, Debian-based software images in its free tier under https://news.broadcom.com/app-dev/broadcom-introduces-bitnami-secure-images-for-production-ready-containerized-applications
 
 #### Chores
 
