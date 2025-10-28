@@ -141,7 +141,7 @@ spec:
             - containerPort: 6060
               name: pprof
             - containerPort: 2121
-              name: observebility
+              name: observability
           readinessProbe:
             httpGet:
               path: /api/healthz
