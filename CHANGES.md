@@ -20,6 +20,11 @@ Release Notes.
 - Add `auth` to configure the basic credential file.
 - Set etcd's reposiotry to "bitnamilegacy". Bitnami removed non-hardened, Debian-based software images in its free tier under https://news.broadcom.com/app-dev/broadcom-introduces-bitnami-secure-images-for-production-ready-containerized-applications
 
+#### Bugs
+
+- Fix missing "trace" mount target in liaison and standalone storage configurations
+- Fix typo "observability"
+
 #### Chores
 
 - Bump up e2e test cases.
