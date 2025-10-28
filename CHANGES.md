@@ -23,7 +23,7 @@ Release Notes.
 #### Bugs
 
 - Fix missing "trace" mount target in liaison and standalone storage configurations
-- Fix typo "observablity"
+- Fix typo "observability"
 
 #### Chores
 
