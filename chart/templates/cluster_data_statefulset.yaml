@@ -104,6 +104,11 @@ spec:
             - {{ $flag | quote }}
             {{- end }}
             {{- end }}
+          env:
+            - name: ORDINAL_NUMBER
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
           {{- if $.Values.storage.data.enabled }}
           volumeMounts:
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
