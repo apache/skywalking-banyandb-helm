@@ -99,3 +99,31 @@ EtcdEndpoints
 - name: BYDB_ETCD_ENDPOINTS
   value: "{{- $endpoints | join "," -}}"
 {{- end }}
+
+{{/*
+Generate data node names list based on passing roles
+*/}}
+{{- define "banyandb.dataNodeList" -}}
+{{- $dataNodes := list }}
+{{- $context := index . 0 }}
+{{- $configuredRoles := index . 1 }}
+{{- $fullname := include "banyandb.fullname" $context }}
+{{- range $roleName, $roleConfig := $context.Values.cluster.data.roles }}
+  {{- $shouldInclude := false }}
+  {{- if eq (len $configuredRoles) 0 }}
+    {{- $shouldInclude = true }}
+  {{- else }}
+    {{- if has $roleName $configuredRoles }}
+      {{- $shouldInclude = true }}
+    {{- end }}
+  {{- end }}
+  {{- if $shouldInclude }}
+    {{- $replicas := $roleConfig.replicas | default $context.Values.cluster.data.nodeTemplate.replicas }}
+    {{- range $i := until (int $replicas) }}
+      {{- $nodeName := printf "%s-data-%s-%d" $fullname $roleName $i }}
+      {{- $dataNodes = append $dataNodes $nodeName }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $dataNodes | join "," -}}
+{{- end }}
