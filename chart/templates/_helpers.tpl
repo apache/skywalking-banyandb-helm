@@ -99,3 +99,26 @@ EtcdEndpoints
 - name: BYDB_ETCD_ENDPOINTS
   value: "{{- $endpoints | join "," -}}"
 {{- end }}
+
+{{- define "banyandb.hasDataNodeListValue" -}}
+{{- $dataNodeList := include "banyandb.dataNodeListValue" . }}
+{{- if ne $dataNodeList "" }}true{{- end }}
+{{- end }}
+
+{{/*
+Generate data node names list for "hot" role only
+*/}}
+{{- define "banyandb.dataNodeListValue" -}}
+{{- $dataNodes := list }}
+{{- $fullname := include "banyandb.fullname" . }}
+{{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
+  {{- if eq $roleName "hot" }}
+    {{- $replicas := $roleConfig.replicas | default $.Values.cluster.data.nodeTemplate.replicas }}
+    {{- range $i := until (int $replicas) }}
+      {{- $nodeName := printf "%s-data-%s-%d" $fullname $roleName $i }}
+      {{- $dataNodes = append $dataNodes $nodeName }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- $dataNodes | join "," -}}
+{{- end }}
