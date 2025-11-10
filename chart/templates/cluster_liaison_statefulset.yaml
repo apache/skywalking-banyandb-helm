@@ -164,9 +164,9 @@ spec:
             {{- else }}
             {{- include "banyandb.etcdEndpoints" . | nindent 12 }}
             {{- end }}
-            {{- if .Values.cluster.liaison.dataNodeListEnv.enabled }}
+            {{- if include "banyandb.hasDataNodeListValue" . }}
             - name: BYDB_DATA_NODE_LIST
-              value: "{{ include "banyandb.dataNodeList" (list . .Values.cluster.liaison.dataNodeListEnv.roles) }}"
+              value: "{{ include "banyandb.dataNodeListValue" . }}"
             {{- end }}
             {{- range $env := .Values.cluster.liaison.env }}
             - name: {{ $env.name }}

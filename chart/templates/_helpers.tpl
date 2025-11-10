@@ -100,25 +100,20 @@ EtcdEndpoints
   value: "{{- $endpoints | join "," -}}"
 {{- end }}
 
+{{- define "banyandb.hasDataNodeListValue" -}}
+{{- $dataNodeList := include "banyandb.dataNodeListValue" . }}
+{{- if ne $dataNodeList "" }}true{{- end }}
+{{- end }}
+
 {{/*
-Generate data node names list based on passing roles
+Generate data node names list for "hot" role only
 */}}
-{{- define "banyandb.dataNodeList" -}}
+{{- define "banyandb.dataNodeListValue" -}}
 {{- $dataNodes := list }}
-{{- $context := index . 0 }}
-{{- $configuredRoles := index . 1 }}
-{{- $fullname := include "banyandb.fullname" $context }}
-{{- range $roleName, $roleConfig := $context.Values.cluster.data.roles }}
-  {{- $shouldInclude := false }}
-  {{- if eq (len $configuredRoles) 0 }}
-    {{- $shouldInclude = true }}
-  {{- else }}
-    {{- if has $roleName $configuredRoles }}
-      {{- $shouldInclude = true }}
-    {{- end }}
-  {{- end }}
-  {{- if $shouldInclude }}
-    {{- $replicas := $roleConfig.replicas | default $context.Values.cluster.data.nodeTemplate.replicas }}
+{{- $fullname := include "banyandb.fullname" . }}
+{{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
+  {{- if eq $roleName "hot" }}
+    {{- $replicas := $roleConfig.replicas | default $.Values.cluster.data.nodeTemplate.replicas }}
     {{- range $i := until (int $replicas) }}
       {{- $nodeName := printf "%s-data-%s-%d" $fullname $roleName $i }}
       {{- $dataNodes = append $dataNodes $nodeName }}

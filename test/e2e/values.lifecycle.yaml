@@ -44,9 +44,6 @@ cluster:
       chownUser: 1000
       chownGroup: 1000
       image: busybox:1.36
-    dataNodeListEnv:
-      enabled: true
-      roles: ["hot"]
     env:
       - name: BYDB_DATA_NODE_SELECTOR
         value: "type=hot"
