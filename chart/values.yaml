@@ -276,12 +276,6 @@ cluster:
     ## @param cluster.liaison.env Environment variables for liaison pods
     ##
     env: []
-    ## Data node list environment configuration
-    ## @param cluster.liaison.dataNodeListEnv.enabled Enable BYDB_DATA_NODE_LIST environment variable
-    dataNodeListEnv:
-      enabled: false
-      ## @param cluster.liaison.dataNodeListEnv.roles List of data roles to include (empty list means all roles)
-      roles: []
     ## @param cluster.liaison.priorityClassName Priority class name for liaison pods
     ##
     priorityClassName: ""
