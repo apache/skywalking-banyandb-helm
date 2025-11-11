@@ -2,6 +2,17 @@ Changes by Version
 ==================
 Release Notes.
 
+0.5.1
+-----------------
+
+#### Features
+
+-  Support data node list in the liaison
+
+#### Bugs
+
+- Fix missing env in the restore init container
+
 0.5.0
 ------------------
 
