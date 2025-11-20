@@ -2,6 +2,13 @@ Changes by Version
 ==================
 Release Notes.
 
+0.5.2
+-----------------
+
+#### Bugs
+
+- Fix the incorrect data node list of the liaison.
+
 0.5.1
 -----------------
 
