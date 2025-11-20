@@ -3,6 +3,7 @@ Changes by Version
 Release Notes.
 
 0.5.2
+-----------------
 
 #### Bugs
 
