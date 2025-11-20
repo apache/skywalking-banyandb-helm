@@ -111,12 +111,14 @@ Generate data node names list for "hot" role only
 {{- define "banyandb.dataNodeListValue" -}}
 {{- $dataNodes := list }}
 {{- $fullname := include "banyandb.fullname" . }}
+{{- $namespace := .Release.Namespace }}
 {{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
   {{- if eq $roleName "hot" }}
     {{- $replicas := $roleConfig.replicas | default $.Values.cluster.data.nodeTemplate.replicas }}
     {{- range $i := until (int $replicas) }}
-      {{- $nodeName := printf "%s-data-%s-%d" $fullname $roleName $i }}
-      {{- $dataNodes = append $dataNodes $nodeName }}
+      {{- $podName := printf "%s-data-%s-%d" $fullname $roleName $i }}
+      {{- $fqdn := printf "%s.%s-data-%s-headless.%s" $podName $fullname $roleName $namespace }}
+      {{- $dataNodes = append $dataNodes $fqdn }}
     {{- end }}
   {{- end }}
 {{- end }}
