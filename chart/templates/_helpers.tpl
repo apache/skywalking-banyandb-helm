@@ -118,7 +118,7 @@ Generate data node names list for "hot" role only
     {{- range $i := until (int $replicas) }}
       {{- $podName := printf "%s-data-%s-%d" $fullname $roleName $i }}
       {{- $fqdn := printf "%s.%s-data-%s-headless.%s" $podName $fullname $roleName $namespace }}
-      {{- $dataNodes = append $dataNodes $fqdn }}
+      {{- $dataNodes = append $dataNodes (printf "%s:17912" $fqdn) }}
     {{- end }}
   {{- end }}
 {{- end }}

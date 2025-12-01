@@ -2,6 +2,14 @@ Changes by Version
 ==================
 Release Notes.
 
+0.5.3
+
+-----------------
+
+#### Bugs
+
+- Fix missing port in data node list for liaison.
+
 0.5.2
 -----------------
 
