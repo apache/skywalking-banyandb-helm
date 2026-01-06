@@ -1,0 +1,116 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Default values for banyandb.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: mrproliu/skywalking-banyandb
+  tag: node-registry5
+  pullPolicy: IfNotPresent
+
+cluster:
+  enabled: true
+  etcdEndpoints: []
+  nodeRegistry:
+    mode: "dns"
+  liaison:
+    replicas: 2
+  data:
+    nodeTemplate:
+      replicas: 2
+    roles:
+      hot: {}
+
+storage:
+  data:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property", "trace" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: data
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "backups" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: backups
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  liaison:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "trace" ]
+      claimName: liaison-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  standalone:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property", "trace" ]
+      claimName: standalone-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+etcd:
+  enabled: true
+  replicaCount: 1
+  auth:
+    rbac:
+      create: true
+      allowNoneAuthentication: false
+      rootPassword: banyandb
+    client:
+      secureTransport: false
+      existingSecret: ""
+      enableAuthentication: false
+      certFilename: tls.crt
+      certKeyFilename: tls.key
+      caFilename: ""
+      # extraEnvVars:
+      #   - name: ETCDCTL_CACERT
+      #     value: /opt/bitnami/etcd/certs/client/ca.crt
+    token:
+      enabled: true
+      type: simple
+
+fullnameOverride: ""
+nameOverride: "banyandb"
+
+auth:
+  enabled: false

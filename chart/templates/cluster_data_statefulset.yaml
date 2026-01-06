@@ -193,10 +193,11 @@ spec:
             {{- else }}
             {{- include "banyandb.etcdEndpoints" $ | nindent 12 }}
             {{- end }}
+            {{- include "banyandb.nodeRegistryEnv" (dict "root" $) | nindent 12 }}
             {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
             {{- range $env := $mergedEnv }}
             - name: {{ $env.name }}
-              value: {{ $env.value }}
+              value: {{ .value | toString | quote }}
             {{- end }}
            
           args:
@@ -362,7 +363,8 @@ spec:
               value: "{{- $.Values.cluster.etcdEndpoints | join "," -}}"
             {{- else }}
             {{- include "banyandb.etcdEndpoints" $ | nindent 12 }}
-            {{- end }} 
+            {{- end }}
+            {{- include "banyandb.nodeRegistryEnv" (dict "root" $) | nindent 12 }}
           command:
             - "/lifecycle"
             - "--schedule={{ $roleConfig.lifecycleSidecar.schedule }}"

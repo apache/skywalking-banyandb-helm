@@ -124,3 +124,121 @@ Generate data node names list for "hot" role only
 {{- end }}
 {{- $dataNodes | join "," -}}
 {{- end }}
+
+{{/*
+Generate DNS SRV address for a component
+Format: _<port-name>._<proto>.<service-name>.<namespace>.svc.cluster.local
+*/}}
+{{- define "banyandb.dnsSrvAddress" -}}
+{{- $component := .component }}
+{{- $role := .role }}
+{{- $fullname := include "banyandb.fullname" .root }}
+{{- $namespace := .root.Release.Namespace }}
+{{- $serviceName := "" }}
+{{- $portName := "grpc" }}
+{{- if eq $component "liaison" }}
+  {{- $serviceName = printf "%s-liaison-headless" $fullname }}
+  {{- $portName = "internal-grpc" }}
+{{- else if eq $component "data" }}
+  {{- $serviceName = printf "%s-data-%s-headless" $fullname $role }}
+{{- end }}
+{{- printf "_%s._tcp.%s.%s.svc.cluster.local" $portName $serviceName $namespace }}
+{{- end }}
+
+{{/*
+Generate all DNS SRV addresses for node discovery
+Returns comma-separated list of SRV addresses
+*/}}
+{{- define "banyandb.allDnsSrvAddresses" -}}
+{{- $addresses := list }}
+{{- /* Add liaison SRV address */}}
+{{- $liaisonSrv := include "banyandb.dnsSrvAddress" (dict "root" . "component" "liaison") }}
+{{- $addresses = append $addresses $liaisonSrv }}
+{{- /* Add data node SRV addresses for each role */}}
+{{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
+  {{- $dataSrv := include "banyandb.dnsSrvAddress" (dict "root" $ "component" "data" "role" $roleName) }}
+  {{- $addresses = append $addresses $dataSrv }}
+{{- end }}
+{{- $addresses | join "," }}
+{{- end }}
+
+{{/*
+Generate node registry environment variables for a component
+*/}}
+{{- define "banyandb.nodeRegistryEnv" -}}
+{{- $config := .root.Values.cluster.nodeRegistry | default dict }}
+{{- $mode := $config.mode | default "etcd" }}
+
+- name: BYDB_NODE_DISCOVERY_MODE
+  value: {{ $mode | quote }}
+
+{{- if eq $mode "etcd" }}
+{{- /* Etcd mode configuration */}}
+{{- if $config.etcd.namespace }}
+- name: BYDB_NAMESPACE
+  value: {{ $config.etcd.namespace | quote }}
+{{- end }}
+{{- if $config.etcd.nodeRegistryTimeout }}
+- name: BYDB_NODE_REGISTRY_TIMEOUT
+  value: {{ $config.etcd.nodeRegistryTimeout | quote }}
+{{- end }}
+{{- if $config.etcd.fullSyncInterval }}
+- name: BYDB_ETCD_FULL_SYNC_INTERVAL
+  value: {{ $config.etcd.fullSyncInterval | quote }}
+{{- end }}
+
+{{- else if eq $mode "dns" }}
+{{- /* DNS mode configuration */}}
+{{- /* Always auto-generate SRV addresses for all data nodes */}}
+{{- $srvAddresses := include "banyandb.allDnsSrvAddresses" .root }}
+{{- if $srvAddresses }}
+- name: BYDB_NODE_DISCOVERY_DNS_SRV_ADDRESSES
+  value: {{ $srvAddresses | quote }}
+{{- end }}
+
+{{- if $config.dns.fetchInitInterval }}
+- name: BYDB_NODE_DISCOVERY_DNS_FETCH_INIT_INTERVAL
+  value: {{ $config.dns.fetchInitInterval | quote }}
+{{- end }}
+{{- if $config.dns.fetchInitDuration }}
+- name: BYDB_NODE_DISCOVERY_DNS_FETCH_INIT_DURATION
+  value: {{ $config.dns.fetchInitDuration | quote }}
+{{- end }}
+{{- if $config.dns.fetchInterval }}
+- name: BYDB_NODE_DISCOVERY_DNS_FETCH_INTERVAL
+  value: {{ $config.dns.fetchInterval | quote }}
+{{- end }}
+{{- if $config.dns.grpcTimeout }}
+- name: BYDB_NODE_DISCOVERY_GRPC_TIMEOUT
+  value: {{ $config.dns.grpcTimeout | quote }}
+{{- end }}
+
+{{- /* Auto-generate TLS configuration based on existing gRPC TLS settings */}}
+{{- $tlsEnabled := false }}
+{{- $caCerts := list }}
+{{- /* Check liaison TLS */}}
+{{- if and .root.Values.cluster.liaison .root.Values.cluster.liaison.tls .root.Values.cluster.liaison.tls.grpcSecretName }}
+  {{- $tlsEnabled = true }}
+  {{- $caCerts = append $caCerts (printf "/etc/tls/%s/ca.crt" .root.Values.cluster.liaison.tls.grpcSecretName) }}
+{{- end }}
+{{- /* Check data nodes TLS for each role */}}
+{{- range $roleName, $roleConfig := .root.Values.cluster.data.roles }}
+  {{- if and $roleConfig.tls $roleConfig.tls.grpcSecretName }}
+    {{- $tlsEnabled = true }}
+    {{- $caCerts = append $caCerts (printf "/etc/tls/%s/ca.crt" $roleConfig.tls.grpcSecretName) }}
+  {{- else if and $.root.Values.cluster.data.nodeTemplate.tls $.root.Values.cluster.data.nodeTemplate.tls.grpcSecretName }}
+    {{- $tlsEnabled = true }}
+    {{- $caCerts = append $caCerts (printf "/etc/tls/%s/ca.crt" $.root.Values.cluster.data.nodeTemplate.tls.grpcSecretName) }}
+  {{- end }}
+{{- end }}
+
+{{- if $tlsEnabled }}
+- name: BYDB_NODE_DISCOVERY_DNS_TLS
+  value: "true"
+{{- if $caCerts }}
+- name: BYDB_NODE_DISCOVERY_DNS_CA_CERTS
+  value: {{ $caCerts | join "," | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -164,6 +164,7 @@ spec:
             {{- else }}
             {{- include "banyandb.etcdEndpoints" . | nindent 12 }}
             {{- end }}
+            {{- include "banyandb.nodeRegistryEnv" (dict "root" .) | nindent 12 }}
             {{- if include "banyandb.hasDataNodeListValue" . }}
             - name: BYDB_DATA_NODE_LIST
               value: "{{ include "banyandb.dataNodeListValue" . }}"
