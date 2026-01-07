@@ -236,6 +236,78 @@ spec:
             {{- end }}
           {{- end }}
 
+        {{- if and .Values.cluster.enabled .Values.cluster.fodcAgent.enabled }}
+        - name: fodc-agent
+          image: {{ .Values.cluster.fodcAgent.image.repository }}:{{ default .Values.image.tag .Values.cluster.fodcAgent.image.tag }}
+          imagePullPolicy: {{ .Values.cluster.fodcAgent.image.pullPolicy }}
+          {{- with .Values.cluster.fodcAgent.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          args:
+            - --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy:{{ .Values.cluster.fodcProxy.grpcSvc.port }}
+            - --node-ip=$(POD_NAME).banyandb.$(POD_NAMESPACE)
+            - --node-port={{ .Values.standalone.grpcSvc.port }}
+            - --node-role=standalone
+            - --metrics-endpoint=http://127.0.0.1:{{ .Values.standalone.httpSvc.port }}/metrics
+            - --poll-metrics-interval={{ .Values.cluster.fodcAgent.config.scrapeInterval }}
+            - --prometheus-listen-addr=:{{ .Values.cluster.fodcAgent.httpPort }}
+            - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodcAgent.config.ktmEnabled | ternary 10 5 }}
+            - --heartbeat-interval={{ .Values.cluster.fodcAgent.config.heartbeatInterval }}
+            - --reconnect-interval=5s
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- range $env := .Values.cluster.fodcAgent.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+          ports:
+            - name: fodc-grpc
+              containerPort: {{ .Values.cluster.fodcAgent.grpcPort }}
+            - name: fodc-http
+              containerPort: {{ .Values.cluster.fodcAgent.httpPort }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.cluster.fodcAgent.httpPort }}
+            initialDelaySeconds: {{ .Values.cluster.fodcAgent.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodcAgent.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodcAgent.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.cluster.fodcAgent.httpPort }}
+            initialDelaySeconds: {{ .Values.cluster.fodcAgent.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodcAgent.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodcAgent.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodcAgent.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodcAgent.livenessProbe.failureThreshold }}
+          {{- with .Values.cluster.fodcAgent.resources }}
+          resources:
+            {{- if .requests }}
+            requests:
+              {{- range $request := .requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if .limits }}
+            limits:
+              {{- range $limit := .limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
       {{- if or .Values.standalone.tls .Values.auth.enabled }}
       volumes:
         {{- if .Values.standalone.tls }}

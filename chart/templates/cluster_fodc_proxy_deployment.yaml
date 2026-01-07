@@ -52,7 +52,7 @@ spec:
       priorityClassName: {{ .Values.cluster.fodcProxy.priorityClassName }}
       containers:
         - name: fodc-proxy
-          image: {{ .Values.cluster.fodcProxy.image.repository }}:{{ required "cluster.fodcProxy.image.tag is required when fodcProxy is enabled" .Values.cluster.fodcProxy.image.tag }}
+          image: {{ .Values.cluster.fodcProxy.image.repository }}:{{ default .Values.image.tag .Values.cluster.fodcProxy.image.tag }}
           imagePullPolicy: {{ .Values.cluster.fodcProxy.image.pullPolicy }}
 {{- with .Values.cluster.fodcProxy.containerSecurityContext }}
           securityContext:

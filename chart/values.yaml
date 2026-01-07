@@ -324,6 +324,9 @@ cluster:
       annotations: {}
       ## @param cluster.liaison.grpcSvc.port Port number for GRPC service for liaison
       port: 17912
+    ## @param cluster.liaison.sidecar Sidecar containers for liaison pods
+    ##
+    sidecar: []
     ## HTTP service settings for liaison
     ##
     httpSvc:
@@ -866,22 +869,66 @@ cluster:
       successThreshold: 1
       ## @param cluster.fodcProxy.startupProbe.failureThreshold Failure threshold for Proxy startup probe
       failureThreshold: 60
-      successThreshold: 1
-      ## @param cluster.proxy.readinessProbe.failureThreshold Failure threshold for Proxy readiness probe
-      failureThreshold: 5
-    ## Startup probe for Proxy
-    ##
-    startupProbe:
-      ## @param cluster.proxy.startupProbe.initialDelaySeconds Initial delay for Proxy startup probe
-      initialDelaySeconds: 0
-      ## @param cluster.proxy.startupProbe.periodSeconds Probe period for Proxy startup probe
-      periodSeconds: 10
-      ## @param cluster.proxy.startupProbe.timeoutSeconds Timeout in seconds for Proxy startup probe
+
+  ## @section Configuration for FODC (First Occurrence Data Collection) Agent sidecar
+  ##
+  fodcAgent:
+    ## @param cluster.fodcAgent.enabled Enable FODC Agent sidecar (boolean)
+    enabled: true
+    ## @param cluster.fodcAgent.image Docker repository for FODC Agent
+    image:
+      ## @param cluster.fodcAgent.image.repository Docker repository for FODC Agent
+      repository: docker.io/apache/skywalking-banyandb-fodc-agent
+      ## @param cluster.fodcAgent.image.tag Image tag/version for FODC Agent (defaults to same as main image)
+      tag: ""
+      ## @param cluster.fodcAgent.image.pullPolicy Image pull policy for FODC Agent
+      pullPolicy: IfNotPresent
+    ## @param cluster.fodcAgent.env Environment variables for Agent sidecar
+    env: []
+    ## @param cluster.fodcAgent.containerSecurityContext Container-level security context for Agent
+    containerSecurityContext: {}
+    ## @param cluster.fodcAgent.resources Resources for Agent sidecar
+    resources:
+      ## @param cluster.fodcAgent.resources.requests Resource requests for Agent
+      requests: []
+      ## @param cluster.fodcAgent.resources.limits Resource limits for Agent
+      limits: []
+    ## @param cluster.fodcAgent.grpcPort GRPC port for Agent sidecar (not used - agent connects outbound to proxy)
+    grpcPort: 17914
+    ## @param cluster.fodcAgent.httpPort HTTP port for Agent sidecar (prometheus-listen-addr flag)
+    httpPort: 17915
+    ## @param cluster.fodcAgent.config Agent configuration
+    config:
+      ## @param cluster.fodcAgent.config.scrapeInterval Interval for scraping BanyanDB metrics (poll-metrics-interval flag)
+      scrapeInterval: 15s
+      ## @param cluster.fodcAgent.config.heartbeatInterval Heartbeat interval to Proxy (heartbeat-interval flag)
+      heartbeatInterval: 10s
+      ## @param cluster.fodcAgent.config.ktmEnabled Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)
+      ktmEnabled: true
+    ## Liveness probe for Agent
+    livenessProbe:
+      ## @param cluster.fodcAgent.livenessProbe.initialDelaySeconds Initial delay for Agent liveness probe
+      initialDelaySeconds: 10
+      ## @param cluster.fodcAgent.livenessProbe.periodSeconds Probe period for Agent liveness probe
+      periodSeconds: 30
+      ## @param cluster.fodcAgent.livenessProbe.timeoutSeconds Timeout in seconds for Agent liveness probe
       timeoutSeconds: 5
-      ## @param cluster.proxy.startupProbe.successThreshold Success threshold for Proxy startup probe
+      ## @param cluster.fodcAgent.livenessProbe.successThreshold Success threshold for Agent liveness probe
       successThreshold: 1
-      ## @param cluster.proxy.startupProbe.failureThreshold Failure threshold for Proxy startup probe
-      failureThreshold: 60
+      ## @param cluster.fodcAgent.livenessProbe.failureThreshold Failure threshold for Agent liveness probe
+      failureThreshold: 5
+    ## Readiness probe for Agent
+    readinessProbe:
+      ## @param cluster.fodcAgent.readinessProbe.initialDelaySeconds Initial delay for Agent readiness probe
+      initialDelaySeconds: 10
+      ## @param cluster.fodcAgent.readinessProbe.periodSeconds Probe period for Agent readiness probe
+      periodSeconds: 30
+      ## @param cluster.fodcAgent.readinessProbe.timeoutSeconds Timeout in seconds for Agent readiness probe
+      timeoutSeconds: 5
+      ## @param cluster.fodcAgent.readinessProbe.successThreshold Success threshold for Agent readiness probe
+      successThreshold: 1
+      ## @param cluster.fodcAgent.readinessProbe.failureThreshold Failure threshold for Agent readiness probe
+      failureThreshold: 5
 
 ## @section Storage configuration for persistent volumes
 ##
