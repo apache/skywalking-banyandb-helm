@@ -125,3 +125,30 @@ spec:
   paused: {{ $budget.paused }}
   {{- end }}
 {{- end }}
+---
+{{- if and .Values.cluster.fodcProxy.enabled .Values.cluster.fodcProxy.podDisruptionBudget }}
+{{- if .Capabilities.APIVersions.Has "policy/v1" }}
+apiVersion: policy/v1
+{{- else }}
+apiVersion: policy/v1beta1
+{{- end }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "banyandb.fullname" . }}-fodc-proxy
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: fodc-proxy
+spec:
+  {{- $budget := .Values.cluster.fodcProxy.podDisruptionBudget }}
+  {{- if $budget.maxUnavailable }}
+  maxUnavailable: {{ $budget.maxUnavailable }}
+  {{- end }}
+  {{- if $budget.minAvailable }}
+  minAvailable: {{ $budget.minAvailable }}
+  {{- end }}
+  selector:
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: fodc-proxy
+  {{- if $budget.paused }}
+  paused: {{ $budget.paused }}
+  {{- end }}
+{{- end }}
