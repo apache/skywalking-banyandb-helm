@@ -70,19 +70,18 @@ spec:
             - --agent-heartbeat-timeout={{ .Values.cluster.fodcProxy.config.agentHeartbeatTimeout }}
             - --agent-cleanup-timeout={{ .Values.cluster.fodcProxy.config.agentCleanupTimeout }}
             - --max-agents={{ .Values.cluster.fodcProxy.config.maxAgents }}
-            - --grpc-max-msg-size={{ .Values.cluster.fodcProxy.config.grpcMaxMsgSize }}
             - --http-read-timeout={{ .Values.cluster.fodcProxy.config.httpReadTimeout }}
             - --http-write-timeout={{ .Values.cluster.fodcProxy.config.httpWriteTimeout }}
             - --heartbeat-interval={{ .Values.cluster.fodcProxy.config.heartbeatInterval }}
           ports:
             - name: grpc
-              containerPort: 17912
+              containerPort: {{ .Values.cluster.fodcProxy.grpcSvc.port }}
             - name: http
-              containerPort: 17913
+              containerPort: {{ .Values.cluster.fodcProxy.httpSvc.port }}
           readinessProbe:
             httpGet:
               path: /metrics
-              port: 17913
+              port: {{ .Values.cluster.fodcProxy.httpSvc.port }}
             initialDelaySeconds: {{ .Values.cluster.fodcProxy.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodcProxy.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.cluster.fodcProxy.readinessProbe.timeoutSeconds }}

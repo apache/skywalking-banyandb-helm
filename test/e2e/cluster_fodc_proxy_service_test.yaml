@@ -1,0 +1,492 @@
+suite: test cluster_fodc_proxy_service template
+templates:
+  - chart/templates/cluster_fodc_proxy_service.yaml
+tests:
+  - it: should not render services when cluster is disabled
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: false
+      cluster.fodcProxy.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not render services when fodcProxy is disabled
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render gRPC service when grpcSvc is configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+        labels: {}
+        annotations: {}
+    asserts:
+      - isKind:
+          of: Service
+      - isAPIVersion:
+          of: v1
+      - equal:
+          path: metadata.name
+          value: release-name-banyandb-fodc-proxy-grpc
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 17904
+      - equal:
+          path: spec.ports[0].name
+          value: grpc
+      - equal:
+          path: spec.ports[0].targetPort
+          value: grpc
+      - equal:
+          path: spec.selector.app.kubernetes.io/component
+          value: fodc-proxy
+
+  - it: should render HTTP service when httpSvc is configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+        labels: {}
+        annotations: {}
+    asserts:
+      - isKind:
+          of: Service
+      - isAPIVersion:
+          of: v1
+      - equal:
+          path: metadata.name
+          value: release-name-banyandb-fodc-proxy-http
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+      - equal:
+          path: spec.ports[0].port
+          value: 17905
+      - equal:
+          path: spec.ports[0].name
+          value: http
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
+      - equal:
+          path: spec.selector.app.kubernetes.io/component
+          value: fodc-proxy
+
+  - it: should render only gRPC service when httpSvc is not configured
+    template: cluster_fodc_proxy_service.yaml
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: release-name-banyandb-fodc-proxy-grpc
+
+  - it: should render only HTTP service when grpcSvc is not configured
+    template: cluster_fodc_proxy_service.yaml
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: ClusterIP
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: release-name-banyandb-fodc-proxy-http
+
+  - it: should include custom labels in gRPC service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+        labels:
+          custom.label: "test-value"
+          another.label: "another-value"
+    asserts:
+      - equal:
+          path: metadata.labels.custom.label
+          value: test-value
+      - equal:
+          path: metadata.labels.another.label
+          value: another-value
+
+  - it: should include custom annotations in gRPC service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+        annotations:
+          custom.annotation: "test-annotation"
+          prometheus.io/scrape: "true"
+    asserts:
+      - equal:
+          path: metadata.annotations.custom.annotation
+          value: test-annotation
+      - equal:
+          path: metadata.annotations.prometheus.io/scrape
+          value: "true"
+
+  - it: should include custom labels in HTTP service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: ClusterIP
+        labels:
+          service.label: "http-service"
+    asserts:
+      - equal:
+          path: metadata.labels.service.label
+          value: http-service
+
+  - it: should include custom annotations in HTTP service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: ClusterIP
+        annotations:
+          service.annotation: "http-annotation"
+    asserts:
+      - equal:
+          path: metadata.annotations.service.annotation
+          value: http-annotation
+
+  - it: should set HTTP service type to ClusterIP
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: ClusterIP
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: should set HTTP service type to NodePort
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: NodePort
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+
+  - it: should include externalIPs in HTTP service when configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+        externalIPs:
+          - "192.168.1.100"
+          - "192.168.1.101"
+    asserts:
+      - equal:
+          path: spec.externalIPs[0]
+          value: "192.168.1.100"
+      - equal:
+          path: spec.externalIPs[1]
+          value: "192.168.1.101"
+
+  - it: should include loadBalancerIP in HTTP service when configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+        loadBalancerIP: "10.0.0.100"
+    asserts:
+      - equal:
+          path: spec.loadBalancerIP
+          value: "10.0.0.100"
+
+  - it: should include loadBalancerSourceRanges in HTTP service when configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+        loadBalancerSourceRanges:
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+    asserts:
+      - equal:
+          path: spec.loadBalancerSourceRanges[0]
+          value: "10.0.0.0/8"
+      - equal:
+          path: spec.loadBalancerSourceRanges[1]
+          value: "172.16.0.0/12"
+
+  - it: should not include externalIPs when not configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+    asserts:
+      - notExists:
+          path: spec.externalIPs
+
+  - it: should not include loadBalancerIP when not configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+    asserts:
+      - notExists:
+          path: spec.loadBalancerIP
+
+  - it: should not include loadBalancerSourceRanges when not configured
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+    asserts:
+      - notExists:
+          path: spec.loadBalancerSourceRanges
+
+  - it: should include standard labels in gRPC service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+    asserts:
+      - exists:
+          path: metadata.labels.app.kubernetes.io/name
+      - exists:
+          path: metadata.labels.app.kubernetes.io/instance
+      - exists:
+          path: metadata.labels.app.kubernetes.io/component
+      - equal:
+          path: metadata.labels.app.kubernetes.io/component
+          value: fodc-proxy
+
+  - it: should include standard labels in HTTP service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: ClusterIP
+    asserts:
+      - exists:
+          path: metadata.labels.app.kubernetes.io/name
+      - exists:
+          path: metadata.labels.app.kubernetes.io/instance
+      - exists:
+          path: metadata.labels.app.kubernetes.io/component
+      - equal:
+          path: metadata.labels.app.kubernetes.io/component
+          value: fodc-proxy
+
+  - it: should use correct selector labels in gRPC service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+    asserts:
+      - exists:
+          path: spec.selector.app.kubernetes.io/name
+      - exists:
+          path: spec.selector.app.kubernetes.io/instance
+      - equal:
+          path: spec.selector.app.kubernetes.io/component
+          value: fodc-proxy
+
+  - it: should use correct selector labels in HTTP service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: ClusterIP
+    asserts:
+      - exists:
+          path: spec.selector.app.kubernetes.io/name
+      - exists:
+          path: spec.selector.app.kubernetes.io/instance
+      - equal:
+          path: spec.selector.app.kubernetes.io/component
+          value: fodc-proxy
+
+  - it: should render both services when both are configured
+    template: cluster_fodc_proxy_service.yaml
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 17905
+        type: LoadBalancer
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          documentIndex: 0
+          path: metadata.name
+          value: release-name-banyandb-fodc-proxy-grpc
+      - equal:
+          documentIndex: 1
+          path: metadata.name
+          value: release-name-banyandb-fodc-proxy-http
+
+  - it: should use custom port for gRPC service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17999
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 17999
+
+  - it: should use custom port for HTTP service
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 1
+    set:
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+      cluster.fodcProxy.httpSvc:
+        port: 8080
+        type: ClusterIP
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+
+  - it: should handle fullnameOverride correctly
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      fullnameOverride: "custom-name"
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+    asserts:
+      - equal:
+          path: metadata.name
+          value: custom-name-fodc-proxy-grpc
+
+  - it: should handle nameOverride correctly
+    template: cluster_fodc_proxy_service.yaml
+    documentIndex: 0
+    set:
+      nameOverride: "custom"
+      cluster.enabled: true
+      cluster.fodcProxy.enabled: true
+      cluster.fodcProxy.grpcSvc:
+        port: 17904
+    asserts:
+      - equal:
+          path: metadata.name
+          value: release-name-custom-fodc-proxy-grpc

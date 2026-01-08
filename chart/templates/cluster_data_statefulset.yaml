@@ -323,13 +323,13 @@ spec:
             {{- end }}
           ports:
             - name: grpc
-              containerPort: 17912
+              containerPort: {{ $.Values.cluster.fodcAgent.grpcPort }}
             - name: http
-              containerPort: 17913
+              containerPort: {{ $.Values.cluster.fodcAgent.httpPort }}
           readinessProbe:
             httpGet:
               path: /health
-              port: 17913
+              port: {{ $.Values.cluster.fodcAgent.httpPort }}
             initialDelaySeconds: {{ $.Values.cluster.fodcAgent.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ $.Values.cluster.fodcAgent.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ $.Values.cluster.fodcAgent.readinessProbe.timeoutSeconds }}
