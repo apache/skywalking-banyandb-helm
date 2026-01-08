@@ -248,6 +248,56 @@ cluster:
   ## @param cluster.etcdEndpoints List of etcd endpoints
   ##
   etcdEndpoints: []
+
+  ## @section Node Registry Configuration for Service Discovery
+  ##
+  nodeRegistry:
+    ## @param cluster.nodeRegistry.mode Node discovery mode (etcd, dns)
+    ## Default: etcd
+    ##
+    mode: "etcd"
+
+    ## @section Etcd Mode Configuration
+    ##
+    etcd:
+      ## @param cluster.nodeRegistry.etcd.namespace Namespace in etcd for node registration
+      ## Default: banyandb
+      ##
+      namespace: "banyandb"
+
+      ## @param cluster.nodeRegistry.etcd.nodeRegistryTimeout Timeout for node registration
+      ## Default: 2m
+      ##
+      nodeRegistryTimeout: "2m"
+
+      ## @param cluster.nodeRegistry.etcd.fullSyncInterval Interval for full state synchronization
+      ## Default: 30m
+      ##
+      fullSyncInterval: "30m"
+
+    ## @section DNS Mode Configuration
+    ##
+    dns:
+      ## @param cluster.nodeRegistry.dns.fetchInitInterval Query interval during initialization
+      ## Default: 5s
+      ##
+      fetchInitInterval: "5s"
+
+      ## @param cluster.nodeRegistry.dns.fetchInitDuration Duration of initialization phase
+      ## Default: 5m
+      ##
+      fetchInitDuration: "5m"
+
+      ## @param cluster.nodeRegistry.dns.fetchInterval Query interval after initialization
+      ## Default: 15s
+      ##
+      fetchInterval: "15s"
+
+      ## @param cluster.nodeRegistry.dns.grpcTimeout Timeout for gRPC metadata fetch
+      ## Default: 5s
+      ##
+      grpcTimeout: "5s"
+
   ## @section Configuration for liaison component
   ##
   liaison:
