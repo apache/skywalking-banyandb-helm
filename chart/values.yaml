@@ -908,7 +908,7 @@ cluster:
     ## Liveness probe for Agent
     livenessProbe:
       ## @param cluster.fodcAgent.livenessProbe.initialDelaySeconds Initial delay for Agent liveness probe
-      initialDelaySeconds: 10
+      initialDelaySeconds: 90
       ## @param cluster.fodcAgent.livenessProbe.periodSeconds Probe period for Agent liveness probe
       periodSeconds: 30
       ## @param cluster.fodcAgent.livenessProbe.timeoutSeconds Timeout in seconds for Agent liveness probe
@@ -920,15 +920,27 @@ cluster:
     ## Readiness probe for Agent
     readinessProbe:
       ## @param cluster.fodcAgent.readinessProbe.initialDelaySeconds Initial delay for Agent readiness probe
-      initialDelaySeconds: 10
+      initialDelaySeconds: 60
       ## @param cluster.fodcAgent.readinessProbe.periodSeconds Probe period for Agent readiness probe
-      periodSeconds: 30
+      periodSeconds: 10
       ## @param cluster.fodcAgent.readinessProbe.timeoutSeconds Timeout in seconds for Agent readiness probe
       timeoutSeconds: 5
       ## @param cluster.fodcAgent.readinessProbe.successThreshold Success threshold for Agent readiness probe
       successThreshold: 1
       ## @param cluster.fodcAgent.readinessProbe.failureThreshold Failure threshold for Agent readiness probe
-      failureThreshold: 5
+      failureThreshold: 12
+    ## Startup probe for Agent
+    startupProbe:
+      ## @param cluster.fodcAgent.startupProbe.initialDelaySeconds Initial delay for Agent startup probe
+      initialDelaySeconds: 30
+      ## @param cluster.fodcAgent.startupProbe.periodSeconds Probe period for Agent startup probe
+      periodSeconds: 5
+      ## @param cluster.fodcAgent.startupProbe.timeoutSeconds Timeout in seconds for Agent startup probe
+      timeoutSeconds: 3
+      ## @param cluster.fodcAgent.startupProbe.successThreshold Success threshold for Agent startup probe
+      successThreshold: 1
+      ## @param cluster.fodcAgent.startupProbe.failureThreshold Failure threshold for Agent startup probe
+      failureThreshold: 60
 
 ## @section Storage configuration for persistent volumes
 ##

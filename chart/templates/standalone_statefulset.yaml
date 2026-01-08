@@ -245,11 +245,11 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           args:
-            - --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy:{{ .Values.cluster.fodcProxy.grpcSvc.port }}
+            - --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodcProxy.grpcSvc.port }}
             - --node-ip=$(POD_NAME).banyandb.$(POD_NAMESPACE)
             - --node-port={{ .Values.standalone.grpcSvc.port }}
             - --node-role=standalone
-            - --metrics-endpoint=http://127.0.0.1:{{ .Values.standalone.httpSvc.port }}/metrics
+            - --metrics-endpoint=http://127.0.0.1:2121/metrics
             - --poll-metrics-interval={{ .Values.cluster.fodcAgent.config.scrapeInterval }}
             - --prometheus-listen-addr=:{{ .Values.cluster.fodcAgent.httpPort }}
             - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodcAgent.config.ktmEnabled | ternary 10 5 }}
@@ -273,10 +273,19 @@ spec:
               containerPort: 17912
             - name: http
               containerPort: 17913
+          startupProbe:
+            httpGet:
+              path: /metrics
+              port: {{ .Values.cluster.fodcAgent.httpPort }}
+            initialDelaySeconds: {{ .Values.cluster.fodcAgent.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodcAgent.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodcAgent.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodcAgent.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodcAgent.startupProbe.failureThreshold }}
           readinessProbe:
             httpGet:
               path: /health
-              port: 17913
+              port: {{ .Values.cluster.fodcAgent.httpPort }}
             initialDelaySeconds: {{ .Values.cluster.fodcAgent.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.timeoutSeconds }}

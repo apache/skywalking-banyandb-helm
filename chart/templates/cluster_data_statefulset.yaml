@@ -134,6 +134,24 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- end }}
+        {{- if and $.Values.cluster.enabled $.Values.cluster.fodcAgent.enabled $.Values.cluster.fodcProxy.enabled }}
+        - name: wait-for-fodc-proxy
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Waiting for FODC Proxy to be ready..."
+              PROXY_SVC="{{ template "banyandb.fullname" $ }}-fodc-proxy-http"
+              PROXY_PORT="{{ $.Values.cluster.fodcProxy.httpSvc.port }}"
+              until wget -q -T 1 -O- "http://${PROXY_SVC}:${PROXY_PORT}/metrics" > /dev/null 2>&1; do
+                echo "Waiting for FODC Proxy at ${PROXY_SVC}:${PROXY_PORT}..."
+                sleep 2
+              done
+              echo "FODC Proxy is ready!"
+        {{- end }}
       containers:
         - name: data
           image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
@@ -298,11 +316,11 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           args:
-            - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy:{{ $.Values.cluster.fodcProxy.grpcSvc.port }}
+            - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodcProxy.grpcSvc.port }}
             - --node-ip=$(POD_NAME).{{ template "banyandb.fullname" $ }}-data-{{ $roleName }}-headless.$(POD_NAMESPACE)
             - --node-port={{ $.Values.cluster.data.nodeTemplate.grpcSvc.port }}
             - --node-role=datanode-{{ $roleName }}
-            - --metrics-endpoint=http://127.0.0.1:{{ add $.Values.cluster.data.nodeTemplate.grpcSvc.port 1 }}/metrics
+            - --metrics-endpoint=http://127.0.0.1:2121/metrics
             - --poll-metrics-interval={{ $.Values.cluster.fodcAgent.config.scrapeInterval }}
             - --prometheus-listen-addr=:{{ $.Values.cluster.fodcAgent.httpPort }}
             - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodcAgent.config.ktmEnabled | ternary 10 5 }}
@@ -326,9 +344,18 @@ spec:
               containerPort: {{ $.Values.cluster.fodcAgent.grpcPort }}
             - name: http
               containerPort: {{ $.Values.cluster.fodcAgent.httpPort }}
+          startupProbe:
+            httpGet:
+              path: /metrics
+              port: {{ $.Values.cluster.fodcAgent.httpPort }}
+            initialDelaySeconds: {{ $.Values.cluster.fodcAgent.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.cluster.fodcAgent.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ $.Values.cluster.fodcAgent.startupProbe.timeoutSeconds }}
+            successThreshold: {{ $.Values.cluster.fodcAgent.startupProbe.successThreshold }}
+            failureThreshold: {{ $.Values.cluster.fodcAgent.startupProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /health
+              path: /metrics
               port: {{ $.Values.cluster.fodcAgent.httpPort }}
             initialDelaySeconds: {{ $.Values.cluster.fodcAgent.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ $.Values.cluster.fodcAgent.readinessProbe.periodSeconds }}
@@ -337,7 +364,7 @@ spec:
             failureThreshold: {{ $.Values.cluster.fodcAgent.readinessProbe.failureThreshold }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: /metrics
               port: {{ $.Values.cluster.fodcAgent.httpPort }}
             initialDelaySeconds: {{ $.Values.cluster.fodcAgent.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ $.Values.cluster.fodcAgent.livenessProbe.periodSeconds }}
