@@ -76,13 +76,13 @@ spec:
             - --heartbeat-interval={{ .Values.cluster.fodcProxy.config.heartbeatInterval }}
           ports:
             - name: grpc
-              containerPort: {{ .Values.cluster.fodcProxy.grpcSvc.port }}
+              containerPort: 17912
             - name: http
-              containerPort: {{ .Values.cluster.fodcProxy.httpSvc.port }}
+              containerPort: 17913
           readinessProbe:
             httpGet:
               path: /metrics
-              port: {{ .Values.cluster.fodcProxy.httpSvc.port }}
+              port: 17913
             initialDelaySeconds: {{ .Values.cluster.fodcProxy.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodcProxy.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.cluster.fodcProxy.readinessProbe.timeoutSeconds }}

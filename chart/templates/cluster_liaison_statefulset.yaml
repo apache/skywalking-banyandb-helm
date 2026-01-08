@@ -310,14 +310,14 @@ spec:
               value: {{ $env.value }}
             {{- end }}
           ports:
-            - name: fodc-grpc
-              containerPort: {{ .Values.cluster.fodcAgent.grpcPort }}
-            - name: fodc-http
-              containerPort: {{ .Values.cluster.fodcAgent.httpPort }}
+            - name: grpc
+              containerPort: 17912
+            - name: http
+              containerPort: 17913
           readinessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.cluster.fodcAgent.httpPort }}
+              port: 17913
             initialDelaySeconds: {{ .Values.cluster.fodcAgent.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.timeoutSeconds }}
