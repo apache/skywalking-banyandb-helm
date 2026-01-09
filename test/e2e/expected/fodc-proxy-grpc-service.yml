@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: banyandb-fodc-test-fodc-proxy-grpc
+  labels:
+    app.kubernetes.io/name: banyandb
+    app.kubernetes.io/instance: banyandb-fodc-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: fodc-proxy
+    helm.sh/chart: skywalking-banyandb-helm-0.5.3
+spec:
+  type: ClusterIP
+  ports:
+    - port: 17904
+      name: grpc
+      targetPort: grpc
+  selector:
+    app.kubernetes.io/name: banyandb
+    app.kubernetes.io/instance: banyandb-fodc-test
+    app.kubernetes.io/component: fodc-proxy
