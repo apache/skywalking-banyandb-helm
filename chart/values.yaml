@@ -875,7 +875,6 @@ cluster:
   fodcAgent:
     ## @param cluster.fodcAgent.enabled Enable FODC Agent sidecar (boolean)
     enabled: true
-    ## @param cluster.fodcAgent.image Docker repository for FODC Agent
     image:
       ## @param cluster.fodcAgent.image.repository Docker repository for FODC Agent
       repository: docker.io/apache/skywalking-banyandb-fodc-agent
@@ -887,7 +886,6 @@ cluster:
     env: []
     ## @param cluster.fodcAgent.containerSecurityContext Container-level security context for Agent
     containerSecurityContext: {}
-    ## @param cluster.fodcAgent.resources Resources for Agent sidecar
     resources:
       ## @param cluster.fodcAgent.resources.requests Resource requests for Agent
       requests: []
@@ -897,7 +895,6 @@ cluster:
     grpcPort: 17914
     ## @param cluster.fodcAgent.httpPort HTTP port for Agent sidecar (prometheus-listen-addr flag)
     httpPort: 17915
-    ## @param cluster.fodcAgent.config Agent configuration
     config:
       ## @param cluster.fodcAgent.config.scrapeInterval Interval for scraping BanyanDB metrics (poll-metrics-interval flag)
       scrapeInterval: 15s
