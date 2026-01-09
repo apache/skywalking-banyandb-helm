@@ -1,6 +1,7 @@
 suite: test cluster_fodc_proxy_service template
 templates:
   - templates/cluster_fodc_proxy_service.yaml
+  - templates/_helpers.tpl
 tests:
   - it: should not render services when cluster is disabled
     template: cluster_fodc_proxy_service.yaml
