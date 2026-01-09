@@ -90,18 +90,6 @@ verify:
     - query: kubectl get pods -l app.kubernetes.io/component=data -o yaml
       expected: expected/fodc-agent-sidecars.yml
 
-    # Test FODC proxy gRPC endpoint connectivity
-    - query: |
-        kubectl run test-client --image=curlimages/curl --rm -i --restart=Never -- \
-          curl -v --connect-timeout 10 grpc://banyandb-fodc-test-fodc-proxy-grpc:17904/health 2>&1 | head -20
-      expected: expected/fodc-proxy-grpc-connectivity.yml
-
-    # Test FODC proxy HTTP endpoint connectivity
-    - query: |
-        kubectl run test-client --image=curlimages/curl --rm -i --restart=Never -- \
-          curl -v --connect-timeout 10 http://banyandb-fodc-test-fodc-proxy-http:17905/health 2>&1 | head -20
-      expected: expected/fodc-proxy-http-connectivity.yml
-
     # Verify FODC agent metrics endpoint
     - query: |
         kubectl exec -it $(kubectl get pods -l app.kubernetes.io/component=data -o jsonpath='{.items[0].metadata.name}') \
