@@ -49,8 +49,12 @@ setup:
           --set cluster.liaison.replicas=1 \
           --set etcd.enabled=true \
           --set etcd.replicaCount=1 \
-          --set image.tag=latest
+          --set image.tag=ab3de19288c77701a38e46267ee98509e9d386c2
       wait:
+        - namespace: default
+          resource: pod
+          for: condition=ready
+          label-selector: app.kubernetes.io/name=etcd
         - namespace: default
           resource: pod
           for: condition=ready
