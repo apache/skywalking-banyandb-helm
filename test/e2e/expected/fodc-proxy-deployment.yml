@@ -37,7 +37,7 @@ spec:
       containers:
         {{- contains .spec.template.spec.containers }}
         - name: fodc-proxy
-          image: docker.io/apache/skywalking-banyandb-fodc-proxy:latest
+          image: docker.io/apache/skywalking-banyandb-fodc-proxy:ab3de19288c77701a38e46267ee98509e9d386c2
           ports:
             {{- contains .ports }}
             - containerPort: 17904
