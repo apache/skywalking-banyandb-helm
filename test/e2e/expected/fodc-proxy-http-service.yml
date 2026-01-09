@@ -16,7 +16,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: banyandb-fodc-test-fodc-proxy-http
+  name: banyandb-test-fodc-proxy-http
   labels:
     {{- contains .metadata.labels }}
     app.kubernetes.io/component: fodc-proxy
