@@ -49,6 +49,7 @@ setup:
           --set cluster.liaison.replicas=1 \
           --set etcd.enabled=true \
           --set etcd.replicaCount=1 \
+          --set cluster.banyandb.image.tag=latest \
           --set cluster.fodcProxy.image.tag=ab3de19288c77701a38e46267ee98509e9d386c2 \
           --set cluster.fodcAgent.image.tag=ab3de19288c77701a38e46267ee98509e9d386c2
       wait:
