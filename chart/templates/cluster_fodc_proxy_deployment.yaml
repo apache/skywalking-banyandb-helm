@@ -64,7 +64,7 @@ spec:
               value: {{ $env.value | quote }}
 {{- end }}
           args:
-            - proxy
+            - fodc-proxy
             - --grpc-listen-addr=:{{ .Values.cluster.fodcProxy.grpcSvc.port }}
             - --http-listen-addr=:{{ .Values.cluster.fodcProxy.httpSvc.port }}
             - --agent-heartbeat-timeout={{ .Values.cluster.fodcProxy.config.agentHeartbeatTimeout }}
@@ -106,20 +106,9 @@ spec:
             successThreshold: {{ .Values.cluster.fodcProxy.startupProbe.successThreshold }}
             failureThreshold: {{ .Values.cluster.fodcProxy.startupProbe.failureThreshold }}
 
-      {{- if .Values.cluster.fodcProxy.resources }}
+      {{- if and .Values.cluster.fodcProxy.resources (or .Values.cluster.fodcProxy.resources.requests .Values.cluster.fodcProxy.resources.limits) }}
       resources:
-        {{- if .Values.cluster.fodcProxy.resources.requests }}
-        requests:
-          {{- range $request := .Values.cluster.fodcProxy.resources.requests }}
-          {{ $request.key }}: {{ $request.value }}
-          {{- end }}
-        {{- end }}
-        {{- if .Values.cluster.fodcProxy.resources.limits }}
-        limits:
-          {{- range $limit := .Values.cluster.fodcProxy.resources.limits }}
-          {{ $limit.key }}: {{ $limit.value }}
-          {{- end }}
-        {{- end }}
+{{ toYaml .Values.cluster.fodcProxy.resources | indent 8 }}
       {{- end }}
 
       {{- if .Values.cluster.fodcProxy.tolerations }}

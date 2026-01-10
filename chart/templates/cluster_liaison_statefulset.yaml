@@ -120,7 +120,7 @@ spec:
           {{- if eq .Values.cluster.ui.type "Embedded"  }}
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
           {{- else }}
-          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.cluster.liaison.containerSecurityContext }}

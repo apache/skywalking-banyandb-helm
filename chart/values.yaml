@@ -778,12 +778,12 @@ cluster:
     ## Resource requests/limits for Proxy
     resources:
       ## @param cluster.fodcProxy.resources.requests Resource requests for Proxy pods
-      requests: []
+      requests: {}
       ## @param cluster.fodcProxy.resources.limits Resource limits for Proxy pods
-      limits: []
+      limits: {}
     image:
       ## @param cluster.fodcProxy.image.repository Docker repository for FODC Proxy
-      repository: docker.io/apache/skywalking-banyandb
+      repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
       ## @param cluster.fodcProxy.image.tag Image tag/version for FODC Proxy (empty for latest)
       tag: ""
       ## @param cluster.fodcProxy.image.pullPolicy Image pull policy for FODC Proxy
@@ -877,7 +877,7 @@ cluster:
     enabled: true
     image:
       ## @param cluster.fodcAgent.image.repository Docker repository for FODC Agent
-      repository: docker.io/apache/skywalking-banyandb
+      repository: ghcr.io/apache/skywalking-banyandb-fodc-agent
       ## @param cluster.fodcAgent.image.tag Image tag/version for FODC Agent (defaults to same as main image)
       tag: ""
       ## @param cluster.fodcAgent.image.pullPolicy Image pull policy for FODC Agent

@@ -26,7 +26,7 @@ items:
       containers:
         {{- contains .spec.containers }}
         - name: fodc-proxy
-          image: docker.io/apache/skywalking-banyandb:ab3de19288c77701a38e46267ee98509e9d386c2
+          image: ghcr.io/apache/skywalking-banyandb-fodc-proxy:ab3de19288c77701a38e46267ee98509e9d386c2
     status:
       phase: Running
       conditions:

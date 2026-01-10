@@ -93,7 +93,7 @@ spec:
         {{- end }}
         {{- if $roleConfig.restoreInitContainer.enabled }}
         - name: restore-init
-          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command:
             - "/restore"
@@ -154,7 +154,7 @@ spec:
         {{- end }}
       containers:
         - name: data
-          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           {{- with $roleConfig.containerSecurityContext }}
           securityContext:
@@ -411,7 +411,7 @@ spec:
         {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}
         - name: backup
-          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command:
             - "/backup"
@@ -456,7 +456,7 @@ spec:
         {{- end }}
         {{- if $roleConfig.lifecycleSidecar.enabled }}
         - name: lifecycle
-          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
             - name: BYDB_NODE_LABELS

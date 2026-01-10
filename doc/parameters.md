@@ -273,7 +273,7 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.fodcProxy.podAntiAffinityPreset`                       | Pod anti-affinity preset for Proxy                                      | `soft`                                            |
 | `cluster.fodcProxy.resources.requests`                          | Resource requests for Proxy pods                                        | `[]`                                              |
 | `cluster.fodcProxy.resources.limits`                            | Resource limits for Proxy pods                                          | `[]`                                              |
-| `cluster.fodcProxy.image.repository`                            | Docker repository for FODC Proxy                                        | `docker.io/apache/skywalking-banyandb-fodc-proxy` |
+| `cluster.fodcProxy.image.repository`                            | Docker repository for FODC Proxy                                        | `ghcr.io/apache/skywalking-banyandb-fodc-proxy` |
 | `cluster.fodcProxy.image.tag`                                   | Image tag/version for FODC Proxy (empty for latest)                     | `""`                                              |
 | `cluster.fodcProxy.image.pullPolicy`                            | Image pull policy for FODC Proxy                                        | `IfNotPresent`                                    |
 | `cluster.fodcProxy.grpcSvc.labels`                              | Labels for Proxy gRPC service                                           | `{}`                                              |
@@ -319,7 +319,7 @@ The content of this document describes the parameters that can be configured in 
 | Name                                                   | Description                                                                  | Value                                             |
 | ------------------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------- |
 | `cluster.fodcAgent.enabled`                            | Enable FODC Agent sidecar (boolean)                                          | `true`                                            |
-| `cluster.fodcAgent.image.repository`                   | Docker repository for FODC Agent                                             | `docker.io/apache/skywalking-banyandb-fodc-agent` |
+| `cluster.fodcAgent.image.repository`                   | Docker repository for FODC Agent                                             | `ghcr.io/apache/skywalking-banyandb-fodc-agent` |
 | `cluster.fodcAgent.image.tag`                          | Image tag/version for FODC Agent (defaults to same as main image)            | `""`                                              |
 | `cluster.fodcAgent.image.pullPolicy`                   | Image pull policy for FODC Agent                                             | `IfNotPresent`                                    |
 | `cluster.fodcAgent.env`                                | Environment variables for Agent sidecar                                      | `[]`                                              |

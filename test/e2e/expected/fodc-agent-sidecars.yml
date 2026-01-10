@@ -26,9 +26,9 @@ items:
       containers:
         {{- contains .spec.containers }}
         - name: banyandb
-          image: docker.io/apache/skywalking-banyandb:ab3de19288c77701a38e46267ee98509e9d386c2
+          image: docker.io/apache/skywalking-banyandb:latest
         - name: fodc-agent
-          image: docker.io/apache/skywalking-banyandb:ab3de19288c77701a38e46267ee98509e9d386c2
+          image: ghcr.io/apache/skywalking-banyandb-fodc-agent:ab3de19288c77701a38e46267ee98509e9d386c2
     status:
       phase: Running
       conditions:
