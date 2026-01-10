@@ -51,19 +51,19 @@ setup:
           --set etcd.replicaCount=1 \
           --set image.tag=ab3de19288c77701a38e46267ee98509e9d386c2
       wait:
-        - namespace: banyandb
+        - namespace: default
           resource: pod
           for: condition=ready
           label-selector: app.kubernetes.io/name=etcd
-        - namespace: banyandb
+        - namespace: default
           resource: pod
           for: condition=ready
           label-selector: app.kubernetes.io/name=banyandb
-        - namespace: banyandb
+        - namespace: default
           resource: service
           for: exists
           name: banyandb-test-fodc-proxy-grpc
-        - namespace: banyandb
+        - namespace: default
           resource: service
           for: exists
           name: banyandb-test-fodc-proxy-http
