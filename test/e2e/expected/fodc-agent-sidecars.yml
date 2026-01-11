@@ -22,6 +22,7 @@ items:
       labels:
         {{- contains .metadata.labels }}
         app.kubernetes.io/component: data
+        {{- end }}
     spec:
       containers:
         {{- contains .spec.containers }}
@@ -29,11 +30,14 @@ items:
           image: docker.io/apache/skywalking-banyandb:latest
         - name: fodc-agent
           image: ghcr.io/apache/skywalking-banyandb-fodc-agent:ab3de19288c77701a38e46267ee98509e9d386c2
+        {{- end }}
     status:
       phase: Running
       conditions:
         {{- contains .status.conditions }}
         - type: Ready
           status: "True"
+        {{- end }}
+  {{- end }}
 kind: List
 metadata: {}
