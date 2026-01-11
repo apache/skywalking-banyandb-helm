@@ -74,27 +74,27 @@ verify:
     interval: 30s
   cases:
     # Verify FODC proxy gRPC service exists and is accessible
-    - query: kubectl get service banyandb-test-fodc-proxy-grpc -o yaml
+    - query: kubectl get service banyandb-test-fodc-proxy-grpc -n banyandb -o yaml
       expected: expected/fodc-proxy-grpc-service.yml
 
     # Verify FODC proxy HTTP service exists and is accessible
-    - query: kubectl get service banyandb-test-fodc-proxy-http -o yaml
+    - query: kubectl get service banyandb-test-fodc-proxy-http -n banyandb -o yaml
       expected: expected/fodc-proxy-http-service.yml
 
     # Verify FODC proxy deployment exists
-    - query: kubectl get deployment banyandb-test-fodc-proxy -o yaml
+    - query: kubectl get deployment banyandb-test-fodc-proxy -n banyandb -o yaml
       expected: expected/fodc-proxy-deployment.yml
 
     # Verify FODC proxy pods are running
-    - query: kubectl get pods -l app.kubernetes.io/component=fodc-proxy -o yaml
+    - query: kubectl get pods -l app.kubernetes.io/component=fodc-proxy -n banyandb -o yaml
       expected: expected/fodc-proxy-pods.yml
 
     # Verify FODC agent sidecars are running in data nodes
-    - query: kubectl get pods -l app.kubernetes.io/component=data -o yaml
+    - query: kubectl get pods -l app.kubernetes.io/component=data -n banyandb -o yaml
       expected: expected/fodc-agent-sidecars.yml
 
     # Verify FODC agent metrics endpoint
     - query: |
-        kubectl exec -it $(kubectl get pods -l app.kubernetes.io/component=data -o jsonpath='{.items[0].metadata.name}') \
-          -- curl -s http://localhost:17915/metrics | head -10
+        kubectl exec -it $(kubectl get pods -l app.kubernetes.io/component=data -n banyandb -o jsonpath='{.items[0].metadata.name}') \
+          -n banyandb -- curl -s http://localhost:17915/metrics | head -10
       expected: expected/fodc-agent-metrics.yml
