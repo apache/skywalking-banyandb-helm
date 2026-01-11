@@ -66,11 +66,7 @@ setup:
         - namespace: banyandb
           resource: service
           for: exists
-          name: banyandb-test-fodc-proxy-grpc
-        - namespace: banyandb
-          resource: service
-          for: exists
-          name: banyandb-test-fodc-proxy-http
+          label-selector: app.kubernetes.io/component=fodc-proxy
   timeout: 15m
 
 verify:
