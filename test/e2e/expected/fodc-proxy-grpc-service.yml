@@ -18,9 +18,7 @@ kind: Service
 metadata:
   name: banyandb-test-fodc-proxy-grpc
   labels:
-    {{- contains .metadata.labels }}
     app.kubernetes.io/component: fodc-proxy
-    {{- end }}
 spec:
   type: ClusterIP
   ports:
@@ -30,6 +28,4 @@ spec:
       targetPort: grpc
     {{- end }}
   selector:
-    {{- contains .spec.selector }}
     app.kubernetes.io/component: fodc-proxy
-    {{- end }}
