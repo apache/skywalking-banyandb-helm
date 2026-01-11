@@ -64,9 +64,8 @@ setup:
           for: condition=ready
           label-selector: app.kubernetes.io/name=banyandb
         - namespace: banyandb
-          resource: deployment
+          resource: deployments/banyandb-test-fodc-proxy
           for: condition=available
-          name: banyandb-test-fodc-proxy
   timeout: 15m
 
 verify:
