@@ -432,11 +432,11 @@ cluster:
     grpcSvc:
       labels: {}
       annotations: {}
-      port: 17912
+      port: 17904
     httpSvc:
       labels: {}
       annotations: {}
-      port: 17913
+      port: 17905
       type: LoadBalancer
       externalIPs: []
       loadBalancerIP: null
