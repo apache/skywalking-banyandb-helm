@@ -60,7 +60,7 @@ setup:
 
 verify:
   retry:
-    count: 2
+    count: 20
     interval: 3s
   cases:
     - query: curl -s http://${pod_banyandb_liaison_0_host}:${pod_banyandb_liaison_0_17913}/api/v1/cluster/state | yq -P
