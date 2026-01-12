@@ -60,7 +60,7 @@ setup:
           for: condition=ready
           label-selector: app.kubernetes.io/name=banyandb
         - namespace: istio-system
-          resource: deployments/banyandb-test-fodc-proxy
+          resource: deployments/banyandb-fodc-proxy
           for: condition=available
     - name: Install SkyWalking
       command: |
