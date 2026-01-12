@@ -53,7 +53,7 @@ setup:
         cd chart
         helm dependency update
     - name: Install BanyanDB with FODC
-      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.cluster.yaml
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.fodc.yaml
       wait:
         - namespace: istio-system
           resource: pod
