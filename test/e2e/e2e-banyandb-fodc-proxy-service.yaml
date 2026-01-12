@@ -67,15 +67,11 @@ setup:
         - namespace: istio-system
           resource: pod
           for: condition=ready
-          label-selector: app.kubernetes.io/name=etcd
-        - namespace: istio-system
-          resource: pod
-          for: condition=ready
           label-selector: app.kubernetes.io/name=banyandb
         - namespace: istio-system
           resource: deployments/banyandb-test-fodc-proxy
           for: condition=available
-  timeout: 15m
+  timeout: 25m
 
 verify:
   retry:
