@@ -47,7 +47,7 @@ setup:
         helm repo add bitnami https://charts.bitnami.com/bitnami
         cd chart
         helm dependency update
-    - name: Install BanyanDB
+    - name: Install BanyanDB with FODC
       command: helm -n istio-system install banyandb chart/ -f test/e2e/values.cluster.yaml
       wait:
         - namespace: istio-system
