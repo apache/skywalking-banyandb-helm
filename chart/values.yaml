@@ -794,14 +794,14 @@ cluster:
       ## @param cluster.fodcProxy.grpcSvc.annotations Annotations for Proxy gRPC service
       annotations: {}
       ## @param cluster.fodcProxy.grpcSvc.port Port number for Proxy gRPC service (Agent connections)
-      port: 17904
+      port: 17912
     httpSvc:
       ## @param cluster.fodcProxy.httpSvc.labels Labels for Proxy HTTP service
       labels: {}
       ## @param cluster.fodcProxy.httpSvc.annotations Annotations for Proxy HTTP service
       annotations: {}
       ## @param cluster.fodcProxy.httpSvc.port Port number for Proxy HTTP service
-      port: 17905
+      port: 17913
       ## @param cluster.fodcProxy.httpSvc.type Service type for Proxy HTTP service (ClusterIP, LoadBalancer, NodePort)
       type: LoadBalancer
       ## @param cluster.fodcProxy.httpSvc.externalIPs External IP addresses for Proxy HTTP service
@@ -892,9 +892,9 @@ cluster:
       ## @param cluster.fodcAgent.resources.limits Resource limits for Agent
       limits: []
     ## @param cluster.fodcAgent.grpcPort GRPC port for Agent sidecar (not used - agent connects outbound to proxy)
-    grpcPort: 17914
+    grpcPort: 17912
     ## @param cluster.fodcAgent.httpPort HTTP port for Agent sidecar (prometheus-listen-addr flag)
-    httpPort: 17915
+    httpPort: 17913
     config:
       ## @param cluster.fodcAgent.config.scrapeInterval Interval for scraping BanyanDB metrics (poll-metrics-interval flag)
       scrapeInterval: 15s

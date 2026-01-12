@@ -26,6 +26,18 @@ setup:
       command: bash test/e2e/setup-e2e-shell/install.sh yq
     - name: install kubectl
       command: bash test/e2e/setup-e2e-shell/install.sh kubectl
+    - name: install istio
+      command: |
+        bash test/e2e/setup-e2e-shell/install.sh istioctl
+        istioctl install -y --set profile=demo \
+          --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 \
+          --set meshConfig.enableEnvoyAccessLogService=true
+        kubectl label namespace default istio-injection=enabled
+      wait:
+        - namespace: istio-system
+          resource: pod
+          for: condition=ready
+          label-selector: app=istiod
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
     - name: Install dependency
@@ -33,12 +45,10 @@ setup:
         helm repo add bitnami https://charts.bitnami.com/bitnami
         cd chart
         helm dependency update
-    - name: Create banyandb namespace
-      command: kubectl create namespace banyandb --dry-run=client -o yaml | kubectl apply -f -
     - name: Install BanyanDB with FODC proxy
       command: |
         cd chart
-        helm install -n banyandb banyandb-test . \
+        helm install -n istio-system banyandb-test . \
           --set cluster.enabled=true \
           --set cluster.fodcProxy.enabled=true \
           --set cluster.fodcProxy.grpcSvc.port=17904 \
@@ -49,21 +59,20 @@ setup:
           --set cluster.data.replicas=1 \
           --set cluster.liaison.enabled=true \
           --set cluster.liaison.replicas=1 \
-          --set etcd.enabled=true \
           --set etcd.replicaCount=1 \
           --set image.tag=latest \
           --set cluster.fodcProxy.image.tag=ab3de19288c77701a38e46267ee98509e9d386c2 \
           --set cluster.fodcAgent.image.tag=ab3de19288c77701a38e46267ee98509e9d386c2
       wait:
-        - namespace: banyandb
+        - namespace: istio-system
           resource: pod
           for: condition=ready
           label-selector: app.kubernetes.io/name=etcd
-        - namespace: banyandb
+        - namespace: istio-system
           resource: pod
           for: condition=ready
           label-selector: app.kubernetes.io/name=banyandb
-        - namespace: banyandb
+        - namespace: istio-system
           resource: deployments/banyandb-test-fodc-proxy
           for: condition=available
   timeout: 15m
@@ -74,27 +83,27 @@ verify:
     interval: 30s
   cases:
     # Verify FODC proxy gRPC service exists and is accessible
-    - query: kubectl get service banyandb-test-fodc-proxy-grpc -n banyandb -o yaml
+    - query: kubectl get service banyandb-test-fodc-proxy-grpc -n istio-system -o yaml
       expected: expected/fodc-proxy-grpc-service.yml
 
     # Verify FODC proxy HTTP service exists and is accessible
-    - query: kubectl get service banyandb-test-fodc-proxy-http -n banyandb -o yaml
+    - query: kubectl get service banyandb-test-fodc-proxy-http -n istio-system -o yaml
       expected: expected/fodc-proxy-http-service.yml
 
     # Verify FODC proxy deployment exists
-    - query: kubectl get deployment banyandb-test-fodc-proxy -n banyandb -o yaml
+    - query: kubectl get deployment banyandb-test-fodc-proxy -n istio-system -o yaml
       expected: expected/fodc-proxy-deployment.yml
 
     # Verify FODC proxy pods are running
-    - query: kubectl get pods -l app.kubernetes.io/component=fodc-proxy -n banyandb -o yaml
+    - query: kubectl get pods -l app.kubernetes.io/component=fodc-proxy -n istio-system -o yaml
       expected: expected/fodc-proxy-pods.yml
 
     # Verify FODC agent sidecars are running in data nodes
-    - query: kubectl get pods -l app.kubernetes.io/component=data -n banyandb -o yaml
+    - query: kubectl get pods -l app.kubernetes.io/component=data -n istio-system -o yaml
       expected: expected/fodc-agent-sidecars.yml
 
     # Verify FODC agent metrics endpoint
     - query: |
-        kubectl exec -it $(kubectl get pods -l app.kubernetes.io/component=data -n banyandb -o jsonpath='{.items[0].metadata.name}') \
-          -n banyandb -- curl -s http://localhost:17915/metrics | head -10
+        kubectl exec -it $(kubectl get pods -l app.kubernetes.io/component=data -n istio-system -o jsonpath='{.items[0].metadata.name}') \
+          -n istio-system -- curl -s http://localhost:17915/metrics | head -10
       expected: expected/fodc-agent-metrics.yml
