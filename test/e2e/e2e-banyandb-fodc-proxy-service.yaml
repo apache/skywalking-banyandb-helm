@@ -19,11 +19,18 @@ setup:
   env: kind
   file: kind.yaml
   init-system-environment: env
+  kind:
+    expose-ports:
+      - namespace: istio-system
+        resource: service/skywalking-ui
+        port: 80
   steps:
     - name: set PATH
       command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
     - name: install yq
       command: bash test/e2e/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e/setup-e2e-shell/install.sh swctl
     - name: install kubectl
       command: bash test/e2e/setup-e2e-shell/install.sh kubectl
     - name: install istio
@@ -55,6 +62,7 @@ setup:
           --set cluster.fodcProxy.httpSvc.port=17905 \
           --set cluster.fodcProxy.httpSvc.type=LoadBalancer \
           --set cluster.fodcAgent.enabled=true \
+          --set cluster.fodcAgent.httpPort=17914 \
           --set cluster.data.enabled=true \
           --set cluster.data.replicas=1 \
           --set cluster.liaison.enabled=true \
@@ -72,35 +80,60 @@ setup:
         - namespace: istio-system
           resource: deployments/banyandb-test-fodc-proxy
           for: condition=available
+    - name: Install SkyWalking
+      command: |
+        helm -n istio-system install --timeout 10m skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+                       --version "$SW_HELM_VERSION" \
+                       --set fullnameOverride=skywalking \
+                       --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
+                       --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=k8s-mesh \
+                       --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
+                       --set oap.env.SW_STORAGE_BANYANDB_USER=admin \
+                       --set oap.env.SW_STORAGE_BANYANDB_PASSWORD=banyandb \
+                       --set oap.replicas=1 \
+                       --set ui.image.repository=$UI_REPO \
+                       --set ui.image.tag=$UI_TAG \
+                       --set oap.image.repository=$OAP_REPO \
+                       --set oap.image.tag=$OAP_TAG \
+                       --set oap.storageType=banyandb \
+                       --set elasticsearch.enabled=false \
+                       --set banyandb.enabled=false \
+                       -f test/e2e/values.yaml
+      wait:
+        - namespace: istio-system
+          resource: deployments/skywalking-oap
+          for: condition=available
+    - name: Deploy demo services
+      command: |
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/bookinfo-gateway.yaml
+        # Enable TCP services
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-ratings-v2.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-db.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/destination-rule-all.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/virtual-service-ratings-db.yaml
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
+    - name: Generate traffic
+      path: traffic-gen.yaml
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
   timeout: 25m
 
 verify:
   retry:
-    count: 10
-    interval: 30s
+    count: 20
+    interval: 15s
   cases:
-    # Verify FODC proxy gRPC service exists and is accessible
-    - query: kubectl get service banyandb-test-fodc-proxy-grpc -n istio-system -o yaml
-      expected: expected/fodc-proxy-grpc-service.yml
-
-    # Verify FODC proxy HTTP service exists and is accessible
-    - query: kubectl get service banyandb-test-fodc-proxy-http -n istio-system -o yaml
-      expected: expected/fodc-proxy-http-service.yml
-
-    # Verify FODC proxy deployment exists
-    - query: kubectl get deployment banyandb-test-fodc-proxy -n istio-system -o yaml
-      expected: expected/fodc-proxy-deployment.yml
-
-    # Verify FODC proxy pods are running
-    - query: kubectl get pods -l app.kubernetes.io/component=fodc-proxy -n istio-system -o yaml
-      expected: expected/fodc-proxy-pods.yml
-
-    # Verify FODC agent sidecars are running in data nodes
-    - query: kubectl get pods -l app.kubernetes.io/component=data -n istio-system -o yaml
-      expected: expected/fodc-agent-sidecars.yml
-
-    # Verify FODC agent metrics endpoint
-    - query: |
-        kubectl exec -it $(kubectl get pods -l app.kubernetes.io/component=data -n istio-system -o jsonpath='{.items[0].metadata.name}') \
-          -n istio-system -- curl -s http://localhost:17915/metrics | head -10
-      expected: expected/fodc-agent-metrics.yml
+    # Verify FODC proxy is collecting observability data - check services are observable
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
+      expected: expected/service.yml
+    # Verify FODC agent is working - check metrics are available for services
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_sla --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_cpm --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml

@@ -894,7 +894,7 @@ cluster:
     ## @param cluster.fodcAgent.grpcPort GRPC port for Agent sidecar (not used - agent connects outbound to proxy)
     grpcPort: 17912
     ## @param cluster.fodcAgent.httpPort HTTP port for Agent sidecar (prometheus-listen-addr flag)
-    httpPort: 17913
+    httpPort: 17914
     config:
       ## @param cluster.fodcAgent.config.scrapeInterval Interval for scraping BanyanDB metrics (poll-metrics-interval flag)
       scrapeInterval: 15s
