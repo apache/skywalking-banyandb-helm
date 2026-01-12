@@ -2,7 +2,7 @@ Changes by Version
 ==================
 Release Notes.
 
-0.5.4
+0.6.0
 -----------------
 
 #### Features

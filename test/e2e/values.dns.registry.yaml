@@ -32,6 +32,9 @@ cluster:
   data:
     nodeTemplate:
       replicas: 2
+      env:
+        - name: BYDB_PROPERTY_REPAIR_ENABLED
+          value: "true"
     roles:
       hot: {}
 
