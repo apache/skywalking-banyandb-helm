@@ -118,7 +118,7 @@ spec:
       containers:
         - name: liaison
           {{- if eq .Values.cluster.ui.type "Embedded"  }}
-          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
           {{- else }}
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
           {{- end }}
