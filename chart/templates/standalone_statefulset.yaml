@@ -268,7 +268,7 @@ spec:
               fi
               exec /fodc-agent \
                 --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodcProxy.grpcSvc.port }} \
-                --node-ip=$(POD_NAME).banyandb.$(POD_NAMESPACE) \
+                --node-ip=${POD_NAME}.banyandb.${POD_NAMESPACE} \
                 --node-port={{ .Values.standalone.grpcSvc.port }} \
                 --node-role=standalone \
                 --metrics-endpoint=http://127.0.0.1:2121/metrics \

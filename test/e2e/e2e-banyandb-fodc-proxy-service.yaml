@@ -60,7 +60,8 @@ setup:
           --set cluster.liaison.enabled=true \
           --set cluster.liaison.replicas=1 \
           --set etcd.replicaCount=1 \
-          --set image.tag=latest \
+          --set image.repository=ghcr.io/apache/skywalking-banyandb \
+          --set image.tag=8a880f51df7a9f843803b84ca8b6e9ff9d2acfca \
           --set cluster.fodcProxy.image.tag=ab3de19288c77701a38e46267ee98509e9d386c2 \
           --set cluster.fodcAgent.image.tag=ab3de19288c77701a38e46267ee98509e9d386c2
       wait:

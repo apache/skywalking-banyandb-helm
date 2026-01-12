@@ -22,10 +22,8 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    {{- contains .spec.ports }}
     - port: 17905
       name: http
       targetPort: http
-    {{- end }}
   selector:
     app.kubernetes.io/component: fodc-proxy

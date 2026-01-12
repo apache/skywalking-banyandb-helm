@@ -151,6 +151,7 @@ spec:
                 sleep 2
               done
               echo "FODC Proxy is ready!"
+              exit 0
         {{- end }}
       containers:
         - name: data
@@ -339,7 +340,7 @@ spec:
               fi
               exec /fodc-agent \
                 --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodcProxy.grpcSvc.port }} \
-                --node-ip=$(POD_NAME).{{ template "banyandb.fullname" $ }}-data-{{ $roleName }}-headless.$(POD_NAMESPACE) \
+                --node-ip=${POD_NAME}.{{ template "banyandb.fullname" $ }}-data-{{ $roleName }}-headless.${POD_NAMESPACE} \
                 --node-port={{ $.Values.cluster.data.nodeTemplate.grpcSvc.port }} \
                 --node-role=datanode-{{ $roleName }} \
                 --metrics-endpoint=http://127.0.0.1:2121/metrics \

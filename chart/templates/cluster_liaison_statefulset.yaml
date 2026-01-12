@@ -113,14 +113,15 @@ spec:
                 sleep 2
               done
               echo "FODC Proxy is ready!"
+              exit 0
         {{- end }}
       {{- end }}
       containers:
         - name: liaison
           {{- if eq .Values.cluster.ui.type "Embedded"  }}
-          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
-          {{- else }}
           image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          {{- else }}
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}-slim
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.cluster.liaison.containerSecurityContext }}
@@ -329,7 +330,7 @@ spec:
               fi
               exec /fodc-agent \
                 --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodcProxy.grpcSvc.port }} \
-                --node-ip=$(POD_NAME).{{ template "banyandb.fullname" . }}-liaison-headless.$(POD_NAMESPACE) \
+                --node-ip=${POD_NAME}.{{ template "banyandb.fullname" . }}-liaison-headless.${POD_NAMESPACE} \
                 --node-port={{ .Values.cluster.liaison.grpcSvc.port }} \
                 --node-role=liaison \
                 --metrics-endpoint=http://127.0.0.1:2121/metrics \
