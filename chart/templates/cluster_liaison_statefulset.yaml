@@ -16,6 +16,9 @@ limitations under the License.
 */}}
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison }}
+{{- $nodeRegistry := .Values.cluster.nodeRegistry | default dict }}
+{{- $nodeDiscoveryMode := default "etcd" $nodeRegistry.mode }}
+{{- $nodeDiscoveryFileMode := eq $nodeDiscoveryMode "file" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -247,7 +250,7 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or .Values.storage.liaison.enabled .Values.cluster.liaison.tls .Values.auth.enabled }}
+          {{- if or .Values.storage.liaison.enabled .Values.cluster.liaison.tls .Values.auth.enabled $nodeDiscoveryFileMode }}
           volumeMounts:
             {{- if .Values.storage.liaison.enabled }}
             {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
@@ -276,9 +279,14 @@ spec:
             - mountPath: /etc/banyandb
               name: banyandb-auth-writable
             {{- end }}
+            {{- if $nodeDiscoveryFileMode }}
+            - mountPath: /etc/banyandb/node-discovery
+              name: node-registry-file
+              readOnly: true
+            {{- end }}
           {{- end }}
 
-      {{- if or .Values.cluster.liaison.tls .Values.auth.enabled }}
+      {{- if or .Values.cluster.liaison.tls .Values.auth.enabled $nodeDiscoveryFileMode }}
       volumes:
         {{- if .Values.cluster.liaison.tls }}
         {{- if .Values.cluster.liaison.tls.grpcSecretName }}
@@ -296,6 +304,14 @@ spec:
           secret:
             secretName: {{ .Values.cluster.liaison.tls.httpSecretName }}
         {{- end }}
+        {{- end }}
+        {{- if $nodeDiscoveryFileMode }}
+        - name: node-registry-file
+          configMap:
+            name: {{ include "banyandb.nodeRegistryFileConfigMapName" . }}
+            items:
+              - key: {{ include "banyandb.nodeRegistryFileKey" . }}
+                path: nodes.yaml
         {{- end }}
         {{- if .Values.auth.enabled }}
         {{- $useExisting := ne .Values.auth.existingSecret "" }}

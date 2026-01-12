@@ -298,6 +298,54 @@ cluster:
       ##
       grpcTimeout: "5s"
 
+    ## @section File Mode Configuration
+    ##
+    file:
+      ## @param cluster.nodeRegistry.file.grpcTimeout Timeout for metadata fetches over gRPC while using file discovery
+      ## Default: 5s
+      ##
+      grpcTimeout: "5s"
+
+      ## @param cluster.nodeRegistry.file.fetchInterval Interval to poll and reload the discovery file
+      ## Default: 5m
+      ##
+      fetchInterval: "5m"
+
+      ## @param cluster.nodeRegistry.file.retryInitialInterval Initial retry interval for failed node fetches metadata
+      ## Default: 1s
+      ##
+      retryInitialInterval: "1s"
+
+      ## @param cluster.nodeRegistry.file.retryMaxInterval Maximum retry interval for failed node fetches metadata
+      ## Default: 2m
+      ##
+      retryMaxInterval: "2m"
+
+      ## @param cluster.nodeRegistry.file.retryMultiplier Backoff multiplier applied between retries fetches metadata
+      ## Default: 2.0
+      ##
+      retryMultiplier: 2.0
+
+      ## @section Discovery file ConfigMap settings
+      ##
+      configMap:
+        ## @param cluster.nodeRegistry.file.configMap.existingName Existing ConfigMap name to mount as discovery file
+        ##
+        existingName: ""
+
+        ## @param cluster.nodeRegistry.file.configMap.key Data key inside the ConfigMap that stores the discovery file
+        ## Default: nodes.yaml
+        ##
+        key: "nodes.yaml"
+
+        ## @param cluster.nodeRegistry.file.configMap.content Inline YAML used to create the ConfigMap when existingName is empty
+        ## Example:
+        ## nodes:
+        ##   - name: liaison-0
+        ##     grpc_address: liaison:18912
+        ##
+        content: ""
+
   ## @section Configuration for liaison component
   ##
   liaison:

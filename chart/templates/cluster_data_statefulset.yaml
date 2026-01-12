@@ -16,6 +16,9 @@ limitations under the License.
 */}}
 
 {{- if and .Values.cluster.enabled .Values.cluster.data }}
+{{- $nodeRegistry := .Values.cluster.nodeRegistry | default dict }}
+{{- $nodeDiscoveryMode := default "etcd" $nodeRegistry.mode }}
+{{- $nodeDiscoveryFileMode := eq $nodeDiscoveryMode "file" }}
 {{- $nodeTemplate := .Values.cluster.data.nodeTemplate }}
 {{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
 {{- /* Merge nodeTemplate with role-specific config */}}
@@ -257,7 +260,7 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or $.Values.storage.data.enabled $roleConfig.tls }}
+          {{- if or $.Values.storage.data.enabled $roleConfig.tls $nodeDiscoveryFileMode }}
           volumeMounts:
             {{- if $.Values.storage.data.enabled }}
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
@@ -288,6 +291,11 @@ spec:
             - mountPath: /etc/tls/{{ $roleConfig.tls.etcdSecretName }}
               name: {{ $roleConfig.tls.etcdSecretName }}-volume
             {{- end }}
+            {{- end }}
+            {{- if $nodeDiscoveryFileMode }}
+            - mountPath: /etc/banyandb/node-discovery
+              name: node-registry-file
+              readOnly: true
             {{- end }}
           {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}
@@ -436,8 +444,9 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if $roleConfig.tls }}
+      {{- if or $roleConfig.tls $nodeDiscoveryFileMode }}
       volumes:
+        {{- if $roleConfig.tls }}
         {{- if $roleConfig.tls.grpcSecretName }}
         - name: {{ $roleConfig.tls.grpcSecretName }}-volume
           secret:
@@ -447,6 +456,15 @@ spec:
         - name: {{ $roleConfig.tls.etcdSecretName }}-volume
           secret:
             secretName: {{ $roleConfig.tls.etcdSecretName }}
+        {{- end }}
+        {{- end }}
+        {{- if $nodeDiscoveryFileMode }}
+        - name: node-registry-file
+          configMap:
+            name: {{ include "banyandb.nodeRegistryFileConfigMapName" $ }}
+            items:
+              - key: {{ include "banyandb.nodeRegistryFileKey" $ }}
+                path: nodes.yaml
         {{- end }}
       {{- end }}
 

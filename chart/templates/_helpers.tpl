@@ -240,5 +240,60 @@ Generate node registry environment variables for a component
   value: {{ $caCerts | join "," | quote }}
 {{- end }}
 {{- end }}
+{{- else if eq $mode "file" }}
+{{- $fileConfig := $config.file | default dict }}
+- name: BYDB_NODE_DISCOVERY_FILE_PATH
+  value: "/etc/banyandb/node-discovery/nodes.yaml"
+{{- if $fileConfig.fetchInterval }}
+- name: BYDB_NODE_DISCOVERY_FILE_FETCH_INTERVAL
+  value: {{ $fileConfig.fetchInterval | quote }}
 {{- end }}
+{{- if $fileConfig.retryInitialInterval }}
+- name: BYDB_NODE_DISCOVERY_FILE_RETRY_INITIAL_INTERVAL
+  value: {{ $fileConfig.retryInitialInterval | quote }}
+{{- end }}
+{{- if $fileConfig.retryMaxInterval }}
+- name: BYDB_NODE_DISCOVERY_FILE_RETRY_MAX_INTERVAL
+  value: {{ $fileConfig.retryMaxInterval | quote }}
+{{- end }}
+{{- if $fileConfig.retryMultiplier }}
+- name: BYDB_NODE_DISCOVERY_FILE_RETRY_MULTIPLIER
+  value: {{ $fileConfig.retryMultiplier | quote }}
+{{- end }}
+{{- if $fileConfig.grpcTimeout }}
+- name: BYDB_NODE_DISCOVERY_GRPC_TIMEOUT
+  value: {{ $fileConfig.grpcTimeout | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Resolve ConfigMap name for file-based node registry
+*/}}
+{{- define "banyandb.nodeRegistryFileConfigMapName" -}}
+{{- $root := .root | default . }}
+{{- $config := $root.Values.cluster.nodeRegistry | default dict }}
+{{- $mode := $config.mode | default "etcd" }}
+{{- $file := $config.file | default dict }}
+{{- $cm := $file.configMap | default dict }}
+{{- if $cm.existingName }}
+{{- $cm.existingName }}
+{{- else if $cm.content }}
+  {{- printf "%s-node-registry" (include "banyandb.fullname" $root) }}
+{{- else if eq $mode "file" }}
+  {{- fail "cluster.nodeRegistry.file.configMap.existingName or content must be set when cluster.nodeRegistry.mode=file" }}
+{{- else }}
+{{- "" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Resolve discovery file data key
+*/}}
+{{- define "banyandb.nodeRegistryFileKey" -}}
+{{- $root := .root | default . }}
+{{- $nodeRegistry := $root.Values.cluster.nodeRegistry | default dict }}
+{{- $file := $nodeRegistry.file | default dict }}
+{{- $cm := $file.configMap | default dict }}
+{{- default "nodes.yaml" $cm.key }}
 {{- end }}
