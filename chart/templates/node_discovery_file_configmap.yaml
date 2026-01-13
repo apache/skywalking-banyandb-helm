@@ -15,19 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */}}
 
-{{- if and .Values.cluster.enabled .Values.cluster.nodeRegistry }}
-{{- if eq (default "etcd" .Values.cluster.nodeRegistry.mode) "file" }}
-{{- $nodeRegistry := .Values.cluster.nodeRegistry }}
-{{- $fileConfig := $nodeRegistry.file | default dict }}
+{{- if and .Values.cluster.enabled .Values.cluster.nodeDiscovery }}
+{{- if eq (default "etcd" .Values.cluster.nodeDiscovery.mode) "file" }}
+{{- $nodeDiscovery := .Values.cluster.nodeDiscovery }}
+{{- $fileConfig := $nodeDiscovery.file | default dict }}
 {{- $cm := $fileConfig.configMap | default dict }}
 {{- if and (not $cm.existingName) $cm.content }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "banyandb.nodeRegistryFileConfigMapName" . }}
+  name: {{ include "banyandb.nodeDiscoveryFileConfigMapName" . }}
   labels: {{ include "banyandb.labels" . | nindent 4 }}
 data:
-  {{ include "banyandb.nodeRegistryFileKey" . }}: |
+  {{ include "banyandb.nodeDiscoveryFileKey" . }}: |
 {{- if kindIs "string" $cm.content }}
 {{ $cm.content | nindent 4 }}
 {{- else }}

@@ -19,13 +19,13 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 76768b7f6ad13cbc85a937806bbcadd4c057e31c
+  tag: 8a880f51df7a9f843803b84ca8b6e9ff9d2acfca
   pullPolicy: IfNotPresent
 
 cluster:
   enabled: true
   etcdEndpoints: []
-  nodeRegistry:
+  nodeDiscovery:
     mode: "dns"
   liaison:
     replicas: 2

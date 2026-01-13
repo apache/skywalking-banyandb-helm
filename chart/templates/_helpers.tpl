@@ -163,10 +163,10 @@ Returns comma-separated list of SRV addresses
 {{- end }}
 
 {{/*
-Generate node registry environment variables for a component
+Generate node discovery environment variables for a component
 */}}
-{{- define "banyandb.nodeRegistryEnv" -}}
-{{- $config := .root.Values.cluster.nodeRegistry | default dict }}
+{{- define "banyandb.nodeDiscoveryEnv" -}}
+{{- $config := .root.Values.cluster.nodeDiscovery | default dict }}
 {{- $mode := $config.mode | default "etcd" }}
 
 - name: BYDB_NODE_DISCOVERY_MODE
@@ -174,17 +174,18 @@ Generate node registry environment variables for a component
 
 {{- if eq $mode "etcd" }}
 {{- /* Etcd mode configuration */}}
-{{- if $config.etcd.namespace }}
+{{- $etcdClient := index .root.Values "etcd-client" | default dict }}
+{{- if $etcdClient.namespace }}
 - name: BYDB_NAMESPACE
-  value: {{ $config.etcd.namespace | quote }}
+  value: {{ $etcdClient.namespace | quote }}
 {{- end }}
-{{- if $config.etcd.nodeRegistryTimeout }}
-- name: BYDB_NODE_REGISTRY_TIMEOUT
-  value: {{ $config.etcd.nodeRegistryTimeout | quote }}
+{{- if $etcdClient.nodeDiscoveryTimeout }}
+- name: BYDB_NODE_DISCOVERY_TIMEOUT
+  value: {{ $etcdClient.nodeDiscoveryTimeout | quote }}
 {{- end }}
-{{- if $config.etcd.fullSyncInterval }}
+{{- if $etcdClient.fullSyncInterval }}
 - name: BYDB_ETCD_FULL_SYNC_INTERVAL
-  value: {{ $config.etcd.fullSyncInterval | quote }}
+  value: {{ $etcdClient.fullSyncInterval | quote }}
 {{- end }}
 
 {{- else if eq $mode "dns" }}
@@ -268,20 +269,20 @@ Generate node registry environment variables for a component
 {{- end }}
 
 {{/*
-Resolve ConfigMap name for file-based node registry
+Resolve ConfigMap name for file-based node discovery
 */}}
-{{- define "banyandb.nodeRegistryFileConfigMapName" -}}
+{{- define "banyandb.nodeDiscoveryFileConfigMapName" -}}
 {{- $root := .root | default . }}
-{{- $config := $root.Values.cluster.nodeRegistry | default dict }}
+{{- $config := $root.Values.cluster.nodeDiscovery | default dict }}
 {{- $mode := $config.mode | default "etcd" }}
 {{- $file := $config.file | default dict }}
 {{- $cm := $file.configMap | default dict }}
 {{- if $cm.existingName }}
 {{- $cm.existingName }}
 {{- else if $cm.content }}
-  {{- printf "%s-node-registry" (include "banyandb.fullname" $root) }}
+  {{- printf "%s-node-discovery" (include "banyandb.fullname" $root) }}
 {{- else if eq $mode "file" }}
-  {{- fail "cluster.nodeRegistry.file.configMap.existingName or content must be set when cluster.nodeRegistry.mode=file" }}
+  {{- fail "cluster.nodeDiscovery.file.configMap.existingName or content must be set when cluster.nodeDiscovery.mode=file" }}
 {{- else }}
 {{- "" }}
 {{- end }}
@@ -290,10 +291,10 @@ Resolve ConfigMap name for file-based node registry
 {{/*
 Resolve discovery file data key
 */}}
-{{- define "banyandb.nodeRegistryFileKey" -}}
+{{- define "banyandb.nodeDiscoveryFileKey" -}}
 {{- $root := .root | default . }}
-{{- $nodeRegistry := $root.Values.cluster.nodeRegistry | default dict }}
-{{- $file := $nodeRegistry.file | default dict }}
+{{- $nodeDiscovery := $root.Values.cluster.nodeDiscovery | default dict }}
+{{- $file := $nodeDiscovery.file | default dict }}
 {{- $cm := $file.configMap | default dict }}
 {{- default "nodes.yaml" $cm.key }}
 {{- end }}
