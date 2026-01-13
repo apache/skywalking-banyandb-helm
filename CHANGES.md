@@ -2,6 +2,13 @@ Changes by Version
 ==================
 Release Notes.
 
+0.6.0
+-----------------
+
+#### Features
+
+-  Support configure node discovery in cluster mode.
+
 0.5.3
 -----------------
 

@@ -74,6 +74,24 @@ auth:
   ##
   users: []
 
+## @section Etcd Client Configuration for Node Discovery
+##
+etcd-client:
+  ## @param etcd-client.namespace Namespace in etcd for node registration
+  ## Default: banyandb
+  ##
+  namespace: "banyandb"
+
+  ## @param etcd-client.nodeDiscoveryTimeout Timeout for node discovery
+  ## Default: 2m
+  ##
+  nodeDiscoveryTimeout: "2m"
+
+  ## @param etcd-client.fullSyncInterval Interval for full state synchronization
+  ## Default: 30m
+  ##
+  fullSyncInterval: "30m"
+
 ## @section Configuration for standalone deployment
 ##
 standalone:
@@ -248,6 +266,86 @@ cluster:
   ## @param cluster.etcdEndpoints List of etcd endpoints
   ##
   etcdEndpoints: []
+
+  ## @section Node Discovery Configuration for Service Discovery
+  ##
+  nodeDiscovery:
+    ## @param cluster.nodeDiscovery.mode Node discovery mode (etcd, dns, file)
+    ## Default: dns
+    ##
+    mode: "dns"
+
+    ## @section DNS Mode Configuration
+    ##
+    dns:
+      ## @param cluster.nodeDiscovery.dns.fetchInitInterval Query interval during initialization
+      ## Default: 5s
+      ##
+      fetchInitInterval: "5s"
+
+      ## @param cluster.nodeDiscovery.dns.fetchInitDuration Duration of initialization phase
+      ## Default: 5m
+      ##
+      fetchInitDuration: "5m"
+
+      ## @param cluster.nodeDiscovery.dns.fetchInterval Query interval after initialization
+      ## Default: 15s
+      ##
+      fetchInterval: "15s"
+
+      ## @param cluster.nodeDiscovery.dns.grpcTimeout Timeout for gRPC metadata fetch
+      ## Default: 5s
+      ##
+      grpcTimeout: "5s"
+
+    ## @section File Mode Configuration
+    ##
+    file:
+      ## @param cluster.nodeDiscovery.file.grpcTimeout Timeout for metadata fetches over gRPC while using file discovery
+      ## Default: 5s
+      ##
+      grpcTimeout: "5s"
+
+      ## @param cluster.nodeDiscovery.file.fetchInterval Interval to poll and reload the discovery file
+      ## Default: 5m
+      ##
+      fetchInterval: "5m"
+
+      ## @param cluster.nodeDiscovery.file.retryInitialInterval Initial retry interval for failed node fetches metadata
+      ## Default: 1s
+      ##
+      retryInitialInterval: "1s"
+
+      ## @param cluster.nodeDiscovery.file.retryMaxInterval Maximum retry interval for failed node fetches metadata
+      ## Default: 2m
+      ##
+      retryMaxInterval: "2m"
+
+      ## @param cluster.nodeDiscovery.file.retryMultiplier Backoff multiplier applied between retries fetches metadata
+      ## Default: 2.0
+      ##
+      retryMultiplier: 2.0
+
+      ## @section Discovery file ConfigMap settings
+      ##
+      configMap:
+        ## @param cluster.nodeDiscovery.file.configMap.existingName Existing ConfigMap name to mount as discovery file
+        ##
+        existingName: ""
+
+        ## @param cluster.nodeDiscovery.file.configMap.key Data key inside the ConfigMap that stores the discovery file
+        ## Default: nodes.yaml
+        ##
+        key: "nodes.yaml"
+
+        ## @param cluster.nodeDiscovery.file.configMap.content Inline YAML used to create the ConfigMap when existingName is empty
+        ## Example:
+        ## nodes:
+        ##   - name: liaison-0
+        ##     grpc_address: liaison:18912
+        ##
+        content: ""
+
   ## @section Configuration for liaison component
   ##
   liaison:
