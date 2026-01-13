@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */}}
 
-{{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
-{{- if .Values.cluster.fodc.proxy.grpcSvc }}
+{{- if and .Values.cluster.enabled .Values.cluster.fodcProxy.enabled }}
+{{- if .Values.cluster.fodcProxy.grpcSvc }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -24,24 +24,24 @@ metadata:
   labels:
 {{ include "banyandb.labels" . | nindent 4 }}
     app.kubernetes.io/component: fodc-proxy
-    {{- range $key, $value := .Values.cluster.fodc.proxy.grpcSvc.labels }}
+    {{- range $key, $value := .Values.cluster.fodcProxy.grpcSvc.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
   annotations:
-    {{- range $key, $value := .Values.cluster.fodc.proxy.grpcSvc.annotations }}
+    {{- range $key, $value := .Values.cluster.fodcProxy.grpcSvc.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
   type: ClusterIP
   ports:
-    - port: {{ .Values.cluster.fodc.proxy.grpcSvc.port }}
+    - port: {{ .Values.cluster.fodcProxy.grpcSvc.port }}
       name: grpc
       targetPort: grpc
   selector:
 {{ include "banyandb.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: fodc-proxy
 {{- end }}
-{{- if .Values.cluster.fodc.proxy.httpSvc }}
+{{- if .Values.cluster.fodcProxy.httpSvc }}
 ---
 apiVersion: v1
 kind: Service
@@ -50,34 +50,34 @@ metadata:
   labels:
 {{ include "banyandb.labels" . | nindent 4 }}
     app.kubernetes.io/component: fodc-proxy
-    {{- range $key, $value := .Values.cluster.fodc.proxy.httpSvc.labels }}
+    {{- range $key, $value := .Values.cluster.fodcProxy.httpSvc.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
   annotations:
-    {{- range $key, $value := .Values.cluster.fodc.proxy.httpSvc.annotations }}
+    {{- range $key, $value := .Values.cluster.fodcProxy.httpSvc.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
-  type: {{ .Values.cluster.fodc.proxy.httpSvc.type }}
+  type: {{ .Values.cluster.fodcProxy.httpSvc.type }}
   ports:
-    - port: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
+    - port: {{ .Values.cluster.fodcProxy.httpSvc.port }}
       name: http
       targetPort: http
   selector:
 {{ include "banyandb.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: fodc-proxy
-  {{- if .Values.cluster.fodc.proxy.httpSvc.externalIPs }}
+  {{- if .Values.cluster.fodcProxy.httpSvc.externalIPs }}
   externalIPs:
-    {{- range $v := .Values.cluster.fodc.proxy.httpSvc.externalIPs }}
+    {{- range $v := .Values.cluster.fodcProxy.httpSvc.externalIPs }}
     - {{ $v }}
     {{- end }}
   {{- end }}
-  {{- if .Values.cluster.fodc.proxy.httpSvc.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.cluster.fodc.proxy.httpSvc.loadBalancerIP }}
+  {{- if .Values.cluster.fodcProxy.httpSvc.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.cluster.fodcProxy.httpSvc.loadBalancerIP }}
   {{- end }}
-  {{- if .Values.cluster.fodc.proxy.httpSvc.loadBalancerSourceRanges }}
+  {{- if .Values.cluster.fodcProxy.httpSvc.loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
-    {{- range $v := .Values.cluster.fodc.proxy.httpSvc.loadBalancerSourceRanges }}
+    {{- range $v := .Values.cluster.fodcProxy.httpSvc.loadBalancerSourceRanges }}
     - {{ $v }}
     {{- end }}
   {{- end }}

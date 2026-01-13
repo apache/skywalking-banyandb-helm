@@ -157,7 +157,7 @@ spec:
   {{- end -}}
 {{- end }}
 
-{{- if and .Values.cluster.fodc.enabled .Values.cluster.fodc.proxy.ingress.enabled }}
+{{- if and .Values.cluster.fodcProxy.enabled .Values.cluster.fodcProxy.ingress.enabled }}
 ---
 {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
 apiVersion: networking.k8s.io/v1
@@ -170,17 +170,17 @@ kind: Ingress
 metadata:
   labels: {{ include "banyandb.labels" . | nindent 4 }}
     app.kubernetes.io/component: fodc-proxy
-  {{- range $key, $value := .Values.cluster.fodc.proxy.ingress.labels }}
+  {{- range $key, $value := .Values.cluster.fodcProxy.ingress.labels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
   name: {{ template "banyandb.fullname" . }}-fodc-proxy
   annotations:
-  {{- range $key, $value := .Values.cluster.fodc.proxy.ingress.annotations }}
+  {{- range $key, $value := .Values.cluster.fodcProxy.ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
   rules:
-  {{- range .Values.cluster.fodc.proxy.ingress.rules }}
+  {{- range .Values.cluster.fodcProxy.ingress.rules }}
     - host: {{ .host }}
       http:
         paths:
@@ -199,9 +199,9 @@ spec:
             {{- end }}
         {{- end }}
     {{- end -}}
-  {{- if .Values.cluster.fodc.proxy.ingress.tls }}
+  {{- if .Values.cluster.fodcProxy.ingress.tls }}
   tls:
-{{ toYaml .Values.cluster.fodc.proxy.ingress.tls | indent 4 }}
+{{ toYaml .Values.cluster.fodcProxy.ingress.tls | indent 4 }}
   {{- end -}}
 {{- end }}
 {{- end }}
