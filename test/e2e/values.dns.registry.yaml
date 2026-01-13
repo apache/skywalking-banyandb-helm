@@ -37,6 +37,8 @@ cluster:
           value: "true"
     roles:
       hot: {}
+  fodc:
+    enabled: false
 
 storage:
   data:

@@ -403,10 +403,7 @@ cluster:
         successThreshold: 1
         failureThreshold: 60
 
-  fodcProxy:
-    enabled: false
-
-  fodcAgent:
+  fodc:
     enabled: false
 
 storage:
