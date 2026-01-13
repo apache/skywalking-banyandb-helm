@@ -850,15 +850,6 @@ cluster:
     env: []
     ## @param cluster.fodcProxy.priorityClassName Priority class name for Proxy pods
     priorityClassName: ""
-    ## Update strategy for Proxy pods
-    updateStrategy:
-      ## @param cluster.fodcProxy.updateStrategy.type Update strategy type for Proxy pods
-      type: RollingUpdate
-      rollingUpdate:
-        ## @param cluster.fodcProxy.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods during update
-        maxUnavailable: 1
-        ## @param cluster.fodcProxy.updateStrategy.rollingUpdate.maxSurge Maximum surge pods during update
-        maxSurge: 1
     ## @param cluster.fodcProxy.podDisruptionBudget Pod disruption budget for Proxy
     podDisruptionBudget: {}
     ## @param cluster.fodcProxy.tolerations Tolerations for Proxy pods
