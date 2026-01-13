@@ -988,6 +988,8 @@ cluster:
         scrapeInterval: 15s
         ## @param cluster.fodc.agent.config.heartbeatInterval Heartbeat interval to Proxy (heartbeat-interval flag)
         heartbeatInterval: 10s
+        ## @param cluster.fodc.agent.config.reconnectInterval Reconnect interval when connection to Proxy is lost (reconnect-interval flag)
+        reconnectInterval: 10s
         ## @param cluster.fodc.agent.config.ktmEnabled Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)
         ktmEnabled: true
       ## Liveness probe for Agent

@@ -276,7 +276,7 @@ spec:
                 --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.httpPort }} \
                 --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }} \
                 --heartbeat-interval={{ .Values.cluster.fodc.agent.config.heartbeatInterval }} \
-                --reconnect-interval=10s
+                --reconnect-interval={{ .Values.cluster.fodc.agent.config.reconnectInterval }}
           env:
             - name: POD_NAME
               valueFrom:

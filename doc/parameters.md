@@ -370,6 +370,7 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.fodc.agent.httpPort`                           | HTTP port for Agent sidecar (prometheus-listen-addr flag)                    | `17915`                                           |
 | `cluster.fodc.agent.config.scrapeInterval`              | Interval for scraping BanyanDB metrics (poll-metrics-interval flag)          | `15s`                                             |
 | `cluster.fodc.agent.config.heartbeatInterval`           | Heartbeat interval to Proxy (heartbeat-interval flag)                        | `10s`                                             |
+| `cluster.fodc.agent.config.reconnectInterval`           | Reconnect interval when connection to Proxy is lost (reconnect-interval flag) | `10s`                                             |
 | `cluster.fodc.agent.config.ktmEnabled`                  | Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage) | `true`                                            |
 | `cluster.fodc.agent.livenessProbe.initialDelaySeconds`  | Initial delay for Agent liveness probe                                       | `90`                                              |
 | `cluster.fodc.agent.livenessProbe.periodSeconds`        | Probe period for Agent liveness probe                                        | `30`                                              |
