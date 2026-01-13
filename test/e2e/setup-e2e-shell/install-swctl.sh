@@ -26,20 +26,7 @@ install_swctl() {
   mkdir -p $BASE_DIR/swctl && cd $BASE_DIR/swctl
   curl -kLo skywalking-cli.tar.gz https://github.com/apache/skywalking-cli/archive/${SW_CTL_COMMIT}.tar.gz
   tar -zxf skywalking-cli.tar.gz --strip=1
-  # Build directly without clean target to avoid go mod tidy permission issues
-  # Determine OS and ARCH
-  OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-  ARCH=$(uname -m)
-  case $ARCH in
-    x86_64) ARCH=amd64 ;;
-    arm64) ARCH=arm64 ;;
-    aarch64) ARCH=arm64 ;;
-  esac
-  # Try to download dependencies first (ignore errors if permissions are restricted)
-  go mod download 2>/dev/null || true
-  # Build for current platform
-  VERSION=${SW_CTL_COMMIT} GOOS=${OS} GOARCH=${ARCH} go build -v -ldflags "-X main.version=${SW_CTL_COMMIT}" -o $BIN_DIR/swctl cmd/swctl/main.go
-  chmod +x $BIN_DIR/swctl
+  VERSION=${SW_CTL_COMMIT} make install DESTDIR=$BIN_DIR
 }
 
 if ! command -v swctl &> /dev/null; then

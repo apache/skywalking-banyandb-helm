@@ -23,63 +23,7 @@ BASE_DIR=$1
 BIN_DIR=$2
 HELMVERSION=${HELMVERSION:-'helm-v3.0.0'}
 
-# Detect OS and architecture
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-ARCH=$(uname -m)
-
-# Map architecture
-case $ARCH in
-  x86_64)
-    ARCH="amd64"
-    ;;
-  arm64|aarch64)
-    ARCH="arm64"
-    ;;
-  *)
-    echo "Unsupported architecture: $ARCH"
-    exit 1
-    ;;
-esac
-
-# Map OS
-case $OS in
-  linux)
-    PLATFORM="linux"
-    ;;
-  darwin)
-    PLATFORM="darwin"
-    ;;
-  *)
-    echo "Unsupported OS: $OS"
-    exit 1
-    ;;
-esac
-
-# Check if helm exists and is executable
-NEED_INSTALL=true
-if [ -f "$BIN_DIR/helm" ]; then
-  # Check if the binary is executable on this platform
-  if file "$BIN_DIR/helm" | grep -q "$PLATFORM\|Mach-O"; then
-    # Try to execute it to verify it works
-    if "$BIN_DIR/helm" version &> /dev/null; then
-      NEED_INSTALL=false
-    fi
-  fi
-  # If binary exists but is wrong platform or not executable, remove it
-  if [ "$NEED_INSTALL" = true ]; then
-    rm -f "$BIN_DIR/helm"
-  fi
-fi
-
-# Also check system helm
-if [ "$NEED_INSTALL" = true ] && command -v helm &> /dev/null; then
-  if helm version &> /dev/null; then
-    NEED_INSTALL=false
-  fi
-fi
-
-if [ "$NEED_INSTALL" = true ]; then
+if ! command -v helm &> /dev/null; then
   mkdir -p $BASE_DIR/helm && cd $BASE_DIR/helm
-  curl -sSL https://get.helm.sh/${HELMVERSION}-${PLATFORM}-${ARCH}.tar.gz | tar xz -C $BIN_DIR --strip-components=1 ${PLATFORM}-${ARCH}/helm
-  chmod +x $BIN_DIR/helm
+  curl -sSL https://get.helm.sh/${HELMVERSION}-linux-amd64.tar.gz | tar xz -C $BIN_DIR --strip-components=1 linux-amd64/helm
 fi
