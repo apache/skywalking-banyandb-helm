@@ -410,7 +410,6 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if or .Values.cluster.liaison.tls .Values.auth.enabled }}
       {{- if or .Values.cluster.liaison.tls .Values.auth.enabled $nodeDiscoveryFileMode }}
       volumes:
         {{- if .Values.cluster.liaison.tls }}
