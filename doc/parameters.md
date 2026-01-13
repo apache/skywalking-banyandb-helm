@@ -277,10 +277,10 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.fodcProxy.image.pullPolicy`                            | Image pull policy for FODC Proxy                                        | `IfNotPresent`                                    |
 | `cluster.fodcProxy.grpcSvc.labels`                              | Labels for Proxy gRPC service                                           | `{}`                                              |
 | `cluster.fodcProxy.grpcSvc.annotations`                         | Annotations for Proxy gRPC service                                      | `{}`                                              |
-| `cluster.fodcProxy.grpcSvc.port`                                | Port number for Proxy gRPC service (Agent connections)                  | `17904`                                           |
+| `cluster.fodcProxy.grpcSvc.port`                                | Port number for Proxy gRPC service (Agent connections)                  | `17912`                                           |
 | `cluster.fodcProxy.httpSvc.labels`                              | Labels for Proxy HTTP service                                           | `{}`                                              |
 | `cluster.fodcProxy.httpSvc.annotations`                         | Annotations for Proxy HTTP service                                      | `{}`                                              |
-| `cluster.fodcProxy.httpSvc.port`                                | Port number for Proxy HTTP service                                      | `17905`                                           |
+| `cluster.fodcProxy.httpSvc.port`                                | Port number for Proxy HTTP service                                      | `17913`                                           |
 | `cluster.fodcProxy.httpSvc.type`                                | Service type for Proxy HTTP service (ClusterIP, LoadBalancer, NodePort) | `LoadBalancer`                                    |
 | `cluster.fodcProxy.httpSvc.externalIPs`                         | External IP addresses for Proxy HTTP service                            | `[]`                                              |
 | `cluster.fodcProxy.httpSvc.loadBalancerIP`                      | Load balancer IP for Proxy HTTP service                                 | `nil`                                             |
