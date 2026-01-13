@@ -28,6 +28,14 @@ The content of this document describes the parameters that can be configured in 
 | `auth.credentialsFileKey` | Key name in the Secret that stores the                   | `credentials.yaml` |
 | `auth.users`              | List of users to configure when not using existingSecret | `[]`               |
 
+### Etcd Client Configuration for Node Discovery
+
+| Name                               | Description                             | Value      |
+|------------------------------------|-----------------------------------------|------------|
+| `etcd-client.namespace`            | Namespace in etcd for node registration | `banyandb` |
+| `etcd-client.nodeDiscoveryTimeout` | Timeout for node discovery              | `2m`       |
+| `etcd-client.fullSyncInterval`     | Interval for full state synchronization | `30m`      |
+
 ### Configuration for standalone deployment
 
 | Name                                            | Description                                             | Value          |
@@ -83,9 +91,42 @@ The content of this document describes the parameters that can be configured in 
 ### Cluster mode configuration
 
 | Name                    | Description                   | Value  |
-| ----------------------- | ----------------------------- | ------ |
+|-------------------------|-------------------------------|--------|
 | `cluster.enabled`       | Enable cluster mode (boolean) | `true` |
 | `cluster.etcdEndpoints` | List of etcd endpoints        | `[]`   |
+
+### Node Discovery Configuration for Service Discovery
+
+| Name                         | Description                     | Value  |
+|------------------------------|---------------------------------|--------|
+| `cluster.nodeDiscovery.mode` | Node discovery mode (etcd, dns) | `etcd` |
+
+### DNS Mode Configuration
+
+| Name                                          | Description                          | Value |
+|-----------------------------------------------|--------------------------------------|-------|
+| `cluster.nodeDiscovery.dns.fetchInitInterval` | Query interval during initialization | `5s`  |
+| `cluster.nodeDiscovery.dns.fetchInitDuration` | Duration of initialization phase     | `5m`  |
+| `cluster.nodeDiscovery.dns.fetchInterval`     | Query interval after initialization  | `15s` |
+| `cluster.nodeDiscovery.dns.grpcTimeout`       | Timeout for gRPC metadata fetch      | `5s`  |
+
+### File Mode Configuration
+
+| Name                                              | Description                                                       | Value |
+|---------------------------------------------------|-------------------------------------------------------------------|-------|
+| `cluster.nodeDiscovery.file.grpcTimeout`          | Timeout for metadata fetches over gRPC while using file discovery | `5s`  |
+| `cluster.nodeDiscovery.file.fetchInterval`        | Interval to poll and reload the discovery file                    | `5m`  |
+| `cluster.nodeDiscovery.file.retryInitialInterval` | Initial retry interval for failed node fetches metadata           | `1s`  |
+| `cluster.nodeDiscovery.file.retryMaxInterval`     | Maximum retry interval for failed node fetches metadata           | `2m`  |
+| `cluster.nodeDiscovery.file.retryMultiplier`      | Backoff multiplier applied between retries fetches metadata       | `2.0` |
+
+### Discovery file ConfigMap settings
+
+| Name                                                | Description                                                         | Value        |
+|-----------------------------------------------------|---------------------------------------------------------------------|--------------|
+| `cluster.nodeDiscovery.file.configMap.existingName` | Existing ConfigMap name to mount as discovery file                  | `""`         |
+| `cluster.nodeDiscovery.file.configMap.key`          | Data key inside the ConfigMap that stores the discovery file        | `nodes.yaml` |
+| `cluster.nodeDiscovery.file.configMap.content`      | Inline YAML used to create the ConfigMap when existingName is empty | `""`         |
 
 ### Configuration for liaison component
 

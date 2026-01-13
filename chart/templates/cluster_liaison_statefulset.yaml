@@ -16,6 +16,9 @@ limitations under the License.
 */}}
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison }}
+{{- $nodeDiscovery := .Values.cluster.nodeDiscovery | default dict }}
+{{- $nodeDiscoveryMode := default "etcd" $nodeDiscovery.mode }}
+{{- $nodeDiscoveryFileMode := eq $nodeDiscoveryMode "file" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -164,6 +167,7 @@ spec:
             {{- else }}
             {{- include "banyandb.etcdEndpoints" . | nindent 12 }}
             {{- end }}
+            {{- include "banyandb.nodeDiscoveryEnv" (dict "root" .) | nindent 12 }}
             {{- if include "banyandb.hasDataNodeListValue" . }}
             - name: BYDB_DATA_NODE_LIST
               value: "{{ include "banyandb.dataNodeListValue" . }}"
@@ -246,7 +250,7 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or .Values.storage.liaison.enabled .Values.cluster.liaison.tls .Values.auth.enabled }}
+          {{- if or .Values.storage.liaison.enabled .Values.cluster.liaison.tls .Values.auth.enabled $nodeDiscoveryFileMode }}
           volumeMounts:
             {{- if .Values.storage.liaison.enabled }}
             {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
@@ -275,9 +279,14 @@ spec:
             - mountPath: /etc/banyandb
               name: banyandb-auth-writable
             {{- end }}
+            {{- if $nodeDiscoveryFileMode }}
+            - mountPath: /etc/banyandb/node-discovery
+              name: node-discovery-file
+              readOnly: true
+            {{- end }}
           {{- end }}
 
-      {{- if or .Values.cluster.liaison.tls .Values.auth.enabled }}
+      {{- if or .Values.cluster.liaison.tls .Values.auth.enabled $nodeDiscoveryFileMode }}
       volumes:
         {{- if .Values.cluster.liaison.tls }}
         {{- if .Values.cluster.liaison.tls.grpcSecretName }}
@@ -295,6 +304,14 @@ spec:
           secret:
             secretName: {{ .Values.cluster.liaison.tls.httpSecretName }}
         {{- end }}
+        {{- end }}
+        {{- if $nodeDiscoveryFileMode }}
+        - name: node-discovery-file
+          configMap:
+            name: {{ include "banyandb.nodeDiscoveryFileConfigMapName" . }}
+            items:
+              - key: {{ include "banyandb.nodeDiscoveryFileKey" . }}
+                path: nodes.yaml
         {{- end }}
         {{- if .Values.auth.enabled }}
         {{- $useExisting := ne .Values.auth.existingSecret "" }}
