@@ -742,8 +742,6 @@ cluster:
   fodcProxy:
     ## @param cluster.fodcProxy.enabled Enable FODC Proxy deployment (boolean)
     enabled: true
-    ## @param cluster.fodcProxy.replicas Number of FODC Proxy replicas
-    replicas: 1
     ## @param cluster.fodcProxy.podAnnotations Pod annotations for Proxy
     podAnnotations: {}
     ## @param cluster.fodcProxy.securityContext Security context for Proxy pods

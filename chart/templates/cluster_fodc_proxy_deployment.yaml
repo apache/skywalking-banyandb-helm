@@ -24,7 +24,7 @@ metadata:
 {{ include "banyandb.labels" . | nindent 4 }}
     app.kubernetes.io/component: fodc-proxy
 spec:
-  replicas: {{ .Values.cluster.fodcProxy.replicas }}
+  replicas: 1
   selector:
     matchLabels:
 {{ include "banyandb.selectorLabels" . | nindent 6 }}

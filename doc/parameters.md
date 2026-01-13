@@ -256,7 +256,6 @@ The content of this document describes the parameters that can be configured in 
 | Name                                                            | Description                                                             | Value                                             |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
 | `cluster.fodcProxy.enabled`                                     | Enable FODC Proxy deployment (boolean)                                  | `true`                                            |
-| `cluster.fodcProxy.replicas`                                    | Number of FODC Proxy replicas                                           | `1`                                               |
 | `cluster.fodcProxy.podAnnotations`                              | Pod annotations for Proxy                                               | `{}`                                              |
 | `cluster.fodcProxy.securityContext`                             | Security context for Proxy pods                                         | `{}`                                              |
 | `cluster.fodcProxy.containerSecurityContext`                    | Container-level security context for Proxy                              | `{}`                                              |
