@@ -236,11 +236,11 @@ spec:
             {{- end }}
           {{- end }}
 
-        {{- if and .Values.cluster.enabled .Values.cluster.fodcAgent.enabled }}
+        {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
         - name: fodc-agent
-          image: {{ .Values.cluster.fodcAgent.image.repository }}:{{ default .Values.image.tag .Values.cluster.fodcAgent.image.tag }}
-          imagePullPolicy: {{ .Values.cluster.fodcAgent.image.pullPolicy }}
-          {{- with .Values.cluster.fodcAgent.containerSecurityContext }}
+          image: {{ .Values.cluster.fodc.agent.image.repository }}:{{ default .Values.image.tag .Values.cluster.fodc.agent.image.tag }}
+          imagePullPolicy: {{ .Values.cluster.fodc.agent.image.pullPolicy }}
+          {{- with .Values.cluster.fodc.agent.containerSecurityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -267,15 +267,15 @@ spec:
                 echo "Warning: BanyanDB observability port not ready after ${MAX_ATTEMPTS} attempts, starting agent anyway..."
               fi
               exec /fodc-agent \
-                --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodcProxy.grpcSvc.port }} \
+                --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }} \
                 --node-ip=${POD_NAME}.banyandb.${POD_NAMESPACE} \
                 --node-port={{ .Values.standalone.grpcSvc.port }} \
                 --node-role=standalone \
                 --metrics-endpoint=http://127.0.0.1:2121/metrics \
-                --poll-metrics-interval={{ .Values.cluster.fodcAgent.config.scrapeInterval }} \
-                --prometheus-listen-addr=:{{ .Values.cluster.fodcAgent.httpPort }} \
-                --max-metrics-memory-usage-percentage={{ .Values.cluster.fodcAgent.config.ktmEnabled | ternary 10 5 }} \
-                --heartbeat-interval={{ .Values.cluster.fodcAgent.config.heartbeatInterval }} \
+                --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.scrapeInterval }} \
+                --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.httpPort }} \
+                --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }} \
+                --heartbeat-interval={{ .Values.cluster.fodc.agent.config.heartbeatInterval }} \
                 --reconnect-interval=10s
           env:
             - name: POD_NAME
@@ -286,43 +286,43 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            {{- range $env := .Values.cluster.fodcAgent.env }}
+            {{- range $env := .Values.cluster.fodc.agent.env }}
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
           ports:
             - name: fodc-agent-grpc
-              containerPort: {{ .Values.cluster.fodcAgent.grpcPort }}
+              containerPort: {{ .Values.cluster.fodc.agent.grpcPort }}
             - name: fodc-agent-http
-              containerPort: {{ .Values.cluster.fodcAgent.httpPort }}
+              containerPort: {{ .Values.cluster.fodc.agent.httpPort }}
           startupProbe:
             httpGet:
               path: /metrics
-              port: {{ .Values.cluster.fodcAgent.httpPort }}
-            initialDelaySeconds: {{ .Values.cluster.fodcAgent.startupProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.cluster.fodcAgent.startupProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.cluster.fodcAgent.startupProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.cluster.fodcAgent.startupProbe.successThreshold }}
-            failureThreshold: {{ .Values.cluster.fodcAgent.startupProbe.failureThreshold }}
+              port: {{ .Values.cluster.fodc.agent.httpPort }}
+            initialDelaySeconds: {{ .Values.cluster.fodc.agent.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodc.agent.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodc.agent.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodc.agent.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodc.agent.startupProbe.failureThreshold }}
           readinessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.cluster.fodcAgent.httpPort }}
-            initialDelaySeconds: {{ .Values.cluster.fodcAgent.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.cluster.fodcAgent.readinessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.cluster.fodcAgent.readinessProbe.successThreshold }}
-            failureThreshold: {{ .Values.cluster.fodcAgent.readinessProbe.failureThreshold }}
+              port: {{ .Values.cluster.fodc.agent.httpPort }}
+            initialDelaySeconds: {{ .Values.cluster.fodc.agent.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodc.agent.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodc.agent.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodc.agent.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodc.agent.readinessProbe.failureThreshold }}
           livenessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.cluster.fodcAgent.httpPort }}
-            initialDelaySeconds: {{ .Values.cluster.fodcAgent.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.cluster.fodcAgent.livenessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.cluster.fodcAgent.livenessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.cluster.fodcAgent.livenessProbe.successThreshold }}
-            failureThreshold: {{ .Values.cluster.fodcAgent.livenessProbe.failureThreshold }}
-          {{- with .Values.cluster.fodcAgent.resources }}
+              port: {{ .Values.cluster.fodc.agent.httpPort }}
+            initialDelaySeconds: {{ .Values.cluster.fodc.agent.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodc.agent.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodc.agent.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodc.agent.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodc.agent.livenessProbe.failureThreshold }}
+          {{- with .Values.cluster.fodc.agent.resources }}
           resources:
             {{- if .requests }}
             requests:

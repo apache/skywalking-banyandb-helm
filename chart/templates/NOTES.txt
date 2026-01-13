@@ -14,7 +14,7 @@
    Note: adjust the key if you changed `auth.credentialsFileKey`.
 {{- end }}
 
-{{- if and .Values.cluster.enabled .Values.cluster.fodcProxy.enabled }}
+{{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
 FODC (First Occurrence Data Collection) Proxy is enabled.
 
 The FODC Proxy provides:
@@ -22,12 +22,12 @@ The FODC Proxy provides:
 - Aggregated metrics endpoints (/metrics, /metrics-windows)
 
 Services:
-- gRPC (Agent connections): {{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodcProxy.grpcSvc.port }}
-- HTTP (Metrics & APIs): {{ template "banyandb.fullname" . }}-fodc-proxy-http:{{ .Values.cluster.fodcProxy.httpSvc.port }}
+- gRPC (Agent connections): {{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }}
+- HTTP (Metrics & APIs): {{ template "banyandb.fullname" . }}-fodc-proxy-http:{{ .Values.cluster.fodc.proxy.httpSvc.port }}
 
 To access the FODC Proxy metrics:
-   kubectl port-forward svc/{{ template "banyandb.fullname" . }}-fodc-proxy-http -n {{ .Release.Namespace }} {{ .Values.cluster.fodcProxy.httpSvc.port }}:{{ .Values.cluster.fodcProxy.httpSvc.port }}
-   curl http://localhost:{{ .Values.cluster.fodcProxy.httpSvc.port }}/metrics
+   kubectl port-forward svc/{{ template "banyandb.fullname" . }}-fodc-proxy-http -n {{ .Release.Namespace }} {{ .Values.cluster.fodc.proxy.httpSvc.port }}:{{ .Values.cluster.fodc.proxy.httpSvc.port }}
+   curl http://localhost:{{ .Values.cluster.fodc.proxy.httpSvc.port }}/metrics
 {{- end }}
 {{/*
 Licensed to the Apache Software Foundation (ASF) under one or more

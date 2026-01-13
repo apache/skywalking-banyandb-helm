@@ -126,7 +126,7 @@ spec:
   {{- end }}
 {{- end }}
 ---
-{{- if and .Values.cluster.fodcProxy.enabled .Values.cluster.fodcProxy.podDisruptionBudget }}
+{{- if and .Values.cluster.fodc.enabled .Values.cluster.fodc.proxy.podDisruptionBudget }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1
 {{- else }}
@@ -138,7 +138,7 @@ metadata:
   labels: {{ include "banyandb.labels" . | nindent 4 }}
     app.kubernetes.io/component: fodc-proxy
 spec:
-  {{- $budget := .Values.cluster.fodcProxy.podDisruptionBudget }}
+  {{- $budget := .Values.cluster.fodc.proxy.podDisruptionBudget }}
   {{- if $budget.maxUnavailable }}
   maxUnavailable: {{ $budget.maxUnavailable }}
   {{- end }}
