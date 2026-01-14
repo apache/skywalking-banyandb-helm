@@ -64,7 +64,6 @@ spec:
               value: {{ $env.value | quote }}
 {{- end }}
           args:
-            - fodc-proxy
             - --grpc-listen-addr=:{{ .Values.cluster.fodc.proxy.grpcSvc.port }}
             - --http-listen-addr=:{{ .Values.cluster.fodc.proxy.httpSvc.port }}
             - --agent-heartbeat-timeout={{ .Values.cluster.fodc.proxy.config.agentHeartbeatTimeout }}
