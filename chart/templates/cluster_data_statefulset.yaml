@@ -306,21 +306,17 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          command:
-            - sh
-            - -c
-            - |
-              exec /fodc-agent \
-                --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }} \
-                --node-ip=127.0.0.1 \
-                --node-port={{ $.Values.cluster.data.nodeTemplate.grpcSvc.port }} \
-                --node-role=datanode-{{ $roleName }} \
-                --metrics-endpoint=http://127.0.0.1:2121/metrics \
-                --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.scrapeInterval }} \
-                --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.httpPort }} \
-                --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }} \
-                --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }} \
-                --reconnect-interval={{ $.Values.cluster.fodc.agent.config.reconnectInterval }}
+          args:
+            - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }}
+            - --node-ip=127.0.0.1
+            - --node-port={{ $.Values.cluster.data.nodeTemplate.grpcSvc.port }}
+            - --node-role=datanode-{{ $roleName }}
+            - --metrics-endpoint=http://127.0.0.1:2121/metrics
+            - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.scrapeInterval }}
+            - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.httpPort }}
+            - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }}
+            - --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }}
+            - --reconnect-interval={{ $.Values.cluster.fodc.agent.config.reconnectInterval }}
           env:
             - name: POD_NAME
               valueFrom:

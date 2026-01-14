@@ -810,6 +810,199 @@ cluster:
         ## @param cluster.ui.standalone.startupProbe.failureThreshold Failure threshold for UI startup probe
         ##
         failureThreshold: 60
+  ## @section Configuration for FODC (First Occurrence Data Collection)
+  ##
+  fodc:
+    ## @param cluster.fodc.enabled Enable FODC (both Agent and Proxy) (boolean)
+    enabled: true
+    ## @section FODC Proxy component
+    ##
+    proxy:
+      ## @param cluster.fodc.proxy.podAnnotations Pod annotations for Proxy
+      podAnnotations: {}
+      ## @param cluster.fodc.proxy.securityContext Security context for Proxy pods
+      securityContext: {}
+      ## @param cluster.fodc.proxy.containerSecurityContext Container-level security context for Proxy
+      containerSecurityContext: {}
+      ## @param cluster.fodc.proxy.env Environment variables for Proxy pods
+      env: []
+      ## @param cluster.fodc.proxy.priorityClassName Priority class name for Proxy pods
+      priorityClassName: ""
+      ## @param cluster.fodc.proxy.podDisruptionBudget Pod disruption budget for Proxy
+      podDisruptionBudget: {}
+      ## @param cluster.fodc.proxy.tolerations Tolerations for Proxy pods
+      tolerations: []
+      ## @param cluster.fodc.proxy.nodeSelector Node selector for Proxy pods
+      nodeSelector: []
+      ## @param cluster.fodc.proxy.affinity Affinity rules for Proxy pods
+      affinity: {}
+      ## @param cluster.fodc.proxy.podAffinityPreset Pod affinity preset for Proxy
+      podAffinityPreset: ""
+      ## @param cluster.fodc.proxy.podAntiAffinityPreset Pod anti-affinity preset for Proxy
+      podAntiAffinityPreset: soft
+      ## Resource requests/limits for Proxy
+      resources:
+        ## @param cluster.fodc.proxy.resources.requests Resource requests for Proxy pods
+        requests: {}
+        ## @param cluster.fodc.proxy.resources.limits Resource limits for Proxy pods
+        limits: {}
+      image:
+        ## @param cluster.fodc.proxy.image.repository Docker repository for FODC Proxy
+        repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
+        ## @param cluster.fodc.proxy.image.tag Image tag/version for FODC Proxy (empty for latest)
+        tag: ""
+        ## @param cluster.fodc.proxy.image.pullPolicy Image pull policy for FODC Proxy
+        pullPolicy: IfNotPresent
+      grpcSvc:
+        ## @param cluster.fodc.proxy.grpcSvc.labels Labels for Proxy gRPC service
+        labels: {}
+        ## @param cluster.fodc.proxy.grpcSvc.annotations Annotations for Proxy gRPC service
+        annotations: {}
+        ## @param cluster.fodc.proxy.grpcSvc.port Port number for Proxy gRPC service (Agent connections)
+        port: 17912
+      httpSvc:
+        ## @param cluster.fodc.proxy.httpSvc.labels Labels for Proxy HTTP service
+        labels: {}
+        ## @param cluster.fodc.proxy.httpSvc.annotations Annotations for Proxy HTTP service
+        annotations: {}
+        ## @param cluster.fodc.proxy.httpSvc.port Port number for Proxy HTTP service
+        port: 17913
+        ## @param cluster.fodc.proxy.httpSvc.type Service type for Proxy HTTP service (ClusterIP, LoadBalancer, NodePort)
+        type: LoadBalancer
+        ## @param cluster.fodc.proxy.httpSvc.externalIPs External IP addresses for Proxy HTTP service
+        externalIPs: []
+        ## @param cluster.fodc.proxy.httpSvc.loadBalancerIP Load balancer IP for Proxy HTTP service
+        loadBalancerIP: null
+        ## @param cluster.fodc.proxy.httpSvc.loadBalancerSourceRanges Allowed source ranges for Proxy HTTP service
+        loadBalancerSourceRanges: []
+      ingress:
+        ## @param cluster.fodc.proxy.ingress.enabled Enable ingress for Proxy
+        enabled: false
+        ## @param cluster.fodc.proxy.ingress.labels Labels for Proxy ingress
+        labels: {}
+        ## @param cluster.fodc.proxy.ingress.annotations Annotations for Proxy ingress
+        annotations: {}
+        ## @param cluster.fodc.proxy.ingress.rules Ingress rules for Proxy
+        rules: []
+        ## @param cluster.fodc.proxy.ingress.tls TLS configuration for Proxy ingress
+        tls: []
+      config:
+        ## @param cluster.fodc.proxy.config.agentHeartbeatTimeout Timeout for considering agent offline
+        agentHeartbeatTimeout: 30s
+        ## @param cluster.fodc.proxy.config.agentCleanupTimeout Timeout for auto-unregistering offline agents
+        agentCleanupTimeout: 5m
+        ## @param cluster.fodc.proxy.config.maxAgents Maximum number of agents allowed to register
+        maxAgents: 1000
+        ## @param cluster.fodc.proxy.config.grpcMaxMsgSize Maximum gRPC message size in bytes
+        grpcMaxMsgSize: 4194304
+        ## @param cluster.fodc.proxy.config.httpReadTimeout HTTP read timeout
+        httpReadTimeout: 10s
+        ## @param cluster.fodc.proxy.config.httpWriteTimeout HTTP write timeout
+        httpWriteTimeout: 10s
+        ## @param cluster.fodc.proxy.config.heartbeatInterval Default heartbeat interval for agents
+        heartbeatInterval: 10s
+      livenessProbe:
+        ## @param cluster.fodc.proxy.livenessProbe.initialDelaySeconds Initial delay for Proxy liveness probe
+        initialDelaySeconds: 10
+        ## @param cluster.fodc.proxy.livenessProbe.periodSeconds Probe period for Proxy liveness probe
+        periodSeconds: 30
+        ## @param cluster.fodc.proxy.livenessProbe.timeoutSeconds Timeout in seconds for Proxy liveness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.proxy.livenessProbe.successThreshold Success threshold for Proxy liveness probe
+        successThreshold: 1
+        ## @param cluster.fodc.proxy.livenessProbe.failureThreshold Failure threshold for Proxy liveness probe
+        failureThreshold: 5
+      readinessProbe:
+        ## @param cluster.fodc.proxy.readinessProbe.initialDelaySeconds Initial delay for Proxy readiness probe
+        initialDelaySeconds: 10
+        ## @param cluster.fodc.proxy.readinessProbe.periodSeconds Probe period for Proxy readiness probe
+        periodSeconds: 30
+        ## @param cluster.fodc.proxy.readinessProbe.timeoutSeconds Timeout in seconds for Proxy readiness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.proxy.readinessProbe.successThreshold Success threshold for Proxy readiness probe
+        successThreshold: 1
+        ## @param cluster.fodc.proxy.readinessProbe.failureThreshold Failure threshold for Proxy readiness probe
+        failureThreshold: 5
+      startupProbe:
+        ## @param cluster.fodc.proxy.startupProbe.initialDelaySeconds Initial delay for Proxy startup probe
+        initialDelaySeconds: 0
+        ## @param cluster.fodc.proxy.startupProbe.periodSeconds Probe period for Proxy startup probe
+        periodSeconds: 10
+        ## @param cluster.fodc.proxy.startupProbe.timeoutSeconds Timeout in seconds for Proxy startup probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.proxy.startupProbe.successThreshold Success threshold for Proxy startup probe
+        successThreshold: 1
+        ## @param cluster.fodc.proxy.startupProbe.failureThreshold Failure threshold for Proxy startup probe
+        failureThreshold: 60
+
+    ## @section FODC Agent sidecar
+    ##
+    agent:
+      image:
+        ## @param cluster.fodc.agent.image.repository Docker repository for FODC Agent
+        repository: ghcr.io/apache/skywalking-banyandb-fodc-agent
+        ## @param cluster.fodc.agent.image.tag Image tag/version for FODC Agent (defaults to same as main image)
+        tag: ""
+        ## @param cluster.fodc.agent.image.pullPolicy Image pull policy for FODC Agent
+        pullPolicy: IfNotPresent
+      ## @param cluster.fodc.agent.env Environment variables for Agent sidecar
+      env: []
+      ## @param cluster.fodc.agent.containerSecurityContext Container-level security context for Agent
+      containerSecurityContext: {}
+      resources:
+        ## @param cluster.fodc.agent.resources.requests Resource requests for Agent
+        requests: []
+        ## @param cluster.fodc.agent.resources.limits Resource limits for Agent
+        limits: []
+      ## @param cluster.fodc.agent.grpcPort GRPC port for Agent sidecar (not used - agent connects outbound to proxy)
+      grpcPort: 17914
+      ## @param cluster.fodc.agent.httpPort HTTP port for Agent sidecar (prometheus-listen-addr flag)
+      httpPort: 17915
+      config:
+        ## @param cluster.fodc.agent.config.scrapeInterval Interval for scraping BanyanDB metrics (poll-metrics-interval flag)
+        scrapeInterval: 15s
+        ## @param cluster.fodc.agent.config.heartbeatInterval Heartbeat interval to Proxy (heartbeat-interval flag)
+        heartbeatInterval: 10s
+        ## @param cluster.fodc.agent.config.reconnectInterval Reconnect interval when connection to Proxy is lost (reconnect-interval flag)
+        reconnectInterval: 10s
+        ## @param cluster.fodc.agent.config.ktmEnabled Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)
+        ktmEnabled: true
+      ## Liveness probe for Agent
+      livenessProbe:
+        ## @param cluster.fodc.agent.livenessProbe.initialDelaySeconds Initial delay for Agent liveness probe
+        initialDelaySeconds: 90
+        ## @param cluster.fodc.agent.livenessProbe.periodSeconds Probe period for Agent liveness probe
+        periodSeconds: 30
+        ## @param cluster.fodc.agent.livenessProbe.timeoutSeconds Timeout in seconds for Agent liveness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.agent.livenessProbe.successThreshold Success threshold for Agent liveness probe
+        successThreshold: 1
+        ## @param cluster.fodc.agent.livenessProbe.failureThreshold Failure threshold for Agent liveness probe
+        failureThreshold: 5
+      ## Readiness probe for Agent
+      readinessProbe:
+        ## @param cluster.fodc.agent.readinessProbe.initialDelaySeconds Initial delay for Agent readiness probe
+        initialDelaySeconds: 60
+        ## @param cluster.fodc.agent.readinessProbe.periodSeconds Probe period for Agent readiness probe
+        periodSeconds: 10
+        ## @param cluster.fodc.agent.readinessProbe.timeoutSeconds Timeout in seconds for Agent readiness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.agent.readinessProbe.successThreshold Success threshold for Agent readiness probe
+        successThreshold: 1
+        ## @param cluster.fodc.agent.readinessProbe.failureThreshold Failure threshold for Agent readiness probe
+        failureThreshold: 12
+      ## Startup probe for Agent
+      startupProbe:
+        ## @param cluster.fodc.agent.startupProbe.initialDelaySeconds Initial delay for Agent startup probe
+        initialDelaySeconds: 30
+        ## @param cluster.fodc.agent.startupProbe.periodSeconds Probe period for Agent startup probe
+        periodSeconds: 5
+        ## @param cluster.fodc.agent.startupProbe.timeoutSeconds Timeout in seconds for Agent startup probe
+        timeoutSeconds: 3
+        ## @param cluster.fodc.agent.startupProbe.successThreshold Success threshold for Agent startup probe
+        successThreshold: 1
+        ## @param cluster.fodc.agent.startupProbe.failureThreshold Failure threshold for Agent startup probe
+        failureThreshold: 60
 
 ## @section Storage configuration for persistent volumes
 ##
