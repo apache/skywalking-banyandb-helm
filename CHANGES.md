@@ -8,13 +8,10 @@ Release Notes.
 #### Features
 
 -  Support configure node discovery in cluster mode.
+-  Add the FODC Agent and Proxy components to the Helm chart.
 
 0.5.3
 -----------------
-
-#### Features
-
--  Add the FODC Agent and Proxy components to the Helm chart.
 
 #### Bugs
 
