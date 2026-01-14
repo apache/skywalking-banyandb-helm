@@ -99,25 +99,6 @@ spec:
             - mountPath: /etc/banyandb
               name: banyandb-auth-writable
         {{- end }}
-        {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
-        - name: wait-for-fodc-proxy
-          image: busybox:1.36
-          imagePullPolicy: IfNotPresent
-          command:
-            - sh
-            - -c
-            - |
-              set -euo pipefail
-              echo "Waiting for FODC Proxy to be ready..."
-              PROXY_SVC="{{ template "banyandb.fullname" . }}-fodc-proxy-http"
-              PROXY_PORT="{{ .Values.cluster.fodc.proxy.httpSvc.port }}"
-              until wget -q -T 1 -O- "http://${PROXY_SVC}:${PROXY_PORT}/metrics" > /dev/null 2>&1; do
-                echo "Waiting for FODC Proxy at ${PROXY_SVC}:${PROXY_PORT}..."
-                sleep 2
-              done
-              echo "FODC Proxy is ready!"
-              exit 0
-        {{- end }}
       {{- end }}
       containers:
         - name: liaison
@@ -319,24 +300,6 @@ spec:
             - sh
             - -c
             - |
-              set -euo pipefail
-              echo "Waiting for BanyanDB observability port (2121) to be ready..."
-              MAX_ATTEMPTS=60
-              ATTEMPT=0
-              while [ ${ATTEMPT} -lt ${MAX_ATTEMPTS} ]; do
-                if wget -q -T 1 -O- "http://127.0.0.1:2121/metrics" > /dev/null 2>&1; then
-                  echo "BanyanDB observability port is ready, starting FODC agent..."
-                  break
-                fi
-                ATTEMPT=$((ATTEMPT + 1))
-                if [ $((ATTEMPT % 5)) -eq 0 ]; then
-                  echo "Waiting for BanyanDB observability port (attempt ${ATTEMPT}/${MAX_ATTEMPTS})..."
-                fi
-                sleep 2
-              done
-              if [ ${ATTEMPT} -ge ${MAX_ATTEMPTS} ]; then
-                echo "Warning: BanyanDB observability port not ready after ${MAX_ATTEMPTS} attempts, starting agent anyway..."
-              fi
               exec /fodc-agent \
                 --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }} \
                 --node-ip=127.0.0.1 \

@@ -19,7 +19,7 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 8a880f51df7a9f843803b84ca8b6e9ff9d2acfca
+  tag: 6e926242c5bd28cf00a95034f75818c8850d1045
   pullPolicy: IfNotPresent
 
 cluster:
@@ -258,7 +258,7 @@ cluster:
         limits: {}
       image:
         repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
-        tag: "8a880f51df7a9f843803b84ca8b6e9ff9d2acfca"
+        tag: "6e926242c5bd28cf00a95034f75818c8850d1045"
         pullPolicy: IfNotPresent
       grpcSvc:
         labels: {}
@@ -308,7 +308,7 @@ cluster:
     agent:
       image:
         repository: ghcr.io/apache/skywalking-banyandb-fodc-agent
-        tag: "8a880f51df7a9f843803b84ca8b6e9ff9d2acfca"
+        tag: "6e926242c5bd28cf00a95034f75818c8850d1045"
         pullPolicy: IfNotPresent
       env: []
       containerSecurityContext: {}
