@@ -383,6 +383,9 @@ cluster:
       annotations: {}
       ## @param cluster.liaison.grpcSvc.port Port number for GRPC service for liaison
       port: 17912
+    ## @param cluster.liaison.sidecar Sidecar containers for liaison pods
+    ##
+    sidecar: []
     ## HTTP service settings for liaison
     ##
     httpSvc:
