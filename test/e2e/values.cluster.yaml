@@ -403,6 +403,9 @@ cluster:
         successThreshold: 1
         failureThreshold: 60
 
+  fodc:
+    enabled: false
+
 storage:
   data:
     enabled: true

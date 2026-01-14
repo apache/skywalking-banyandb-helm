@@ -41,6 +41,8 @@ jobs:
             config: test/e2e/e2e-banyandb-cluster.yaml
           - name: Run Skywalking E2E Test (BanyanDB lifecycle as database)
             config: test/e2e/e2e-banyandb-lifecycle.yaml
+          - name: Run Skywalking E2E Test (FODC Proxy Service)
+            config: test/e2e/e2e-banyandb-fodc-proxy-service.yaml
           - name: Run Skywalking E2E Test (BanyanDB DNS node registry)
             config: test/e2e/e2e-banyandb-node-registry-dns.yaml
     name: ${{ matrix.test.name }}

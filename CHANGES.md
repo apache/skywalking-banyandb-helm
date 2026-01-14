@@ -12,6 +12,10 @@ Release Notes.
 0.5.3
 -----------------
 
+#### Features
+
+-  Add the FODC Agent and Proxy components to the Helm chart.
+
 #### Bugs
 
 - Fix missing port in data node list for liaison.

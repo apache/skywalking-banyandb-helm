@@ -99,7 +99,7 @@ The content of this document describes the parameters that can be configured in 
 
 | Name                         | Description                     | Value  |
 |------------------------------|---------------------------------|--------|
-| `cluster.nodeDiscovery.mode` | Node discovery mode (etcd, dns) | `etcd` |
+| `cluster.nodeDiscovery.mode` | Node discovery mode (etcd, dns, file) | `dns` |
 
 ### DNS Mode Configuration
 
@@ -156,6 +156,7 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.liaison.grpcSvc.labels`                              | Labels for GRPC service for liaison                         | `{}`            |
 | `cluster.liaison.grpcSvc.annotations`                         | Annotations for GRPC service for liaison                    | `{}`            |
 | `cluster.liaison.grpcSvc.port`                                | Port number for GRPC service for liaison                    | `17912`         |
+| `cluster.liaison.sidecar`                                     | Sidecar containers for liaison pods                         | `[]`            |
 | `cluster.liaison.httpSvc.labels`                              | Labels for HTTP service for liaison                         | `{}`            |
 | `cluster.liaison.httpSvc.annotations`                         | Annotations for HTTP service for liaison                    | `{}`            |
 | `cluster.liaison.httpSvc.port`                                | Port number for HTTP service for liaison                    | `17913`         |
@@ -290,6 +291,102 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.ui.standalone.startupProbe.timeoutSeconds`                 | Timeout in seconds for UI startup probe         | `5`             |
 | `cluster.ui.standalone.startupProbe.successThreshold`               | Success threshold for UI startup probe          | `1`             |
 | `cluster.ui.standalone.startupProbe.failureThreshold`               | Failure threshold for UI startup probe          | `60`            |
+
+### Configuration for FODC (First Occurrence Data Collection) Proxy component
+
+| Name                                                            | Description                                                             | Value                                             |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
+| `cluster.fodc.proxy.enabled`                                     | Enable FODC Proxy deployment (boolean)                                  | `true`                                            |
+| `cluster.fodc.proxy.podAnnotations`                              | Pod annotations for Proxy                                               | `{}`                                              |
+| `cluster.fodc.proxy.securityContext`                             | Security context for Proxy pods                                         | `{}`                                              |
+| `cluster.fodc.proxy.containerSecurityContext`                    | Container-level security context for Proxy                              | `{}`                                              |
+| `cluster.fodc.proxy.env`                                         | Environment variables for Proxy pods                                    | `[]`                                              |
+| `cluster.fodc.proxy.priorityClassName`                           | Priority class name for Proxy pods                                      | `""`                                              |
+| `cluster.fodc.proxy.updateStrategy.type`                         | Update strategy type for Proxy pods                                     | `RollingUpdate`                                   |
+| `cluster.fodc.proxy.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods during update                                  | `1`                                               |
+| `cluster.fodc.proxy.updateStrategy.rollingUpdate.maxSurge`       | Maximum surge pods during update                                        | `1`                                               |
+| `cluster.fodc.proxy.podDisruptionBudget`                         | Pod disruption budget for Proxy                                         | `{}`                                              |
+| `cluster.fodc.proxy.tolerations`                                 | Tolerations for Proxy pods                                              | `[]`                                              |
+| `cluster.fodc.proxy.nodeSelector`                                | Node selector for Proxy pods                                            | `[]`                                              |
+| `cluster.fodc.proxy.affinity`                                    | Affinity rules for Proxy pods                                           | `{}`                                              |
+| `cluster.fodc.proxy.podAffinityPreset`                           | Pod affinity preset for Proxy                                           | `""`                                              |
+| `cluster.fodc.proxy.podAntiAffinityPreset`                       | Pod anti-affinity preset for Proxy                                      | `soft`                                            |
+| `cluster.fodc.proxy.resources.requests`                          | Resource requests for Proxy pods                                        | `[]`                                              |
+| `cluster.fodc.proxy.resources.limits`                            | Resource limits for Proxy pods                                          | `[]`                                              |
+| `cluster.fodc.proxy.image.repository`                            | Docker repository for FODC Proxy                                        | `ghcr.io/apache/skywalking-banyandb-fodc-proxy` |
+| `cluster.fodc.proxy.image.tag`                                   | Image tag/version for FODC Proxy (empty for latest)                     | `""`                                              |
+| `cluster.fodc.proxy.image.pullPolicy`                            | Image pull policy for FODC Proxy                                        | `IfNotPresent`                                    |
+| `cluster.fodc.proxy.grpcSvc.labels`                              | Labels for Proxy gRPC service                                           | `{}`                                              |
+| `cluster.fodc.proxy.grpcSvc.annotations`                         | Annotations for Proxy gRPC service                                      | `{}`                                              |
+| `cluster.fodc.proxy.grpcSvc.port`                                | Port number for Proxy gRPC service (Agent connections)                  | `17912`                                           |
+| `cluster.fodc.proxy.httpSvc.labels`                              | Labels for Proxy HTTP service                                           | `{}`                                              |
+| `cluster.fodc.proxy.httpSvc.annotations`                         | Annotations for Proxy HTTP service                                      | `{}`                                              |
+| `cluster.fodc.proxy.httpSvc.port`                                | Port number for Proxy HTTP service                                      | `17913`                                           |
+| `cluster.fodc.proxy.httpSvc.type`                                | Service type for Proxy HTTP service (ClusterIP, LoadBalancer, NodePort) | `LoadBalancer`                                    |
+| `cluster.fodc.proxy.httpSvc.externalIPs`                         | External IP addresses for Proxy HTTP service                            | `[]`                                              |
+| `cluster.fodc.proxy.httpSvc.loadBalancerIP`                      | Load balancer IP for Proxy HTTP service                                 | `nil`                                             |
+| `cluster.fodc.proxy.httpSvc.loadBalancerSourceRanges`            | Allowed source ranges for Proxy HTTP service                            | `[]`                                              |
+| `cluster.fodc.proxy.ingress.enabled`                             | Enable ingress for Proxy                                                | `false`                                           |
+| `cluster.fodc.proxy.ingress.labels`                              | Labels for Proxy ingress                                                | `{}`                                              |
+| `cluster.fodc.proxy.ingress.annotations`                         | Annotations for Proxy ingress                                           | `{}`                                              |
+| `cluster.fodc.proxy.ingress.rules`                               | Ingress rules for Proxy                                                 | `[]`                                              |
+| `cluster.fodc.proxy.ingress.tls`                                 | TLS configuration for Proxy ingress                                     | `[]`                                              |
+| `cluster.fodc.proxy.config.agentHeartbeatTimeout`                | Timeout for considering agent offline                                   | `30s`                                             |
+| `cluster.fodc.proxy.config.agentCleanupTimeout`                  | Timeout for auto-unregistering offline agents                           | `5m`                                              |
+| `cluster.fodc.proxy.config.maxAgents`                            | Maximum number of agents allowed to register                            | `1000`                                            |
+| `cluster.fodc.proxy.config.grpcMaxMsgSize`                       | Maximum gRPC message size in bytes                                      | `4194304`                                         |
+| `cluster.fodc.proxy.config.httpReadTimeout`                      | HTTP read timeout                                                       | `10s`                                             |
+| `cluster.fodc.proxy.config.httpWriteTimeout`                     | HTTP write timeout                                                      | `10s`                                             |
+| `cluster.fodc.proxy.config.heartbeatInterval`                    | Default heartbeat interval for agents                                   | `10s`                                             |
+| `cluster.fodc.proxy.livenessProbe.initialDelaySeconds`           | Initial delay for Proxy liveness probe                                  | `10`                                              |
+| `cluster.fodc.proxy.livenessProbe.periodSeconds`                 | Probe period for Proxy liveness probe                                   | `30`                                              |
+| `cluster.fodc.proxy.livenessProbe.timeoutSeconds`                | Timeout in seconds for Proxy liveness probe                             | `5`                                               |
+| `cluster.fodc.proxy.livenessProbe.successThreshold`              | Success threshold for Proxy liveness probe                              | `1`                                               |
+| `cluster.fodc.proxy.livenessProbe.failureThreshold`              | Failure threshold for Proxy liveness probe                              | `5`                                               |
+| `cluster.fodc.proxy.readinessProbe.initialDelaySeconds`          | Initial delay for Proxy readiness probe                                 | `10`                                              |
+| `cluster.fodc.proxy.readinessProbe.periodSeconds`                | Probe period for Proxy readiness probe                                  | `30`                                              |
+| `cluster.fodc.proxy.readinessProbe.timeoutSeconds`               | Timeout in seconds for Proxy readiness probe                            | `5`                                               |
+| `cluster.fodc.proxy.readinessProbe.successThreshold`             | Success threshold for Proxy readiness probe                             | `1`                                               |
+| `cluster.fodc.proxy.readinessProbe.failureThreshold`             | Failure threshold for Proxy readiness probe                             | `5`                                               |
+| `cluster.fodc.proxy.startupProbe.initialDelaySeconds`            | Initial delay for Proxy startup probe                                   | `0`                                               |
+| `cluster.fodc.proxy.startupProbe.periodSeconds`                  | Probe period for Proxy startup probe                                    | `10`                                              |
+| `cluster.fodc.proxy.startupProbe.timeoutSeconds`                 | Timeout in seconds for Proxy startup probe                              | `5`                                               |
+| `cluster.fodc.proxy.startupProbe.successThreshold`               | Success threshold for Proxy startup probe                               | `1`                                               |
+| `cluster.fodc.proxy.startupProbe.failureThreshold`               | Failure threshold for Proxy startup probe                               | `60`                                              |
+
+### Configuration for FODC (First Occurrence Data Collection) Agent sidecar
+
+| Name                                                   | Description                                                                  | Value                                             |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------- |
+| `cluster.fodc.agent.enabled`                            | Enable FODC Agent sidecar (boolean)                                          | `true`                                            |
+| `cluster.fodc.agent.image.repository`                   | Docker repository for FODC Agent                                             | `ghcr.io/apache/skywalking-banyandb-fodc-agent` |
+| `cluster.fodc.agent.image.tag`                          | Image tag/version for FODC Agent (defaults to same as main image)            | `""`                                              |
+| `cluster.fodc.agent.image.pullPolicy`                   | Image pull policy for FODC Agent                                             | `IfNotPresent`                                    |
+| `cluster.fodc.agent.env`                                | Environment variables for Agent sidecar                                      | `[]`                                              |
+| `cluster.fodc.agent.containerSecurityContext`           | Container-level security context for Agent                                   | `{}`                                              |
+| `cluster.fodc.agent.resources.requests`                 | Resource requests for Agent                                                  | `[]`                                              |
+| `cluster.fodc.agent.resources.limits`                   | Resource limits for Agent                                                    | `[]`                                              |
+| `cluster.fodc.agent.grpcPort`                           | GRPC port for Agent sidecar (not used - agent connects outbound to proxy)    | `17914`                                           |
+| `cluster.fodc.agent.httpPort`                           | HTTP port for Agent sidecar (prometheus-listen-addr flag)                    | `17915`                                           |
+| `cluster.fodc.agent.config.scrapeInterval`              | Interval for scraping BanyanDB metrics (poll-metrics-interval flag)          | `15s`                                             |
+| `cluster.fodc.agent.config.heartbeatInterval`           | Heartbeat interval to Proxy (heartbeat-interval flag)                        | `10s`                                             |
+| `cluster.fodc.agent.config.reconnectInterval`           | Reconnect interval when connection to Proxy is lost (reconnect-interval flag) | `10s`                                             |
+| `cluster.fodc.agent.config.ktmEnabled`                  | Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage) | `true`                                            |
+| `cluster.fodc.agent.livenessProbe.initialDelaySeconds`  | Initial delay for Agent liveness probe                                       | `90`                                              |
+| `cluster.fodc.agent.livenessProbe.periodSeconds`        | Probe period for Agent liveness probe                                        | `30`                                              |
+| `cluster.fodc.agent.livenessProbe.timeoutSeconds`       | Timeout in seconds for Agent liveness probe                                  | `5`                                               |
+| `cluster.fodc.agent.livenessProbe.successThreshold`     | Success threshold for Agent liveness probe                                   | `1`                                               |
+| `cluster.fodc.agent.livenessProbe.failureThreshold`     | Failure threshold for Agent liveness probe                                   | `5`                                               |
+| `cluster.fodc.agent.readinessProbe.initialDelaySeconds` | Initial delay for Agent readiness probe                                      | `60`                                              |
+| `cluster.fodc.agent.readinessProbe.periodSeconds`       | Probe period for Agent readiness probe                                       | `10`                                              |
+| `cluster.fodc.agent.readinessProbe.timeoutSeconds`      | Timeout in seconds for Agent readiness probe                                 | `5`                                               |
+| `cluster.fodc.agent.readinessProbe.successThreshold`    | Success threshold for Agent readiness probe                                  | `1`                                               |
+| `cluster.fodc.agent.readinessProbe.failureThreshold`    | Failure threshold for Agent readiness probe                                  | `12`                                              |
+| `cluster.fodc.agent.startupProbe.initialDelaySeconds`   | Initial delay for Agent startup probe                                        | `30`                                              |
+| `cluster.fodc.agent.startupProbe.periodSeconds`         | Probe period for Agent startup probe                                         | `5`                                               |
+| `cluster.fodc.agent.startupProbe.timeoutSeconds`        | Timeout in seconds for Agent startup probe                                   | `3`                                               |
+| `cluster.fodc.agent.startupProbe.successThreshold`      | Success threshold for Agent startup probe                                    | `1`                                               |
+| `cluster.fodc.agent.startupProbe.failureThreshold`      | Failure threshold for Agent startup probe                                    | `60`                                              |
 
 ### Storage configuration for persistent volumes
 

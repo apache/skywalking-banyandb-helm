@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Lifecycle-enabled values for banyandb cluster mode.
-# This is a YAML-formatted file with lifecycle configuration enabled.
+# Default values for banyandb.
+# This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 46083529398b73504e9ca929ef367cd1776aef82
+  tag: 6e926242c5bd28cf00a95034f75818c8850d1045
   pullPolicy: IfNotPresent
 
 cluster:
@@ -44,9 +44,7 @@ cluster:
       chownUser: 1000
       chownGroup: 1000
       image: busybox:1.36
-    env:
-      - name: BYDB_DATA_NODE_SELECTOR
-        value: "type=hot"
+    env: []
     priorityClassName: ""
     podDisruptionBudget: {}
     updateStrategy:
@@ -144,27 +142,17 @@ cluster:
         port: 17912
 
       sidecar: []
-
       backupSidecar:
         enabled: true
         dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
         timeStyle: "daily"
-        schedule: "@hourly"
+        schedule: "@every 10s"
         customFlags: []
         resources: {}
-
-      lifecycleSidecar:
-        enabled: true
-        schedule: "@hourly"
-        progressFile: "/tmp/stream/lifecycle/progress.json"
-        reportDir: "/tmp/stream/lifecycle/reports"
-        resources: {}
-
       restoreInitContainer:
         enabled: true
         customFlags: []
         resources: {}
-
       livenessProbe:
         initialDelaySeconds: 20
         periodSeconds: 5
@@ -185,28 +173,14 @@ cluster:
         timeoutSeconds: 5
         successThreshold: 1
         failureThreshold: 60
-
     roles:
-      hot:
-        lifecycleSidecar:
-          schedule: "@daily"
-          enabled: true
-          progressFile: "/tmp/stream/lifecycle/progress.json"
-          reportDir: "/tmp/stream/lifecycle/reports"
-      warm:
-        lifecycleSidecar:
-          schedule: "@daily"
-          enabled: true
-          progressFile: "/tmp/stream/lifecycle/progress.json"
-          reportDir: "/tmp/stream/lifecycle/reports"
-      cold:
-        replicas: 1
-
+      hot: {}
   ui:
     type: Embedded
     standalone:
       replicas: 1
-      podAnnotations:
+      podAnnotations: # example: banyandb-foo
+
       securityContext: {}
       env: []
       priorityClassName: ""
@@ -224,7 +198,6 @@ cluster:
       resources:
         requests: []
         limits: []
-
       httpSvc:
         labels: {}
         annotations: {}
@@ -240,7 +213,6 @@ cluster:
         annotations: {}
         rules: []
         tls: []
-
       livenessProbe:
         initialDelaySeconds: 20
         periodSeconds: 30
@@ -263,116 +235,120 @@ cluster:
         failureThreshold: 60
 
   fodc:
-    enabled: false
+    enabled: true
+    proxy:
+      podAnnotations: {}
+      securityContext: {}
+      containerSecurityContext: {}
+      env: []
+      priorityClassName: ""
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+          maxSurge: 1
+      podDisruptionBudget: {}
+      tolerations: []
+      nodeSelector: []
+      affinity: {}
+      podAffinityPreset: ""
+      podAntiAffinityPreset: soft
+      resources:
+        requests: {}
+        limits: {}
+      image:
+        repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
+        tag: "6e926242c5bd28cf00a95034f75818c8850d1045"
+        pullPolicy: IfNotPresent
+      grpcSvc:
+        labels: {}
+        annotations: {}
+        port: 17904
+      httpSvc:
+        labels: {}
+        annotations: {}
+        port: 17905
+        type: LoadBalancer
+        externalIPs: []
+        loadBalancerIP: null
+        loadBalancerSourceRanges: []
+      ingress:
+        enabled: false
+        labels: {}
+        annotations: {}
+        rules: []
+        tls: []
+      config:
+        agentHeartbeatTimeout: 30s
+        agentCleanupTimeout: 5m
+        maxAgents: 1000
+        grpcMaxMsgSize: 4194304
+        httpReadTimeout: 10s
+        httpWriteTimeout: 10s
+        heartbeatInterval: 10s
+      livenessProbe:
+        initialDelaySeconds: 10
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+      readinessProbe:
+        initialDelaySeconds: 10
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 10
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+    
+    agent:
+      image:
+        repository: ghcr.io/apache/skywalking-banyandb-fodc-agent
+        tag: "6e926242c5bd28cf00a95034f75818c8850d1045"
+        pullPolicy: IfNotPresent
+      env: []
+      containerSecurityContext: {}
+      resources:
+        requests: []
+        limits: []
+      grpcPort: 17914
+      httpPort: 17915
+      config:
+        scrapeInterval: 15s
+        heartbeatInterval: 10s
+        ktmEnabled: true
+      livenessProbe:
+        initialDelaySeconds: 90
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+      readinessProbe:
+        initialDelaySeconds: 60
+        periodSeconds: 10
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 12
+      startupProbe:
+        initialDelaySeconds: 30
+        periodSeconds: 5
+        timeoutSeconds: 3
+        successThreshold: 1
+        failureThreshold: 60
 
 storage:
   data:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure" ]
+    - mountTargets: [ "measure", "stream", "property", "trace" ]
       nodeRole: hot
       existingClaimName: null
-      claimName: hot-measure-data
-      size: 50Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "stream" ]
-      nodeRole: hot
-      existingClaimName: null
-      claimName: hot-stream-data
-      size: 50Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "property" ]
-      nodeRole: hot
-      existingClaimName: null
-      claimName: hot-property-data
+      claimName: data
       size: 5Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "trace" ]
-      nodeRole: hot
-      existingClaimName: null
-      claimName: hot-trace-data
-      size: 50Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "measure" ]
-      nodeRole: warm
-      existingClaimName: null
-      claimName: warm-measure-data
-      size: 100Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "stream" ]
-      nodeRole: warm
-      existingClaimName: null
-      claimName: warm-stream-data
-      size: 100Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "property" ]
-      nodeRole: warm
-      existingClaimName: null
-      claimName: warm-property-data
-      size: 10Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "trace" ]
-      nodeRole: warm
-      existingClaimName: null
-      claimName: warm-trace-data
-      size: 100Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "measure" ]
-      nodeRole: cold
-      existingClaimName: null
-      claimName: cold-measure-data
-      size: 200Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "stream" ]
-      nodeRole: cold
-      existingClaimName: null
-      claimName: cold-stream-data
-      size: 200Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "property" ]
-      nodeRole: cold
-      existingClaimName: null
-      claimName: cold-property-data
-      size: 20Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "trace" ]
-      nodeRole: cold
-      existingClaimName: null
-      claimName: cold-trace-data
-      size: 200Gi
       accessModes:
       - ReadWriteOnce
       storageClass: null
@@ -380,28 +356,26 @@ storage:
     - mountTargets: [ "backups" ]
       nodeRole: hot
       existingClaimName: null
-      claimName: hot-backups
-      size: 10Gi
+      claimName: backups
+      size: 5Gi
       accessModes:
       - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
-
   liaison:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream" ]
+    - mountTargets: [ "measure", "stream", "trace" ]
       claimName: liaison-data
       size: 10Gi
       accessModes:
       - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
-
   standalone:
     enabled: false
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property" ]
+    - mountTargets: [ "measure", "stream", "property", "trace" ]
       claimName: standalone-data
       size: 200Gi
       accessModes:
@@ -410,8 +384,12 @@ storage:
       volumeMode: Filesystem
 
 serviceAccount:
+  # Specifies whether a service account should be created
   create: true
+  # Annotations to add to the service account
   annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 etcd:
@@ -432,16 +410,14 @@ etcd:
     token:
       enabled: true
       type: simple
-  livenessProbe:
-    initialDelaySeconds: 10
-  readinessProbe:
-    initialDelaySeconds: 10
-  autoCompactionMode: periodic
-  autoCompactionRetention: "1"
-  defrag:
-    enabled: true
-    cronjob:
-      schedule: "0 0 * * *"
 
 fullnameOverride: ""
 nameOverride: "banyandb"
+
+auth:
+  enabled: true
+  existingSecret: ""
+  credentialsFileKey: "credentials.yaml"
+  users:
+    - username: admin
+      password: banyandb
