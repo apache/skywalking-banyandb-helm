@@ -307,15 +307,15 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           args:
-            - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }}
-            - --pod-name=$(POD_NAME)
-            - --container-name=data,lifecycle
-            - --poll-metrics-ports=2121,17915
-            - --node-role=datanode-{{ $roleName }}
-            - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }}
-            - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.metricsPort }}
-            - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }}
-            - --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }}
+            - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }} \
+            - --pod-name=$(POD_NAME) \
+            - --container-name=data,lifecycle \
+            - --poll-metrics-ports=2121,17915 \
+            - --node-role=datanode-{{ $roleName }} \
+            - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }} \
+            - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.metricsPort }} \
+            - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }} \
+            - --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }} \
             - --reconnect-interval={{ $.Values.cluster.fodc.agent.config.reconnectInterval }}
           env:
             - name: POD_NAME
