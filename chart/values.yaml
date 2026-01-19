@@ -982,8 +982,8 @@ cluster:
       ## @param cluster.fodc.agent.metricsPort Metrics port for Agent sidecar (prometheus-listen-addr flag)
       metricsPort: 9090
       config:
-        ## @param cluster.fodc.agent.config.scrapeInterval Interval for scraping BanyanDB metrics (poll-metrics-interval flag)
-        scrapeInterval: 15s
+        ## @param cluster.fodc.agent.config.pollMetricsInterval Interval for polling BanyanDB metrics (poll-metrics-interval flag)
+        pollMetricsInterval: 15s
         ## @param cluster.fodc.agent.config.heartbeatInterval Heartbeat interval to Proxy (heartbeat-interval flag)
         heartbeatInterval: 10s
         ## @param cluster.fodc.agent.config.reconnectInterval Reconnect interval when connection to Proxy is lost (reconnect-interval flag)

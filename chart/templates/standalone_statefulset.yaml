@@ -272,7 +272,7 @@ spec:
                 --node-port={{ .Values.standalone.grpcSvc.port }} \
                 --node-role=standalone \
                 --metrics-endpoint=http://127.0.0.1:2121/metrics \
-                --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.scrapeInterval }} \
+                --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.pollMetricsInterval }} \
                 --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.metricsPort }} \
                 --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }} \
                 --heartbeat-interval={{ .Values.cluster.fodc.agent.config.heartbeatInterval }} \

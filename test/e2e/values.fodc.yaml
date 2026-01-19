@@ -317,7 +317,7 @@ cluster:
         limits: []
       metricsPort: 9090
       config:
-        scrapeInterval: 15s
+        pollMetricsInterval: 15s
         heartbeatInterval: 10s
         ktmEnabled: true
       livenessProbe:
