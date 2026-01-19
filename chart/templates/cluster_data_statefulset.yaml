@@ -332,20 +332,9 @@ spec:
           ports:
             - name: fodc-agent-http
               containerPort: {{ $.Values.cluster.fodc.agent.metricsPort }}
-          {{- with $.Values.cluster.fodc.agent.resources }}
+          {{- if and $.Values.cluster.fodc.agent.resources (or $.Values.cluster.fodc.agent.resources.requests $.Values.cluster.fodc.agent.resources.limits) }}
           resources:
-            {{- if .requests }}
-            requests:
-              {{- range $request := .requests }}
-              {{ $request.key }}: {{ $request.value }}
-              {{- end }}
-            {{- end }}
-            {{- if .limits }}
-            limits:
-              {{- range $limit := .limits }}
-              {{ $limit.key }}: {{ $limit.value }}
-              {{- end }}
-            {{- end }}
+{{ toYaml $.Values.cluster.fodc.agent.resources | indent 12 }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}
