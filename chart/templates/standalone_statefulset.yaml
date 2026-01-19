@@ -273,7 +273,7 @@ spec:
                 --node-role=standalone \
                 --metrics-endpoint=http://127.0.0.1:2121/metrics \
                 --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.scrapeInterval }} \
-                --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.httpPort }} \
+                --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.metricsPort }} \
                 --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }} \
                 --heartbeat-interval={{ .Values.cluster.fodc.agent.config.heartbeatInterval }} \
                 --reconnect-interval={{ .Values.cluster.fodc.agent.config.reconnectInterval }}
@@ -292,11 +292,11 @@ spec:
             {{- end }}
           ports:
             - name: fodc-agent-http
-              containerPort: {{ .Values.cluster.fodc.agent.httpPort }}
+              containerPort: {{ .Values.cluster.fodc.agent.metricsPort }}
           startupProbe:
             httpGet:
               path: /metrics
-              port: {{ .Values.cluster.fodc.agent.httpPort }}
+              port: {{ .Values.cluster.fodc.agent.metricsPort }}
             initialDelaySeconds: {{ .Values.cluster.fodc.agent.startupProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.agent.startupProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.cluster.fodc.agent.startupProbe.timeoutSeconds }}
@@ -305,7 +305,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.cluster.fodc.agent.httpPort }}
+              port: {{ .Values.cluster.fodc.agent.metricsPort }}
             initialDelaySeconds: {{ .Values.cluster.fodc.agent.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.agent.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.cluster.fodc.agent.readinessProbe.timeoutSeconds }}
@@ -314,7 +314,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.cluster.fodc.agent.httpPort }}
+              port: {{ .Values.cluster.fodc.agent.metricsPort }}
             initialDelaySeconds: {{ .Values.cluster.fodc.agent.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.agent.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.cluster.fodc.agent.livenessProbe.timeoutSeconds }}

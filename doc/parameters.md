@@ -366,7 +366,7 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.fodc.agent.containerSecurityContext`           | Container-level security context for Agent                                   | `{}`                                              |
 | `cluster.fodc.agent.resources.requests`                 | Resource requests for Agent                                                  | `[]`                                              |
 | `cluster.fodc.agent.resources.limits`                   | Resource limits for Agent                                                    | `[]`                                              |
-| `cluster.fodc.agent.httpPort`                           | HTTP port for Agent sidecar (prometheus-listen-addr flag)                    | `17915`                                           |
+| `cluster.fodc.agent.metricsPort`                        | Metrics port for Agent sidecar (prometheus-listen-addr flag)                | `17915`                                           |
 | `cluster.fodc.agent.config.scrapeInterval`              | Interval for scraping BanyanDB metrics (poll-metrics-interval flag)          | `15s`                                             |
 | `cluster.fodc.agent.config.heartbeatInterval`           | Heartbeat interval to Proxy (heartbeat-interval flag)                        | `10s`                                             |
 | `cluster.fodc.agent.config.reconnectInterval`           | Reconnect interval when connection to Proxy is lost (reconnect-interval flag) | `10s`                                             |

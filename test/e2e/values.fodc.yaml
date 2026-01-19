@@ -315,7 +315,7 @@ cluster:
       resources:
         requests: []
         limits: []
-      httpPort: 17915
+      metricsPort: 9090
       config:
         scrapeInterval: 15s
         heartbeatInterval: 10s
