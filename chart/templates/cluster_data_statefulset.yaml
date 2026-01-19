@@ -309,7 +309,7 @@ spec:
           args:
             - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }}
             - --pod-name=$(POD_NAME)
-            - --container-name=data,lifecycle
+            - --container-names=data,lifecycle
             - --poll-metrics-ports=2121,17915
             - --node-role=datanode-{{ $roleName }}
             - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }}
