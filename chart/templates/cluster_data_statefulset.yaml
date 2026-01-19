@@ -331,8 +331,6 @@ spec:
               value: {{ $env.value }}
             {{- end }}
           ports:
-            - name: fodc-agent-grpc
-              containerPort: {{ $.Values.cluster.fodc.agent.grpcPort }}
             - name: fodc-agent-http
               containerPort: {{ $.Values.cluster.fodc.agent.httpPort }}
           startupProbe:

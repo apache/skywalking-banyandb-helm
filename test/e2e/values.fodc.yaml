@@ -315,7 +315,6 @@ cluster:
       resources:
         requests: []
         limits: []
-      grpcPort: 17914
       httpPort: 17915
       config:
         scrapeInterval: 15s

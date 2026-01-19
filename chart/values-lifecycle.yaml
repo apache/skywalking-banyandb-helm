@@ -957,8 +957,6 @@ cluster:
         requests: []
         ## @param cluster.fodc.agent.resources.limits Resource limits for Agent
         limits: []
-      ## @param cluster.fodc.agent.grpcPort GRPC port for Agent sidecar (not used - agent connects outbound to proxy)
-      grpcPort: 17914
       ## @param cluster.fodc.agent.httpPort HTTP port for Agent sidecar (prometheus-listen-addr flag)
       httpPort: 17915
       config:
