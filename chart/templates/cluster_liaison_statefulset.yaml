@@ -321,7 +321,7 @@ spec:
               value: {{ $env.value }}
             {{- end }}
           ports:
-            - name: fodc-agent-http
+            - name: fodc-agent-metrics-http
               containerPort: {{ .Values.cluster.fodc.agent.metricsPort }}
           startupProbe:
             httpGet:

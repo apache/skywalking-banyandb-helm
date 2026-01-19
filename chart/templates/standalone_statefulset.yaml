@@ -291,7 +291,7 @@ spec:
               value: {{ $env.value }}
             {{- end }}
           ports:
-            - name: fodc-agent-http
+            - name: fodc-agent-metrics-http
               containerPort: {{ .Values.cluster.fodc.agent.metricsPort }}
           startupProbe:
             httpGet:
@@ -304,7 +304,7 @@ spec:
             failureThreshold: {{ .Values.cluster.fodc.agent.startupProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /health
+              path: /metrics
               port: {{ .Values.cluster.fodc.agent.metricsPort }}
             initialDelaySeconds: {{ .Values.cluster.fodc.agent.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.agent.readinessProbe.periodSeconds }}
@@ -313,7 +313,7 @@ spec:
             failureThreshold: {{ .Values.cluster.fodc.agent.readinessProbe.failureThreshold }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: /metrics
               port: {{ .Values.cluster.fodc.agent.metricsPort }}
             initialDelaySeconds: {{ .Values.cluster.fodc.agent.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.agent.livenessProbe.periodSeconds }}
