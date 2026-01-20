@@ -308,13 +308,13 @@ spec:
           {{- end }}
           args:
             - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }}
-            - --node-ip=127.0.0.1
-            - --node-port={{ $.Values.cluster.data.nodeTemplate.grpcSvc.port }}
+            - --pod-name=$(POD_NAME)
+            - --container-names=data,lifecycle
+            - --poll-metrics-ports=2121,17915
             - --node-role=datanode-{{ $roleName }}
-            - --metrics-endpoint=http://127.0.0.1:2121/metrics
-            - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.scrapeInterval }}
-            - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.httpPort }}
-            - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }}
+            - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }}
+            - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.metricsPort }}
+            - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
             - --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }}
             - --reconnect-interval={{ $.Values.cluster.fodc.agent.config.reconnectInterval }}
           env:
@@ -331,51 +331,11 @@ spec:
               value: {{ $env.value }}
             {{- end }}
           ports:
-            - name: fodc-agent-grpc
-              containerPort: {{ $.Values.cluster.fodc.agent.grpcPort }}
             - name: fodc-agent-http
-              containerPort: {{ $.Values.cluster.fodc.agent.httpPort }}
-          startupProbe:
-            httpGet:
-              path: /metrics
-              port: {{ $.Values.cluster.fodc.agent.httpPort }}
-            initialDelaySeconds: {{ $.Values.cluster.fodc.agent.startupProbe.initialDelaySeconds }}
-            periodSeconds: {{ $.Values.cluster.fodc.agent.startupProbe.periodSeconds }}
-            timeoutSeconds: {{ $.Values.cluster.fodc.agent.startupProbe.timeoutSeconds }}
-            successThreshold: {{ $.Values.cluster.fodc.agent.startupProbe.successThreshold }}
-            failureThreshold: {{ $.Values.cluster.fodc.agent.startupProbe.failureThreshold }}
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: {{ $.Values.cluster.fodc.agent.httpPort }}
-            initialDelaySeconds: {{ $.Values.cluster.fodc.agent.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ $.Values.cluster.fodc.agent.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ $.Values.cluster.fodc.agent.readinessProbe.timeoutSeconds }}
-            successThreshold: {{ $.Values.cluster.fodc.agent.readinessProbe.successThreshold }}
-            failureThreshold: {{ $.Values.cluster.fodc.agent.readinessProbe.failureThreshold }}
-          livenessProbe:
-            httpGet:
-              path: /metrics
-              port: {{ $.Values.cluster.fodc.agent.httpPort }}
-            initialDelaySeconds: {{ $.Values.cluster.fodc.agent.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ $.Values.cluster.fodc.agent.livenessProbe.periodSeconds }}
-            timeoutSeconds: {{ $.Values.cluster.fodc.agent.livenessProbe.timeoutSeconds }}
-            successThreshold: {{ $.Values.cluster.fodc.agent.livenessProbe.successThreshold }}
-            failureThreshold: {{ $.Values.cluster.fodc.agent.livenessProbe.failureThreshold }}
-          {{- with $.Values.cluster.fodc.agent.resources }}
+              containerPort: {{ $.Values.cluster.fodc.agent.metricsPort }}
+          {{- if and $.Values.cluster.fodc.agent.resources (or $.Values.cluster.fodc.agent.resources.requests $.Values.cluster.fodc.agent.resources.limits) }}
           resources:
-            {{- if .requests }}
-            requests:
-              {{- range $request := .requests }}
-              {{ $request.key }}: {{ $request.value }}
-              {{- end }}
-            {{- end }}
-            {{- if .limits }}
-            limits:
-              {{- range $limit := .limits }}
-              {{ $limit.key }}: {{ $limit.value }}
-              {{- end }}
-            {{- end }}
+{{ toYaml $.Values.cluster.fodc.agent.resources | indent 12 }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}

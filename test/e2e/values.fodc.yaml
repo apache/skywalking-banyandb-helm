@@ -19,7 +19,7 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 6e926242c5bd28cf00a95034f75818c8850d1045
+  tag: 67cb3eaa71d1b2ba9a56dddc17050fd69da78593
   pullPolicy: IfNotPresent
 
 cluster:
@@ -258,7 +258,7 @@ cluster:
         limits: {}
       image:
         repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
-        tag: "6e926242c5bd28cf00a95034f75818c8850d1045"
+        tag: "67cb3eaa71d1b2ba9a56dddc17050fd69da78593"
         pullPolicy: IfNotPresent
       grpcSvc:
         labels: {}
@@ -308,17 +308,19 @@ cluster:
     agent:
       image:
         repository: ghcr.io/apache/skywalking-banyandb-fodc-agent
-        tag: "6e926242c5bd28cf00a95034f75818c8850d1045"
+        tag: "67cb3eaa71d1b2ba9a56dddc17050fd69da78593"
         pullPolicy: IfNotPresent
       env: []
       containerSecurityContext: {}
       resources:
-        requests: []
-        limits: []
-      grpcPort: 17914
-      httpPort: 17915
+        requests: {
+          memory: 256Mi
+        }
+        limits:
+          memory: 256Mi
+      metricsPort: 9090
       config:
-        scrapeInterval: 15s
+        pollMetricsInterval: 15s
         heartbeatInterval: 10s
         ktmEnabled: true
       livenessProbe:

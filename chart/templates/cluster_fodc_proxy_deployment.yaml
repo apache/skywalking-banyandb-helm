@@ -79,7 +79,7 @@ spec:
               containerPort: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
           readinessProbe:
             httpGet:
-              path: /metrics
+              path: /health
               port: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
             initialDelaySeconds: {{ .Values.cluster.fodc.proxy.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.proxy.readinessProbe.periodSeconds }}
@@ -88,7 +88,7 @@ spec:
             failureThreshold: {{ .Values.cluster.fodc.proxy.readinessProbe.failureThreshold }}
           livenessProbe:
             httpGet:
-              path: /metrics
+              path: /health
               port: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
             initialDelaySeconds: {{ .Values.cluster.fodc.proxy.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.proxy.livenessProbe.periodSeconds }}
@@ -97,7 +97,7 @@ spec:
             failureThreshold: {{ .Values.cluster.fodc.proxy.livenessProbe.failureThreshold }}
           startupProbe:
             httpGet:
-              path: /metrics
+              path: /health
               port: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
             initialDelaySeconds: {{ .Values.cluster.fodc.proxy.startupProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.cluster.fodc.proxy.startupProbe.periodSeconds }}
