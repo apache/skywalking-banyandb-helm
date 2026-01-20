@@ -252,7 +252,7 @@ spec:
             - --poll-metrics-ports=2121
             - --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.pollMetricsInterval }}
             - --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.metricsPort }}
-            - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 10 5 }}
+            - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
             - --heartbeat-interval={{ .Values.cluster.fodc.agent.config.heartbeatInterval }}
             - --reconnect-interval={{ .Values.cluster.fodc.agent.config.reconnectInterval }}
           env:

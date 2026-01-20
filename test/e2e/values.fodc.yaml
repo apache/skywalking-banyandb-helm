@@ -313,7 +313,9 @@ cluster:
       env: []
       containerSecurityContext: {}
       resources:
-        requests: {}
+        requests: {
+          memory: 256Mi
+        }
         limits:
           memory: 256Mi
       metricsPort: 9090

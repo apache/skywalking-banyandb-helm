@@ -976,7 +976,8 @@ cluster:
       containerSecurityContext: {}
       resources:
         ## @param cluster.fodc.agent.resources.requests Resource requests for Agent
-        requests: {}
+        requests:
+          memory: 256Mi
         ## @param cluster.fodc.agent.resources.limits Resource limits for Agent
         limits:
           memory: 256Mi

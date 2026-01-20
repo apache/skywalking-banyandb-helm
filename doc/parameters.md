@@ -364,7 +364,7 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.fodc.agent.image.pullPolicy`                   | Image pull policy for FODC Agent                                             | `IfNotPresent`                                    |
 | `cluster.fodc.agent.env`                                | Environment variables for Agent sidecar                                      | `[]`                                              |
 | `cluster.fodc.agent.containerSecurityContext`           | Container-level security context for Agent                                   | `{}`                                              |
-| `cluster.fodc.agent.resources.requests`                 | Resource requests for Agent                                                  | `{}`                                              |
+| `cluster.fodc.agent.resources.requests`                 | Resource requests for Agent                                                  | `{"memory": "256Mi"}`                             |
 | `cluster.fodc.agent.resources.limits`                   | Resource limits for Agent                                                    | `{"memory": "256Mi"}`                             |
 | `cluster.fodc.agent.metricsPort`                        | Metrics port for Agent sidecar (prometheus-listen-addr flag)                | `9090`                                           |
 | `cluster.fodc.agent.config.pollMetricsInterval`        | Interval for polling BanyanDB metrics (poll-metrics-interval flag)          | `15s`                                             |
