@@ -107,7 +107,19 @@ spec:
 
       {{- if and .Values.cluster.fodc.proxy.resources (or .Values.cluster.fodc.proxy.resources.requests .Values.cluster.fodc.proxy.resources.limits) }}
       resources:
-{{ toYaml .Values.cluster.fodc.proxy.resources | indent 8 }}
+        {{- if .Values.cluster.fodc.proxy.resources.requests }}
+        requests:
+          {{- range $request := .Values.cluster.fodc.proxy.resources.requests }}
+            {{ $request.key }}: {{ $request.value }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.cluster.fodc.proxy.resources.limits }}
+        limits:
+          {{- range $limit := .Values.cluster.fodc.proxy.resources.limits }}
+            {{ $limit.key }}: {{ $limit.value }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
       {{- end }}
 
       {{- if .Values.cluster.fodc.proxy.tolerations }}
