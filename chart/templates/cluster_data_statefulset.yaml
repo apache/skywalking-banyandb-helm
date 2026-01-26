@@ -335,7 +335,6 @@ spec:
               containerPort: {{ $.Values.cluster.fodc.agent.metricsPort }}
           {{- if and $.Values.cluster.fodc.agent.resources (or $.Values.cluster.fodc.agent.resources.requests $.Values.cluster.fodc.agent.resources.limits) }}
           resources:
-{{ toYaml $.Values.cluster.fodc.agent.resources | indent 12 }}
             {{- if $.Values.cluster.fodc.agent.resources.requests }}
             requests:
               {{- range $request := $.Values.cluster.fodc.agent.resources.requests }}
