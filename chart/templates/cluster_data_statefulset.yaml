@@ -380,7 +380,18 @@ spec:
           {{- end }}
           {{- with $roleConfig.backupSidecar.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
+            {{- if $roleConfig.backupSidecar.resources.requests }}
+            requests:
+              {{- range $request := $roleConfig.backupSidecar.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+                {{- end }}
+            {{- end }}
+            {{- if $roleConfig.backupSidecar.resources.limits }}
+            limits:
+              {{- range $limit := $roleConfig.backupSidecar.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+                {{- end }}
+            {{- end }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.lifecycleSidecar.enabled }}
@@ -444,7 +455,18 @@ spec:
           {{- end }}
           {{- with $roleConfig.lifecycleSidecar.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
+            {{- if $roleConfig.lifecycleSidecar.resources.requests }}
+            requests:
+              {{- range $request := $roleConfig.lifecycleSidecar.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+                {{- end }}
+            {{- end }}
+            {{- if $roleConfig.lifecycleSidecar.resources.limits }}
+            limits:
+              {{- range $limit := $roleConfig.lifecycleSidecar.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+                {{- end }}
+            {{- end }}
           {{- end }}
         {{- end }}
         {{- range $sidecar := $roleConfig.sidecar }}
