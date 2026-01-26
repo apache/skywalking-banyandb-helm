@@ -193,12 +193,34 @@ cluster:
           enabled: true
           progressFile: "/tmp/stream/lifecycle/progress.json"
           reportDir: "/tmp/stream/lifecycle/reports"
+          resources:
+            requests:
+              - key: cpu
+                value: 200m
+              - key: memory
+                value: 128Mi
+            limits:
+              - key: cpu
+                value: 500m
+              - key: memory
+                value: 512Mi
       warm:
         lifecycleSidecar:
           schedule: "@daily"
           enabled: true
           progressFile: "/tmp/stream/lifecycle/progress.json"
           reportDir: "/tmp/stream/lifecycle/reports"
+          resources:
+            requests:
+              - key: cpu
+                value: 200m
+              - key: memory
+                value: 128Mi
+            limits:
+              - key: cpu
+                value: 500m
+              - key: memory
+                value: 512Mi
       cold:
         replicas: 1
 

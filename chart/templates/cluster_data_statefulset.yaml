@@ -380,7 +380,7 @@ spec:
           {{- end }}
           {{- with $roleConfig.backupSidecar.resources }}
           resources:
-            {{- toYaml . | nindent 4 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.lifecycleSidecar.enabled }}
@@ -444,7 +444,7 @@ spec:
           {{- end }}
           {{- with $roleConfig.lifecycleSidecar.resources }}
           resources:
-            {{- toYaml . | nindent 4 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- end }}
         {{- range $sidecar := $roleConfig.sidecar }}
