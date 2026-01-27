@@ -868,9 +868,9 @@ cluster:
       ## Resource requests/limits for Proxy
       resources:
         ## @param cluster.fodc.proxy.resources.requests Resource requests for Proxy pods
-        requests: {}
+        requests: []
         ## @param cluster.fodc.proxy.resources.limits Resource limits for Proxy pods
-        limits: {}
+        limits: []
       image:
         ## @param cluster.fodc.proxy.image.repository Docker repository for FODC Proxy
         repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
@@ -977,10 +977,12 @@ cluster:
       resources:
         ## @param cluster.fodc.agent.resources.requests Resource requests for Agent
         requests:
-          memory: 256Mi
+          - key: memory
+            value: 256Mi
         ## @param cluster.fodc.agent.resources.limits Resource limits for Agent
         limits:
-          memory: 256Mi
+          - key: memory
+            value: 256Mi
       ## @param cluster.fodc.agent.metricsPort Metrics port for Agent sidecar (prometheus-listen-addr flag)
       metricsPort: 9090
       config:

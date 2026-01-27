@@ -335,7 +335,18 @@ spec:
               containerPort: {{ $.Values.cluster.fodc.agent.metricsPort }}
           {{- if and $.Values.cluster.fodc.agent.resources (or $.Values.cluster.fodc.agent.resources.requests $.Values.cluster.fodc.agent.resources.limits) }}
           resources:
-{{ toYaml $.Values.cluster.fodc.agent.resources | indent 12 }}
+            {{- if $.Values.cluster.fodc.agent.resources.requests }}
+            requests:
+              {{- range $request := $.Values.cluster.fodc.agent.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if $.Values.cluster.fodc.agent.resources.limits }}
+            limits:
+              {{- range $limit := $.Values.cluster.fodc.agent.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}
@@ -380,7 +391,18 @@ spec:
           {{- end }}
           {{- with $roleConfig.backupSidecar.resources }}
           resources:
-            {{- toYaml . | nindent 4 }}
+            {{- if $roleConfig.backupSidecar.resources.requests }}
+            requests:
+              {{- range $request := $roleConfig.backupSidecar.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+                {{- end }}
+            {{- end }}
+            {{- if $roleConfig.backupSidecar.resources.limits }}
+            limits:
+              {{- range $limit := $roleConfig.backupSidecar.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+                {{- end }}
+            {{- end }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.lifecycleSidecar.enabled }}
@@ -444,7 +466,18 @@ spec:
           {{- end }}
           {{- with $roleConfig.lifecycleSidecar.resources }}
           resources:
-            {{- toYaml . | nindent 4 }}
+            {{- if $roleConfig.lifecycleSidecar.resources.requests }}
+            requests:
+              {{- range $request := $roleConfig.lifecycleSidecar.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+                {{- end }}
+            {{- end }}
+            {{- if $roleConfig.lifecycleSidecar.resources.limits }}
+            limits:
+              {{- range $limit := $roleConfig.lifecycleSidecar.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+                {{- end }}
+            {{- end }}
           {{- end }}
         {{- end }}
         {{- range $sidecar := $roleConfig.sidecar }}
