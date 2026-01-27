@@ -976,9 +976,13 @@ cluster:
       containerSecurityContext: {}
       resources:
         ## @param cluster.fodc.agent.resources.requests Resource requests for Agent
-        requests: []
+        requests:
+          - key: memory
+            value: 256Mi
         ## @param cluster.fodc.agent.resources.limits Resource limits for Agent
-        limits: []
+        limits:
+          - key: memory
+            value: 256Mi
       ## @param cluster.fodc.agent.metricsPort Metrics port for Agent sidecar (prometheus-listen-addr flag)
       metricsPort: 9090
       config:
