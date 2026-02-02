@@ -28,13 +28,31 @@ The content of this document describes the parameters that can be configured in 
 | `auth.credentialsFileKey` | Key name in the Secret that stores the                   | `credentials.yaml` |
 | `auth.users`              | List of users to configure when not using existingSecret | `[]`               |
 
-### Etcd Client Configuration for Node Discovery
+### Etcd Client Configuration
 
 | Name                               | Description                             | Value      |
 |------------------------------------|-----------------------------------------|------------|
 | `etcd-client.namespace`            | Namespace in etcd for node registration | `banyandb` |
 | `etcd-client.nodeDiscoveryTimeout` | Timeout for node discovery              | `2m`       |
 | `etcd-client.fullSyncInterval`     | Interval for full state synchronization | `30m`      |
+| `etcd-client.endpoints`            | List of external etcd endpoints         | `[]`       |
+
+### Etcd Client Authentication
+
+| Name                            | Description                          | Value   |
+|---------------------------------|--------------------------------------|---------|
+| `etcd-client.auth.username`     | Username for etcd authentication     | `""`    |
+| `etcd-client.auth.password`     | Password for etcd authentication     | `""`    |
+
+### Etcd Client TLS Configuration
+
+| Name                              | Description                              | Value     |
+|-----------------------------------|------------------------------------------|-----------|
+| `etcd-client.auth.tls.enabled`    | Enable TLS for etcd client               | `false`   |
+| `etcd-client.auth.tls.secretName` | K8s secret name containing TLS certs     | `""`      |
+| `etcd-client.auth.tls.caFilename` | CA certificate filename                  | `ca.crt`  |
+| `etcd-client.auth.tls.certFilename` | Client certificate filename            | `tls.crt` |
+| `etcd-client.auth.tls.keyFilename` | Client key filename                     | `tls.key` |
 
 ### Configuration for standalone deployment
 
@@ -90,10 +108,17 @@ The content of this document describes the parameters that can be configured in 
 
 ### Cluster mode configuration
 
-| Name                    | Description                   | Value  |
-|-------------------------|-------------------------------|--------|
-| `cluster.enabled`       | Enable cluster mode (boolean) | `true` |
-| `cluster.etcdEndpoints` | List of etcd endpoints        | `[]`   |
+| Name              | Description                   | Value  |
+|-------------------|-------------------------------|--------|
+| `cluster.enabled` | Enable cluster mode (boolean) | `true` |
+
+### Schema Storage Configuration
+
+| Name                                              | Description                                              | Value        |
+|---------------------------------------------------|----------------------------------------------------------|--------------|
+| `cluster.schemaStorage.mode`                      | Schema storage mode ("property" or "etcd")               | `property`   |
+| `cluster.schemaStorage.property.serverRepairCron` | Cron schedule for metadata property server repair trigger | `@every 10m` |
+| `cluster.schemaStorage.property.clientSyncInterval`     | Interval for property schema client synchronization  | `20s`        |
 
 ### Node Discovery Configuration for Service Discovery
 
@@ -450,52 +475,3 @@ The content of this document describes the parameters that can be configured in 
 | `serviceAccount.annotations` | Annotations for the service account | `{}`   |
 | `serviceAccount.name`        | Name of the service account         | `""`   |
 
-### Etcd configuration for cluster state management
-
-| Name                    | Description                | Value                |
-| ----------------------- | -------------------------- | -------------------- |
-| `etcd.enabled`          | Enable etcd (boolean)      | `true`               |
-| `etcd.replicaCount`     | Number of etcd replicas    | `1`                  |
-| `etcd.image.repository` | Docker repository for etcd | `bitnamilegacy/etcd` |
-
-### Authentication configuration for etcd
-
-
-### RBAC configuration for etcd
-
-| Name                                     | Description                            | Value      |
-| ---------------------------------------- | -------------------------------------- | ---------- |
-| `etcd.auth.rbac.create`                  | Create RBAC roles (boolean)            | `true`     |
-| `etcd.auth.rbac.allowNoneAuthentication` | Allow unauthenticated access (boolean) | `false`    |
-| `etcd.auth.rbac.rootPassword`            | Root user password                     | `banyandb` |
-
-### Client TLS configuration
-
-| Name                                    | Description                                                  | Value     |
-| --------------------------------------- | ------------------------------------------------------------ | --------- |
-| `etcd.auth.client.secureTransport`      | Enable TLS for client communication (boolean)                | `false`   |
-| `etcd.auth.client.existingSecret`       | Existing secret containing TLS certs                         | `""`      |
-| `etcd.auth.client.enableAuthentication` | Enable client authentication (boolean)                       | `false`   |
-| `etcd.auth.client.certFilename`         | Client certificate filename                                  | `tls.crt` |
-| `etcd.auth.client.certKeyFilename`      | Client certificate key filename                              | `tls.key` |
-| `etcd.auth.client.caFilename`           | CA certificate filename for TLS                              | `""`      |
-| `etcd.auth.token.enabled`               | Enables token authentication                                 | `true`    |
-| `etcd.auth.token.type`                  | Authentication token type. Allowed values: 'simple' or 'jwt' | `simple`  |
-
-### Liveness probe configuration for etcd
-
-| Name                                     | Description                      | Value |
-| ---------------------------------------- | -------------------------------- | ----- |
-| `etcd.livenessProbe.initialDelaySeconds` | Initial delay for liveness probe | `10`  |
-
-### Readiness probe configuration for etcd
-
-| Name                                      | Description                                | Value       |
-| ----------------------------------------- | ------------------------------------------ | ----------- |
-| `etcd.readinessProbe.initialDelaySeconds` | Initial delay for readiness probe          | `10`        |
-| `etcd.autoCompactionMode`                 | Auto-compaction mode (periodic, revision)  | `periodic`  |
-| `etcd.autoCompactionRetention`            | Auto-compaction retention period           | `1`         |
-| `etcd.defrag`                             | Configuration for defragmentation          |             |
-| `etcd.defrag.enabled`                     | Enable defragmentation (boolean)           | `true`      |
-| `etcd.defrag.cronjob`                     | Cron job configuration for defragmentation |             |
-| `etcd.defrag.cronjob.schedule`            | Cron schedule for defragmentation          | `0 0 * * *` |

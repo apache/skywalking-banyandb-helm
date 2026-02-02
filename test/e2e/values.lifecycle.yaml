@@ -18,13 +18,16 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: ghcr.io/apache/skywalking-banyandb
-  tag: 46083529398b73504e9ca929ef367cd1776aef82
+  repository: mrproliu/skywalking-banyandb
+  tag: property-schema2
   pullPolicy: IfNotPresent
 
 cluster:
   enabled: true
-  etcdEndpoints: []
+  schemaStorage:
+    mode: "etcd"
+  nodeDiscovery:
+    mode: "etcd"
   liaison:
     replicas: 2
     podAnnotations:
@@ -412,7 +415,7 @@ storage:
   liaison:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream" ]
+    - mountTargets: [ "measure", "stream", "trace" ]
       claimName: liaison-data
       size: 10Gi
       accessModes:
@@ -436,34 +439,12 @@ serviceAccount:
   annotations: {}
   name: ""
 
-etcd:
-  enabled: true
-  replicaCount: 1
+etcd-client:
+  endpoints:
+    - "etcd-0.etcd-headless.istio-system:2379"
   auth:
-    rbac:
-      create: true
-      allowNoneAuthentication: false
-      rootPassword: banyandb
-    client:
-      secureTransport: false
-      existingSecret: ""
-      enableAuthentication: false
-      certFilename: tls.crt
-      certKeyFilename: tls.key
-      caFilename: ""
-    token:
-      enabled: true
-      type: simple
-  livenessProbe:
-    initialDelaySeconds: 10
-  readinessProbe:
-    initialDelaySeconds: 10
-  autoCompactionMode: periodic
-  autoCompactionRetention: "1"
-  defrag:
-    enabled: true
-    cronjob:
-      schedule: "0 0 * * *"
+    username: "root"
+    password: "banyandb"
 
 fullnameOverride: ""
 nameOverride: "banyandb"

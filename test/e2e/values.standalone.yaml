@@ -20,12 +20,9 @@
 cluster:
   enabled: false
 
-etcd:
-  enabled: false
-
 image:
-  repository: ghcr.io/apache/skywalking-banyandb
-  tag: 46083529398b73504e9ca929ef367cd1776aef82
+  repository: mrproliu/skywalking-banyandb
+  tag: property-schema2
   pullPolicy: IfNotPresent
 
 standalone:

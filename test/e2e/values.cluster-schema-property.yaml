@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Default values for banyandb.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Values for BanyanDB cluster with property schema storage mode (no etcd needed).
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
@@ -26,9 +24,6 @@ cluster:
   enabled: true
   schemaStorage:
     mode: "property"
-    property:
-      cron: "* 2 * * *"
-      syncInterval: "20s"
   nodeDiscovery:
     mode: "dns"
   liaison:
@@ -36,9 +31,6 @@ cluster:
   data:
     nodeTemplate:
       replicas: 2
-      env:
-        - name: BYDB_PROPERTY_REPAIR_ENABLED
-          value: "true"
     roles:
       hot: {}
   fodc:
@@ -52,15 +44,6 @@ storage:
       nodeRole: hot
       existingClaimName: null
       claimName: data
-      size: 5Gi
-      accessModes:
-      - ReadWriteOnce
-      storageClass: null
-      volumeMode: Filesystem
-    - mountTargets: [ "backups" ]
-      nodeRole: hot
-      existingClaimName: null
-      claimName: backups
       size: 5Gi
       accessModes:
       - ReadWriteOnce
@@ -88,16 +71,9 @@ storage:
       volumeMode: Filesystem
 
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 fullnameOverride: ""
 nameOverride: "banyandb"
-
-auth:
-  enabled: false
