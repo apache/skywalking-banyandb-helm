@@ -64,7 +64,7 @@ setup:
           for: condition=available
     - name: Install SkyWalking
       command: |
-        helm -n istio-system install --timeout 10m skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+        helm -n istio-system install --timeout 20m skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
                        --version "$SW_HELM_VERSION" \
                        --set fullnameOverride=skywalking \
                        --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
