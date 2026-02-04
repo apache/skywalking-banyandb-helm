@@ -994,6 +994,8 @@ cluster:
         reconnectInterval: 10s
         ## @param cluster.fodc.agent.config.ktmEnabled Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)
         ktmEnabled: true
+        ## @param cluster.fodc.agent.config.pollClusterStateInterval Interval for polling cluster state from Proxy (poll-cluster-state-interval flag)
+        pollClusterStateInterval: 30s
       ## Liveness probe for Agent
       livenessProbe:
         ## @param cluster.fodc.agent.livenessProbe.initialDelaySeconds Initial delay for Agent liveness probe

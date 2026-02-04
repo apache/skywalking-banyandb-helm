@@ -311,8 +311,9 @@ spec:
             - --pod-name=$(POD_NAME)
             - --container-names=data,lifecycle
             - --poll-metrics-ports=2121,17915
-            - --node-role=datanode-{{ $roleName }}
+            - --cluster-state-ports=17912,17914
             - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }}
+            - --cluster-state-poll-interval={{ $.Values.cluster.fodc.agent.config.pollClusterStateInterval }}
             - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.metricsPort }}
             - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
             - --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }}
