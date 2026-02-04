@@ -249,6 +249,8 @@ spec:
             - --pod-name=$(POD_NAME)
             - --container-names=standalone
             - --poll-metrics-ports=2121
+            - --cluster-state-ports=17912
+            - --cluster-state-poll-interval={{ .Values.cluster.fodc.agent.config.pollClusterStateInterval }}
             - --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.pollMetricsInterval }}
             - --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.metricsPort }}
             - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
