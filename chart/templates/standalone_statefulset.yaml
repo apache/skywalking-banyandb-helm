@@ -248,7 +248,6 @@ spec:
             - --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }} \
             - --pod-name=$(POD_NAME)
             - --container-names=standalone
-            - --node-role=standalone
             - --poll-metrics-ports=2121
             - --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.pollMetricsInterval }}
             - --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.metricsPort }}
