@@ -302,6 +302,7 @@ spec:
             - --container-names=liaison
             - --poll-metrics-ports=2121
             - --cluster-state-ports=18912
+            - --cluster-state-poll-interval={{ .Values.cluster.fodc.agent.config.pollClusterStateInterval }}
             - --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.pollMetricsInterval }}
             - --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.metricsPort }}
             - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}

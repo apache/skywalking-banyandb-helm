@@ -336,6 +336,7 @@ cluster:
         pollMetricsInterval: 15s
         heartbeatInterval: 10s
         ktmEnabled: true
+        pollClusterStateInterval: 30s
       livenessProbe:
         initialDelaySeconds: 90
         periodSeconds: 30
