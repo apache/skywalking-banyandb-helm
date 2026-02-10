@@ -39,7 +39,6 @@ routeTables:
         createRevision: "0"
         modRevision: "0"
       roles:
-        - ROLE_META
         - ROLE_LIAISON
       grpcAddress: banyandb-liaison-0.banyandb-liaison-headless.istio-system:18912
       httpAddress: banyandb-liaison-0.banyandb-liaison-headless.istio-system:17913
@@ -53,7 +52,6 @@ routeTables:
         createRevision: "0"
         modRevision: "0"
       roles:
-        - ROLE_META
         - ROLE_LIAISON
       grpcAddress: banyandb-liaison-1.banyandb-liaison-headless.istio-system:18912
       httpAddress: banyandb-liaison-1.banyandb-liaison-headless.istio-system:17913

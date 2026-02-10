@@ -20,9 +20,6 @@
 cluster:
   enabled: false
 
-etcd:
-  enabled: false
-
 image:
   repository: ghcr.io/apache/skywalking-banyandb
   tag: 46083529398b73504e9ca929ef367cd1776aef82

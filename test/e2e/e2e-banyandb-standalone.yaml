@@ -42,11 +42,6 @@ setup:
         kubectl label namespace default istio-injection=enabled
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
-    - name: Install dependency
-      command: |
-        helm repo add bitnami https://charts.bitnami.com/bitnami
-        cd chart
-        helm dependency update
     - name: Install BanyanDB
       command: helm -n istio-system install banyandb chart/ -f test/e2e/values.standalone.yaml
       wait:
