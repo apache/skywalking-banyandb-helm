@@ -44,12 +44,7 @@ setup:
       command: bash test/e2e/setup-e2e-shell/install.sh kubectl
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
-    - name: Install dependency
-      command: |
-        helm repo add bitnami https://charts.bitnami.com/bitnami
-        cd chart
-        helm dependency update
-    - name: Install BanyanDB with lifecycle features
+    - name: Install BanyanDB with DNS node registry
       command: helm -n istio-system install banyandb chart/ -f test/e2e/values.dns.registry.yaml --create-namespace
       wait:
         - namespace: istio-system

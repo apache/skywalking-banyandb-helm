@@ -88,16 +88,73 @@ Create the name of the service account to use
 EtcdEndpoints
 */}}
 {{- define "banyandb.etcdEndpoints" -}}
-{{- $endpoints := list }}
-{{- $replicaCount := int .Values.etcd.replicaCount }}
-{{- $releaseName := .Release.Name }}
-{{- $namespace := .Release.Namespace }}
-{{- range $i := until $replicaCount }}
-    {{- $endpoint := printf "%s-etcd-%d.%s-etcd-headless.%s:2379" $releaseName $i $releaseName $namespace }}
-    {{- $endpoints = append $endpoints $endpoint }}
-{{- end }}
+{{- $etcdClient := index .Values "etcd-client" | default dict }}
+{{- if $etcdClient.endpoints }}
 - name: BYDB_ETCD_ENDPOINTS
-  value: "{{- $endpoints | join "," -}}"
+  value: "{{- $etcdClient.endpoints | join "," -}}"
+{{- end }}
+{{- end }}
+
+{{/*
+EtcdEnv - injects all etcd-related env vars (endpoints, auth, TLS)
+Only rendered when schema storage mode is "etcd" or node discovery mode is "etcd"
+*/}}
+{{- define "banyandb.etcdEnv" -}}
+{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
+{{- $nodeDiscoveryMode := ((.Values.cluster.nodeDiscovery).mode) | default "dns" }}
+{{- if or (eq $schemaMode "etcd") (eq $nodeDiscoveryMode "etcd") }}
+{{- $etcdClient := index .Values "etcd-client" | default dict }}
+{{- $auth := $etcdClient.auth | default dict }}
+{{- $tls := $auth.tls | default dict }}
+{{- include "banyandb.etcdEndpoints" . }}
+{{- if $auth.username }}
+- name: BYDB_ETCD_USERNAME
+  value: {{ $auth.username | quote }}
+{{- end }}
+{{- if $auth.password }}
+- name: BYDB_ETCD_PASSWORD
+  value: {{ $auth.password | quote }}
+{{- end }}
+{{- if $tls.enabled }}
+{{- if $tls.secretName }}
+- name: BYDB_ETCD_TLS_CA_FILE
+  value: "/etc/tls/{{ $tls.secretName }}/{{ $tls.caFilename | default "ca.crt" }}"
+- name: BYDB_ETCD_TLS_CERT_FILE
+  value: "/etc/tls/{{ $tls.secretName }}/{{ $tls.certFilename | default "tls.crt" }}"
+- name: BYDB_ETCD_TLS_KEY_FILE
+  value: "/etc/tls/{{ $tls.secretName }}/{{ $tls.keyFilename | default "tls.key" }}"
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+SchemaStorageEnv - injects schema storage env vars
+*/}}
+{{- define "banyandb.schemaStorageEnv" -}}
+{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
+- name: BYDB_SCHEMA_REGISTRY_MODE
+  value: {{ $schemaMode | quote }}
+{{- end }}
+
+{{/*
+SchemaStoragePropertyEnv - injects property server env vars (data node only)
+*/}}
+{{- define "banyandb.schemaStoragePropertyEnv" -}}
+{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
+{{- if eq $schemaMode "property" }}
+- name: BYDB_SCHEMA_PROPERTY_SERVER_ENABLED
+  value: "true"
+{{- $property := ((.Values.cluster.schemaStorage).property) | default dict }}
+{{- if $property.serverRepairCron }}
+- name: BYDB_SCHEMA_PROPERTY_SERVER_REPAIR_TRIGGER_CRON
+  value: {{ $property.serverRepairCron | quote }}
+{{- end }}
+{{- if $property.clientSyncInterval }}
+- name: BYDB_SCHEMA_PROPERTY_CLIENT_SYNC_INTERVAL
+  value: {{ $property.clientSyncInterval | quote }}
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{- define "banyandb.hasDataNodeListValue" -}}

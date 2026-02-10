@@ -24,7 +24,10 @@ image:
 
 cluster:
   enabled: true
-  etcdEndpoints: []
+  schemaStorage:
+    mode: "etcd"
+  nodeDiscovery:
+    mode: "etcd"
   liaison:
     replicas: 2
     podAnnotations:
@@ -408,24 +411,12 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-etcd:
-  enabled: true
-  replicaCount: 1
+etcd-client:
+  endpoints:
+    - "etcd-0.etcd-headless.istio-system:2379"
   auth:
-    rbac:
-      create: true
-      allowNoneAuthentication: false
-      rootPassword: banyandb
-    client:
-      secureTransport: false
-      existingSecret: ""
-      enableAuthentication: false
-      certFilename: tls.crt
-      certKeyFilename: tls.key
-      caFilename: ""
-    token:
-      enabled: true
-      type: simple
+    username: "root"
+    password: "banyandb"
 
 fullnameOverride: ""
 nameOverride: "banyandb"

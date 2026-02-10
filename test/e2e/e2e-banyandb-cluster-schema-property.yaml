@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# E2E test for FODC proxy service functionality
+# E2E test for BanyanDB cluster with property schema storage mode (no etcd)
 
 setup:
   env: kind
@@ -40,43 +40,18 @@ setup:
           --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 \
           --set meshConfig.enableEnvoyAccessLogService=true
         kubectl label namespace default istio-injection=enabled
-      wait:
-        - namespace: istio-system
-          resource: pod
-          for: condition=ready
-          label-selector: app=istiod
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
-    - name: Install etcd
-      command: |
-        helm -n istio-system install etcd oci://registry-1.docker.io/bitnamicharts/etcd --version 12.0.18 \
-          --set image.repository=bitnamilegacy/etcd \
-          --set replicaCount=1 \
-          --set auth.rbac.create=true \
-          --set auth.rbac.allowNoneAuthentication=false \
-          --set auth.rbac.rootPassword=banyandb \
-          --set auth.client.secureTransport=false \
-          --set auth.client.enableAuthentication=false \
-          --set auth.token.enabled=true \
-          --set auth.token.type=simple
-      wait:
-        - namespace: istio-system
-          resource: pod
-          for: condition=ready
-          label-selector: app.kubernetes.io/name=etcd
-    - name: Install BanyanDB with FODC
-      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.fodc.yaml
+    - name: Install BanyanDB
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.cluster-schema-property.yaml
       wait:
         - namespace: istio-system
           resource: pod
           for: condition=ready
           label-selector: app.kubernetes.io/name=banyandb
-        - namespace: istio-system
-          resource: deployments/banyandb-fodc-proxy
-          for: condition=available
     - name: Install SkyWalking
       command: |
-        helm -n istio-system install --timeout 20m skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+        helm -n istio-system install --timeout 10m skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
                        --version "$SW_HELM_VERSION" \
                        --set fullnameOverride=skywalking \
                        --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
@@ -123,11 +98,47 @@ verify:
     count: 20
     interval: 15s
   cases:
-    # Verify FODC proxy is collecting observability data - check services are observable
+    # service list
     - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
       expected: expected/service.yml
-    # Verify FODC agent is working - check metrics are available for services
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage
+      expected: expected/service-instance.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews
+      expected: expected/service-instance.yml
+    # service endpoint
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::productpage
+      expected: expected/service-endpoint-productpage.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::reviews
+      expected: expected/service-endpoint-reviews.yml
+
+    # service metrics: e2e::productpage
     - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_sla --service-name=e2e::productpage
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_cpm --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_resp_time --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_apdex --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    # service metrics: e2e::reviews
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_sla --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_cpm --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_resp_time --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_apdex --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+
+    # dependency service
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::productpage
+      expected: expected/dependency-services-productpage.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::reviews
+      expected: expected/dependency-services-reviews.yml
+
+    # service relation metrics
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_relation_client_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_relation_server_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews
       expected: expected/metrics-has-value.yml
