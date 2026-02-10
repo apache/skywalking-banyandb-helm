@@ -317,11 +317,16 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.ui.standalone.startupProbe.successThreshold`               | Success threshold for UI startup probe          | `1`             |
 | `cluster.ui.standalone.startupProbe.failureThreshold`               | Failure threshold for UI startup probe          | `60`            |
 
-### Configuration for FODC (First Occurrence Data Collection) Proxy component
+### Configuration for FODC (First Occurrence Data Collection)
+
+| Name                  | Description                           | Value  |
+| --------------------- | ------------------------------------- | ------ |
+| `cluster.fodc.enabled` | Enable FODC (both Agent and Proxy) (boolean) | `true` |
+
+### FODC Proxy component
 
 | Name                                                            | Description                                                             | Value                                             |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
-| `cluster.fodc.proxy.enabled`                                     | Enable FODC Proxy deployment (boolean)                                  | `true`                                            |
 | `cluster.fodc.proxy.podAnnotations`                              | Pod annotations for Proxy                                               | `{}`                                              |
 | `cluster.fodc.proxy.securityContext`                             | Security context for Proxy pods                                         | `{}`                                              |
 | `cluster.fodc.proxy.containerSecurityContext`                    | Container-level security context for Proxy                              | `{}`                                              |
@@ -379,11 +384,10 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.fodc.proxy.startupProbe.successThreshold`               | Success threshold for Proxy startup probe                               | `1`                                               |
 | `cluster.fodc.proxy.startupProbe.failureThreshold`               | Failure threshold for Proxy startup probe                               | `60`                                              |
 
-### Configuration for FODC (First Occurrence Data Collection) Agent sidecar
+### FODC Agent sidecar
 
 | Name                                                   | Description                                                                  | Value                                             |
 | ------------------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------- |
-| `cluster.fodc.agent.enabled`                            | Enable FODC Agent sidecar (boolean)                                          | `true`                                            |
 | `cluster.fodc.agent.image.repository`                   | Docker repository for FODC Agent                                             | `ghcr.io/apache/skywalking-banyandb-fodc-agent` |
 | `cluster.fodc.agent.image.tag`                          | Image tag/version for FODC Agent (defaults to same as main image)            | `""`                                              |
 | `cluster.fodc.agent.image.pullPolicy`                   | Image pull policy for FODC Agent                                             | `IfNotPresent`                                    |
@@ -396,6 +400,7 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.fodc.agent.config.heartbeatInterval`           | Heartbeat interval to Proxy (heartbeat-interval flag)                        | `10s`                                             |
 | `cluster.fodc.agent.config.reconnectInterval`           | Reconnect interval when connection to Proxy is lost (reconnect-interval flag) | `10s`                                             |
 | `cluster.fodc.agent.config.ktmEnabled`                  | Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage) | `true`                                            |
+| `cluster.fodc.agent.config.pollClusterStateInterval`    | Interval for polling cluster state from Proxy (poll-cluster-state-interval flag) | `30s`                                             |
 | `cluster.fodc.agent.livenessProbe.initialDelaySeconds`  | Initial delay for Agent liveness probe                                       | `90`                                              |
 | `cluster.fodc.agent.livenessProbe.periodSeconds`        | Probe period for Agent liveness probe                                        | `30`                                              |
 | `cluster.fodc.agent.livenessProbe.timeoutSeconds`       | Timeout in seconds for Agent liveness probe                                  | `5`                                               |
