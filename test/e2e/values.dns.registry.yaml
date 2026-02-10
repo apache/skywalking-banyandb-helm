@@ -26,9 +26,6 @@ cluster:
   enabled: true
   schemaStorage:
     mode: "property"
-    property:
-      cron: "* 2 * * *"
-      syncInterval: "20s"
   nodeDiscovery:
     mode: "dns"
   liaison:
