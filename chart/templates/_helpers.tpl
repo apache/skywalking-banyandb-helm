@@ -100,8 +100,8 @@ EtcdEnv - injects all etcd-related env vars (endpoints, auth, TLS)
 Only rendered when schema storage mode is "etcd" or node discovery mode is "etcd"
 */}}
 {{- define "banyandb.etcdEnv" -}}
-{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
-{{- $nodeDiscoveryMode := ((.Values.cluster.nodeDiscovery).mode) | default "dns" }}
+{{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
+{{- $nodeDiscoveryMode := (default dict .Values.cluster.nodeDiscovery).mode | default "dns" }}
 {{- if or (eq $schemaMode "etcd") (eq $nodeDiscoveryMode "etcd") }}
 {{- $etcdClient := index .Values "etcd-client" | default dict }}
 {{- $auth := $etcdClient.auth | default dict }}
