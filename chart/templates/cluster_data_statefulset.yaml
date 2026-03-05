@@ -175,7 +175,8 @@ spec:
             {{- end }}
             {{- end }}
             {{- include "banyandb.schemaStorageEnv" $ | nindent 12 }}
-            {{- include "banyandb.schemaStoragePropertyEnv" $ | nindent 12 }}
+            {{- include "banyandb.schemaStoragePropertyServerEnv" $ | nindent 12 }}
+            {{- include "banyandb.schemaStoragePropertyClientEnv" $ | nindent 12 }}
             {{- include "banyandb.etcdEnv" $ | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
             {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
@@ -241,7 +242,11 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or $.Values.storage.data.enabled $roleConfig.tls $nodeDiscoveryFileMode }}
+          {{- $schemaProperty := ($.Values.cluster.schemaStorage).property | default dict }}
+          {{- $schemaClientTls := $schemaProperty.tls | default dict }}
+          {{- $schemaServer := $schemaProperty.server | default dict }}
+          {{- $schemaServerTls := $schemaServer.tls | default dict }}
+          {{- if or $.Values.storage.data.enabled $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode }}
           volumeMounts:
             {{- if $.Values.storage.data.enabled }}
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
@@ -272,6 +277,14 @@ spec:
             - mountPath: /etc/tls/{{ $roleConfig.tls.etcdSecretName }}
               name: {{ $roleConfig.tls.etcdSecretName }}-volume
             {{- end }}
+            {{- end }}
+            {{- if $schemaClientTls.secretName }}
+            - mountPath: /etc/tls/{{ $schemaClientTls.secretName }}
+              name: {{ $schemaClientTls.secretName }}-volume
+            {{- end }}
+            {{- if $schemaServerTls.secretName }}
+            - mountPath: /etc/tls/{{ $schemaServerTls.secretName }}
+              name: {{ $schemaServerTls.secretName }}-volume
             {{- end }}
             {{- if $nodeDiscoveryFileMode }}
             - mountPath: /etc/banyandb/node-discovery
@@ -479,7 +492,7 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if or $roleConfig.tls $nodeDiscoveryFileMode }}
+      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode }}
       volumes:
         {{- if $roleConfig.tls }}
         {{- if $roleConfig.tls.grpcSecretName }}
@@ -492,6 +505,16 @@ spec:
           secret:
             secretName: {{ $roleConfig.tls.etcdSecretName }}
         {{- end }}
+        {{- end }}
+        {{- if $schemaClientTls.secretName }}
+        - name: {{ $schemaClientTls.secretName }}-volume
+          secret:
+            secretName: {{ $schemaClientTls.secretName }}
+        {{- end }}
+        {{- if $schemaServerTls.secretName }}
+        - name: {{ $schemaServerTls.secretName }}-volume
+          secret:
+            secretName: {{ $schemaServerTls.secretName }}
         {{- end }}
         {{- if $nodeDiscoveryFileMode }}
         - name: node-discovery-file

@@ -19,7 +19,7 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 67cb3eaa71d1b2ba9a56dddc17050fd69da78593
+  tag: a9d081b36dbd37ca1713732b05f6b065a3047a24
   pullPolicy: IfNotPresent
 
 cluster:

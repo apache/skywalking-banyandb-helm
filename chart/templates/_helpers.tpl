@@ -138,24 +138,96 @@ SchemaStorageEnv - injects schema storage env vars
 {{- end }}
 
 {{/*
-SchemaStoragePropertyEnv - injects property server env vars (data node only)
+SchemaStoragePropertyServerEnv - injects property server env vars (data node only)
+Includes: repair cron, schema server parameters, schema server TLS
 */}}
-{{- define "banyandb.schemaStoragePropertyEnv" -}}
+{{- define "banyandb.schemaStoragePropertyServerEnv" -}}
 {{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
 {{- if eq $schemaMode "property" }}
-- name: BYDB_SCHEMA_PROPERTY_SERVER_ENABLED
-  value: "true"
 {{- $property := ((.Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.serverRepairCron }}
-- name: BYDB_SCHEMA_PROPERTY_SERVER_REPAIR_TRIGGER_CRON
+- name: BYDB_SCHEMA_PROPERTY_REPAIR_TRIGGER_CRON
   value: {{ $property.serverRepairCron | quote }}
 {{- end }}
+{{- $server := $property.server | default dict }}
+{{- if $server.grpcHost }}
+- name: BYDB_SCHEMA_SERVER_GRPC_HOST
+  value: {{ $server.grpcHost | quote }}
+{{- end }}
+{{- if $server.grpcPort }}
+- name: BYDB_SCHEMA_SERVER_GRPC_PORT
+  value: {{ $server.grpcPort | quote }}
+{{- end }}
+{{- if $server.flushTimeout }}
+- name: BYDB_SCHEMA_SERVER_FLUSH_TIMEOUT
+  value: {{ $server.flushTimeout | quote }}
+{{- end }}
+{{- if $server.expireDeleteTimeout }}
+- name: BYDB_SCHEMA_SERVER_EXPIRE_DELETE_TIMEOUT
+  value: {{ $server.expireDeleteTimeout | quote }}
+{{- end }}
+{{- if $server.maxRecvMsgSize }}
+- name: BYDB_SCHEMA_SERVER_MAX_RECV_MSG_SIZE
+  value: {{ $server.maxRecvMsgSize | quote }}
+{{- end }}
+{{- if $server.repairTreeSlotCount }}
+- name: BYDB_SCHEMA_SERVER_REPAIR_TREE_SLOT_COUNT
+  value: {{ $server.repairTreeSlotCount | quote }}
+{{- end }}
+{{- if $server.repairBuildTreeCron }}
+- name: BYDB_SCHEMA_SERVER_REPAIR_BUILD_TREE_CRON
+  value: {{ $server.repairBuildTreeCron | quote }}
+{{- end }}
+{{- if $server.repairQuickBuildTreeTime }}
+- name: BYDB_SCHEMA_SERVER_REPAIR_QUICK_BUILD_TREE_TIME
+  value: {{ $server.repairQuickBuildTreeTime | quote }}
+{{- end }}
+{{- if $server.maxFileSnapshotNum }}
+- name: BYDB_SCHEMA_SERVER_MAX_FILE_SNAPSHOT_NUM
+  value: {{ $server.maxFileSnapshotNum | quote }}
+{{- end }}
+{{- if $server.minFileSnapshotAge }}
+- name: BYDB_SCHEMA_SERVER_MIN_FILE_SNAPSHOT_AGE
+  value: {{ $server.minFileSnapshotAge | quote }}
+{{- end }}
+{{- $serverTls := $server.tls | default dict }}
+{{- if $serverTls.secretName }}
+- name: BYDB_SCHEMA_SERVER_TLS
+  value: "true"
+- name: BYDB_SCHEMA_SERVER_CERT_FILE
+  value: "/etc/tls/{{ $serverTls.secretName }}/tls.crt"
+- name: BYDB_SCHEMA_SERVER_KEY_FILE
+  value: "/etc/tls/{{ $serverTls.secretName }}/tls.key"
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+SchemaStoragePropertyClientEnv - injects property client env vars (data + liaison nodes)
+Includes: sync interval, max recv msg size, client TLS
+*/}}
+{{- define "banyandb.schemaStoragePropertyClientEnv" -}}
+{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
+{{- if eq $schemaMode "property" }}
+{{- $property := ((.Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.clientSyncInterval }}
 - name: BYDB_SCHEMA_PROPERTY_CLIENT_SYNC_INTERVAL
   value: {{ $property.clientSyncInterval | quote }}
 {{- end }}
+{{- if $property.clientMaxRecvMsgSize }}
+- name: BYDB_SCHEMA_PROPERTY_CLIENT_MAX_RECV_MSG_SIZE
+  value: {{ $property.clientMaxRecvMsgSize | quote }}
+{{- end }}
+{{- $clientTls := $property.tls | default dict }}
+{{- if $clientTls.secretName }}
+- name: BYDB_SCHEMA_PROPERTY_CLIENT_TLS
+  value: "true"
+- name: BYDB_SCHEMA_PROPERTY_CLIENT_CA_CERT
+  value: "/etc/tls/{{ $clientTls.secretName }}/ca.crt"
 {{- end }}
 {{- end }}
+{{- end }}
+
 
 {{- define "banyandb.hasDataNodeListValue" -}}
 {{- $dataNodeList := include "banyandb.dataNodeListValue" . }}
@@ -237,7 +309,7 @@ Generate node discovery environment variables for a component
   value: {{ $etcdClient.namespace | quote }}
 {{- end }}
 {{- if $etcdClient.nodeDiscoveryTimeout }}
-- name: BYDB_NODE_DISCOVERY_TIMEOUT
+- name: BYDB_NODE_REGISTRY_TIMEOUT
   value: {{ $etcdClient.nodeDiscoveryTimeout | quote }}
 {{- end }}
 {{- if $etcdClient.fullSyncInterval }}
