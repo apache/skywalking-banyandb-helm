@@ -47,6 +47,8 @@ routeTables:
       labels:
         type: hot
       propertyRepairGossipGrpcAddress: banyandb-data-hot-0.banyandb-data-hot-headless.istio-system:17932
+      propertySchemaGossipGrpcAddress: ""
+      propertySchemaGrpcAddress: banyandb-data-hot-0.banyandb-data-hot-headless.istio-system:17916
     - metadata:
         group: ""
         name: banyandb-data-hot-1.banyandb-data-hot-headless.istio-system:17912
@@ -62,6 +64,8 @@ routeTables:
       labels:
         type: hot
       propertyRepairGossipGrpcAddress: banyandb-data-hot-1.banyandb-data-hot-headless.istio-system:17932
+      propertySchemaGossipGrpcAddress: ""
+      propertySchemaGrpcAddress: banyandb-data-hot-1.banyandb-data-hot-headless.istio-system:17916
     {{- end}}
     active: []
     evictable: []
