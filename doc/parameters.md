@@ -114,11 +114,29 @@ The content of this document describes the parameters that can be configured in 
 
 ### Schema Storage Configuration
 
-| Name                                              | Description                                              | Value        |
-|---------------------------------------------------|----------------------------------------------------------|--------------|
-| `cluster.schemaStorage.mode`                      | Schema storage mode ("property" or "etcd")               | `property`   |
-| `cluster.schemaStorage.property.serverRepairCron` | Cron schedule for metadata property server repair trigger | `@every 10m` |
-| `cluster.schemaStorage.property.clientSyncInterval`     | Interval for property schema client synchronization  | `20s`        |
+| Name                                                              | Description                                                                  | Value         |
+|-------------------------------------------------------------------|------------------------------------------------------------------------------|---------------|
+| `cluster.schemaStorage.mode`                                      | Schema storage mode ("property" or "etcd")                                   | `property`    |
+| `cluster.schemaStorage.property.serverRepairCron`                 | Cron schedule for metadata property server repair trigger                    | `@every 10m`  |
+| `cluster.schemaStorage.property.clientSyncInterval`               | Interval for property schema client synchronization                          | `30s`         |
+| `cluster.schemaStorage.property.clientMaxRecvMsgSize`             | Maximum gRPC receive message size for property schema client                 | `""`          |
+| `cluster.schemaStorage.property.tls.secretName`                   | K8s Secret for schema client TLS (CA cert), used by data + liaison nodes     | `""`          |
+
+### Property Schema Server Configuration (data nodes only)
+
+| Name                                                              | Description                                                                  | Value         |
+|-------------------------------------------------------------------|------------------------------------------------------------------------------|---------------|
+| `cluster.schemaStorage.property.server.grpcHost`                  | Schema server gRPC listen address                                            | `""`          |
+| `cluster.schemaStorage.property.server.grpcPort`                  | Schema server gRPC port                                                      | `17916`       |
+| `cluster.schemaStorage.property.server.flushTimeout`              | Interval for flushing in-memory data to disk                                 | `5s`          |
+| `cluster.schemaStorage.property.server.expireDeleteTimeout`       | Soft-delete expiration timeout (7 days)                                      | `168h`        |
+| `cluster.schemaStorage.property.server.maxRecvMsgSize`            | Maximum gRPC receive message size for schema server                          | `""`          |
+| `cluster.schemaStorage.property.server.repairTreeSlotCount`       | Number of repair tree slots                                                  | `""`          |
+| `cluster.schemaStorage.property.server.repairBuildTreeCron`       | Cron expression for repair tree build                                        | `@every 1h`   |
+| `cluster.schemaStorage.property.server.repairQuickBuildTreeTime`  | Duration for quick tree build after startup                                  | `10m`         |
+| `cluster.schemaStorage.property.server.maxFileSnapshotNum`        | Maximum number of file snapshots                                             | `""`          |
+| `cluster.schemaStorage.property.server.minFileSnapshotAge`        | Minimum age before a snapshot can be removed                                 | `1h`          |
+| `cluster.schemaStorage.property.server.tls.secretName`            | K8s Secret for schema server TLS (cert + key), used by data nodes only       | `""`          |
 
 ### Node Discovery Configuration for Service Discovery
 

@@ -132,7 +132,7 @@ Only rendered when schema storage mode is "etcd" or node discovery mode is "etcd
 SchemaStorageEnv - injects schema storage env vars
 */}}
 {{- define "banyandb.schemaStorageEnv" -}}
-{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
+{{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
 - name: BYDB_SCHEMA_REGISTRY_MODE
   value: {{ $schemaMode | quote }}
 {{- end }}
@@ -142,9 +142,9 @@ SchemaStoragePropertyServerEnv - injects property server env vars (data node onl
 Includes: repair cron, schema server parameters, schema server TLS
 */}}
 {{- define "banyandb.schemaStoragePropertyServerEnv" -}}
-{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
+{{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
 {{- if eq $schemaMode "property" }}
-{{- $property := ((.Values.cluster.schemaStorage).property) | default dict }}
+{{- $property := ((default dict .Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.serverRepairCron }}
 - name: BYDB_SCHEMA_PROPERTY_REPAIR_TRIGGER_CRON
   value: {{ $property.serverRepairCron | quote }}
@@ -207,9 +207,9 @@ SchemaStoragePropertyClientEnv - injects property client env vars (data + liaiso
 Includes: sync interval, max recv msg size, client TLS
 */}}
 {{- define "banyandb.schemaStoragePropertyClientEnv" -}}
-{{- $schemaMode := (.Values.cluster.schemaStorage).mode | default "property" }}
+{{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
 {{- if eq $schemaMode "property" }}
-{{- $property := ((.Values.cluster.schemaStorage).property) | default dict }}
+{{- $property := ((default dict .Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.clientSyncInterval }}
 - name: BYDB_SCHEMA_PROPERTY_CLIENT_SYNC_INTERVAL
   value: {{ $property.clientSyncInterval | quote }}

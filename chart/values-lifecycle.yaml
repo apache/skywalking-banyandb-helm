@@ -270,10 +270,70 @@ cluster:
       ## Default: "@every 10m"
       ##
       serverRepairCron: "@every 10m"
-      ## @param cluster.schemaStorage.property.clientSyncInterval Interval for property schema synchronization
-      ## Default: "20s"
+      ## @param cluster.schemaStorage.property.clientSyncInterval Interval for property schema client synchronization
+      ## Default: "30s"
       ##
-      clientSyncInterval: "20s"
+      clientSyncInterval: "30s"
+      ## @param cluster.schemaStorage.property.clientMaxRecvMsgSize Maximum gRPC receive message size for property schema client
+      ## Default: "" (uses program built-in 10MiB)
+      ##
+      clientMaxRecvMsgSize: ""
+      ##
+      tls:
+        ## @param cluster.schemaStorage.property.tls.secretName K8s Secret for schema client TLS (CA cert)
+        ## When set, auto-enables BYDB_SCHEMA_PROPERTY_CLIENT_TLS and mounts CA from /etc/tls/<secretName>/
+        ##
+        secretName: ""
+      ## @section Property Schema Server Configuration (data nodes only)
+      ##
+      server:
+        ## @param cluster.schemaStorage.property.server.grpcHost Schema server gRPC listen address
+        ## Default: ""
+        ##
+        grpcHost: ""
+        ## @param cluster.schemaStorage.property.server.grpcPort Schema server gRPC port
+        ## Default: 17916
+        ##
+        grpcPort: 17916
+        ## @param cluster.schemaStorage.property.server.flushTimeout Interval for flushing in-memory data to disk
+        ## Default: "5s"
+        ##
+        flushTimeout: "5s"
+        ## @param cluster.schemaStorage.property.server.expireDeleteTimeout Soft-delete expiration timeout
+        ## Default: "168h" (7 days)
+        ##
+        expireDeleteTimeout: "168h"
+        ## @param cluster.schemaStorage.property.server.maxRecvMsgSize Maximum gRPC receive message size for schema server
+        ## Default: "" (uses program built-in)
+        ##
+        maxRecvMsgSize: ""
+        ## @param cluster.schemaStorage.property.server.repairTreeSlotCount Number of repair tree slots
+        ## Default: "" (uses program built-in 32)
+        ##
+        repairTreeSlotCount: ""
+        ## @param cluster.schemaStorage.property.server.repairBuildTreeCron Cron expression for repair tree build
+        ## Default: "@every 1h"
+        ##
+        repairBuildTreeCron: "@every 1h"
+        ## @param cluster.schemaStorage.property.server.repairQuickBuildTreeTime Duration for quick tree build after startup
+        ## Default: "10m"
+        ##
+        repairQuickBuildTreeTime: "10m"
+        ## @param cluster.schemaStorage.property.server.maxFileSnapshotNum Maximum number of file snapshots
+        ## Default: "" (uses program built-in 10)
+        ##
+        maxFileSnapshotNum: ""
+        ## @param cluster.schemaStorage.property.server.minFileSnapshotAge Minimum age before a snapshot can be removed
+        ## Default: "1h"
+        ##
+        minFileSnapshotAge: "1h"
+        ## @section Property Schema Server TLS Configuration (data nodes only)
+        ##
+        tls:
+          ## @param cluster.schemaStorage.property.server.tls.secretName K8s Secret for schema server TLS (cert + key)
+          ## When set, auto-enables BYDB_SCHEMA_SERVER_TLS and mounts cert/key from /etc/tls/<secretName>/
+          ##
+          secretName: ""
 
   ## @section Node Discovery Configuration for Service Discovery
   ##
