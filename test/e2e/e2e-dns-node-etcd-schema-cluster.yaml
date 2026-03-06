@@ -60,7 +60,7 @@ setup:
           for: condition=ready
           label-selector: app.kubernetes.io/name=etcd
     - name: Install BanyanDB
-      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.cluster-schema-etcd.yaml
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.dns-node-etcd-schema-cluster.yaml
       wait:
         - namespace: istio-system
           resource: pod
