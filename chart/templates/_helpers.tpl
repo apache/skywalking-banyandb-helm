@@ -104,6 +104,9 @@ Only rendered when schema storage mode is "etcd" or node discovery mode is "etcd
 {{- $nodeDiscoveryMode := (default dict .Values.cluster.nodeDiscovery).mode | default "dns" }}
 {{- if or (eq $schemaMode "etcd") (eq $nodeDiscoveryMode "etcd") }}
 {{- $etcdClient := index .Values "etcd-client" | default dict }}
+{{- if not $etcdClient.endpoints }}
+{{- fail "etcd-client.endpoints must be set when schemaStorage or nodeDiscovery mode is 'etcd'" }}
+{{- end }}
 {{- $auth := $etcdClient.auth | default dict }}
 {{- $tls := $auth.tls | default dict }}
 {{- include "banyandb.etcdEndpoints" . }}

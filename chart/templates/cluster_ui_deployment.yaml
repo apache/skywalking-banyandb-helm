@@ -64,6 +64,16 @@ spec:
             {{- end }}
             {{- include "banyandb.schemaStorageEnv" . | nindent 12 }}
             {{- include "banyandb.etcdEnv" . | nindent 12 }}
+            {{ - if and .Values.cluster.ui.standalone.tls .Values.cluster.ui.standalone.tls.httpSecretName .Values.etcdClient.auth.tls.enabled }}
+            - name: BYDB_ETCD_TLS
+              value: "true"
+            - name: BYDB_ETCD_TLS_CERT_FILE
+              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.crt"
+            - name: BYDB_ETCD_TLS_KEY_FILE
+              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.key"
+            - name: BYDB_ETCD_TLS_CA_FILE
+              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/ca.crt"
+            { { - end } }
           args:
             - liaison
           ports:
