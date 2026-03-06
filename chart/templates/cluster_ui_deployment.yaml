@@ -73,7 +73,7 @@ spec:
               value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.key"
             - name: BYDB_ETCD_TLS_CA_FILE
               value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/ca.crt"
-            { { - end } }
+            {{- end }}
           args:
             - liaison
           ports:
