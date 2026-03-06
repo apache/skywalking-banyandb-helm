@@ -64,7 +64,7 @@ spec:
             {{- end }}
             {{- include "banyandb.schemaStorageEnv" . | nindent 12 }}
             {{- include "banyandb.etcdEnv" . | nindent 12 }}
-            {{ - if and .Values.cluster.ui.standalone.tls .Values.cluster.ui.standalone.tls.httpSecretName .Values.etcdClient.auth.tls.enabled }}
+            {{- if and .Values.cluster.ui.standalone.tls .Values.cluster.ui.standalone.tls.httpSecretName .Values.etcdClient.auth.tls.enabled }}
             - name: BYDB_ETCD_TLS
               value: "true"
             - name: BYDB_ETCD_TLS_CERT_FILE
