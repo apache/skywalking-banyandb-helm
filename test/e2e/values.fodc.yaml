@@ -19,12 +19,15 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 67cb3eaa71d1b2ba9a56dddc17050fd69da78593
+  tag: a9d081b36dbd37ca1713732b05f6b065a3047a24
   pullPolicy: IfNotPresent
 
 cluster:
   enabled: true
-  etcdEndpoints: []
+  schemaStorage:
+    mode: "etcd"
+  nodeDiscovery:
+    mode: "etcd"
   liaison:
     replicas: 2
     podAnnotations:
@@ -408,24 +411,12 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-etcd:
-  enabled: true
-  replicaCount: 1
+etcd-client:
+  endpoints:
+    - "etcd-0.etcd-headless.istio-system:2379"
   auth:
-    rbac:
-      create: true
-      allowNoneAuthentication: false
-      rootPassword: banyandb
-    client:
-      secureTransport: false
-      existingSecret: ""
-      enableAuthentication: false
-      certFilename: tls.crt
-      certKeyFilename: tls.key
-      caFilename: ""
-    token:
-      enabled: true
-      type: simple
+    username: "root"
+    password: "banyandb"
 
 fullnameOverride: ""
 nameOverride: "banyandb"

@@ -45,11 +45,15 @@ jobs:
             config: test/e2e/e2e-banyandb-fodc-proxy-service.yaml
           - name: Run Skywalking E2E Test (BanyanDB DNS node registry)
             config: test/e2e/e2e-banyandb-node-registry-dns.yaml
+          - name: Run Skywalking E2E Test (BanyanDB cluster schema etcd)
+            config: test/e2e/e2e-banyandb-cluster-schema-etcd.yaml
+          - name: Run Skywalking E2E Test (BanyanDB cluster schema property)
+            config: test/e2e/e2e-banyandb-cluster-schema-property.yaml
     name: ${{ matrix.test.name }}
     env:
-      OAP_TAG: 79860ca5c76a77bbd93e76ce4861b24707dd5ee3
+      OAP_TAG: 65137fc27fd765bb44007bad7fcbe59a185fa617
       OAP_REPO: ghcr.io/apache/skywalking/oap
-      UI_TAG: 79860ca5c76a77bbd93e76ce4861b24707dd5ee3
+      UI_TAG: 65137fc27fd765bb44007bad7fcbe59a185fa617
       UI_REPO: ghcr.io/apache/skywalking/ui
     steps:
       - uses: actions/checkout@v2

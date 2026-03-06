@@ -147,28 +147,9 @@ spec:
               value: "/etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}/tls.key"
             {{- end }}
             {{- end }}
-            {{- if and .Values.etcd.auth.rbac.create (not .Values.etcd.auth.rbac.allowNoneAuthentication) }}
-            - name: BYDB_ETCD_USERNAME
-              value: "root"
-            - name: BYDB_ETCD_PASSWORD
-              value: {{ .Values.etcd.auth.rbac.rootPassword }}
-            {{- end }}
-            {{- if and .Values.cluster.liaison.tls .Values.cluster.liaison.tls.etcdSecretName .Values.etcd.auth.client.secureTransport }}
-            - name: BYDB_ETCD_TLS_CA_FILE
-              value: "/etc/tls/{{ .Values.cluster.liaison.tls.etcdSecretName }}/ca.crt"
-            {{- end }}
-            {{- if and .Values.cluster.liaison.tls .Values.cluster.liaison.tls.etcdSecretName .Values.etcd.auth.client.enableAuthentication }}
-            - name: BYDB_ETCD_TLS_CERT_FILE
-              value: "/etc/tls/{{ .Values.cluster.liaison.tls.etcdSecretName }}/tls.crt"
-            - name: BYDB_ETCD_TLS_KEY_FILE
-              value: "/etc/tls/{{ .Values.cluster.liaison.tls.etcdSecretName }}/tls.key"
-            {{- end }}
-            {{- if and (not .Values.etcd.enabled) .Values.cluster.etcdEndpoints }}
-            - name: BYDB_ETCD_ENDPOINTS
-              value: "{{- .Values.cluster.etcdEndpoints | join "," -}}"
-            {{- else }}
-            {{- include "banyandb.etcdEndpoints" . | nindent 12 }}
-            {{- end }}
+            {{- include "banyandb.schemaStorageEnv" . | nindent 12 }}
+            {{- include "banyandb.schemaStoragePropertyClientEnv" . | nindent 12 }}
+            {{- include "banyandb.etcdEnv" . | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" .) | nindent 12 }}
             {{- if include "banyandb.hasDataNodeListValue" . }}
             - name: BYDB_DATA_NODE_LIST
@@ -252,7 +233,9 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or .Values.storage.liaison.enabled .Values.cluster.liaison.tls .Values.auth.enabled $nodeDiscoveryFileMode }}
+          {{- $schemaProperty := (.Values.cluster.schemaStorage).property | default dict }}
+          {{- $schemaClientTls := $schemaProperty.tls | default dict }}
+          {{- if or .Values.storage.liaison.enabled .Values.cluster.liaison.tls $schemaClientTls.secretName .Values.auth.enabled $nodeDiscoveryFileMode }}
           volumeMounts:
             {{- if .Values.storage.liaison.enabled }}
             {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
@@ -276,6 +259,10 @@ spec:
             - mountPath: /etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}
               name: {{ .Values.cluster.liaison.tls.httpSecretName }}-volume
             {{- end }}
+            {{- end }}
+            {{- if $schemaClientTls.secretName }}
+            - mountPath: /etc/tls/{{ $schemaClientTls.secretName }}
+              name: {{ $schemaClientTls.secretName }}-volume
             {{- end }}
             {{- if .Values.auth.enabled }}
             - mountPath: /etc/banyandb
@@ -341,7 +328,7 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if or .Values.cluster.liaison.tls .Values.auth.enabled $nodeDiscoveryFileMode }}
+      {{- if or .Values.cluster.liaison.tls $schemaClientTls.secretName .Values.auth.enabled $nodeDiscoveryFileMode }}
       volumes:
         {{- if .Values.cluster.liaison.tls }}
         {{- if .Values.cluster.liaison.tls.grpcSecretName }}
@@ -359,6 +346,11 @@ spec:
           secret:
             secretName: {{ .Values.cluster.liaison.tls.httpSecretName }}
         {{- end }}
+        {{- end }}
+        {{- if $schemaClientTls.secretName }}
+        - name: {{ $schemaClientTls.secretName }}-volume
+          secret:
+            secretName: {{ $schemaClientTls.secretName }}
         {{- end }}
         {{- if $nodeDiscoveryFileMode }}
         - name: node-discovery-file

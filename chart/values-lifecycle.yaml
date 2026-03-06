@@ -40,7 +40,7 @@ image:
   ##
   pullPolicy: IfNotPresent
 
-## @section Etcd Client Configuration for Node Discovery
+## @section Etcd Client Configuration
 ##
 etcd-client:
   ## @param etcd-client.namespace Namespace in etcd for node registration
@@ -57,6 +57,39 @@ etcd-client:
   ## Default: 30m
   ##
   fullSyncInterval: "30m"
+
+  ## @param etcd-client.endpoints List of external etcd endpoints
+  ## e.g. ["etcd-0.etcd-headless.ns:2379"]
+  ##
+  endpoints: []
+
+  ## @section Etcd Client Authentication
+  ##
+  auth:
+    ## @param etcd-client.auth.username Username for etcd authentication
+    ##
+    username: ""
+    ## @param etcd-client.auth.password Password for etcd authentication
+    ##
+    password: ""
+    ## @section Etcd Client TLS Configuration
+    ##
+    tls:
+      ## @param etcd-client.auth.tls.enabled Enable TLS for etcd client
+      ##
+      enabled: false
+      ## @param etcd-client.auth.tls.secretName K8s secret name containing TLS certs
+      ##
+      secretName: ""
+      ## @param etcd-client.auth.tls.caFilename CA certificate filename
+      ##
+      caFilename: "ca.crt"
+      ## @param etcd-client.auth.tls.certFilename Client certificate filename
+      ##
+      certFilename: "tls.crt"
+      ## @param etcd-client.auth.tls.keyFilename Client key filename
+      ##
+      keyFilename: "tls.key"
 
 ## @section Configuration for standalone deployment
 ##
@@ -222,9 +255,85 @@ cluster:
   ## @param cluster.enabled Enable cluster mode (boolean)
   ##
   enabled: true
-  ## @param cluster.etcdEndpoints List of etcd endpoints
+
+  ## @section Schema Storage Configuration
   ##
-  etcdEndpoints: []
+  schemaStorage:
+    ## @param cluster.schemaStorage.mode Schema storage mode ("property" or "etcd")
+    ## Default: property
+    ##
+    mode: "property"
+    ## @section Property Mode Configuration
+    ##
+    property:
+      ## @param cluster.schemaStorage.property.serverRepairCron Cron schedule for metadata property server repair trigger
+      ## Default: "@every 10m"
+      ##
+      serverRepairCron: "@every 10m"
+      ## @param cluster.schemaStorage.property.clientSyncInterval Interval for property schema client synchronization
+      ## Default: "30s"
+      ##
+      clientSyncInterval: "30s"
+      ## @param cluster.schemaStorage.property.clientMaxRecvMsgSize Maximum gRPC receive message size for property schema client
+      ## Default: "" (uses program built-in 10MiB)
+      ##
+      clientMaxRecvMsgSize: ""
+      ##
+      tls:
+        ## @param cluster.schemaStorage.property.tls.secretName K8s Secret for schema client TLS (CA cert)
+        ## When set, auto-enables BYDB_SCHEMA_PROPERTY_CLIENT_TLS and mounts CA from /etc/tls/<secretName>/
+        ##
+        secretName: ""
+      ## @section Property Schema Server Configuration (data nodes only)
+      ##
+      server:
+        ## @param cluster.schemaStorage.property.server.grpcHost Schema server gRPC listen address
+        ## Default: ""
+        ##
+        grpcHost: ""
+        ## @param cluster.schemaStorage.property.server.grpcPort Schema server gRPC port
+        ## Default: 17916
+        ##
+        grpcPort: 17916
+        ## @param cluster.schemaStorage.property.server.flushTimeout Interval for flushing in-memory data to disk
+        ## Default: "5s"
+        ##
+        flushTimeout: "5s"
+        ## @param cluster.schemaStorage.property.server.expireDeleteTimeout Soft-delete expiration timeout
+        ## Default: "168h" (7 days)
+        ##
+        expireDeleteTimeout: "168h"
+        ## @param cluster.schemaStorage.property.server.maxRecvMsgSize Maximum gRPC receive message size for schema server
+        ## Default: "" (uses program built-in)
+        ##
+        maxRecvMsgSize: ""
+        ## @param cluster.schemaStorage.property.server.repairTreeSlotCount Number of repair tree slots
+        ## Default: "" (uses program built-in 32)
+        ##
+        repairTreeSlotCount: ""
+        ## @param cluster.schemaStorage.property.server.repairBuildTreeCron Cron expression for repair tree build
+        ## Default: "@every 1h"
+        ##
+        repairBuildTreeCron: "@every 1h"
+        ## @param cluster.schemaStorage.property.server.repairQuickBuildTreeTime Duration for quick tree build after startup
+        ## Default: "10m"
+        ##
+        repairQuickBuildTreeTime: "10m"
+        ## @param cluster.schemaStorage.property.server.maxFileSnapshotNum Maximum number of file snapshots
+        ## Default: "" (uses program built-in 10)
+        ##
+        maxFileSnapshotNum: ""
+        ## @param cluster.schemaStorage.property.server.minFileSnapshotAge Minimum age before a snapshot can be removed
+        ## Default: "1h"
+        ##
+        minFileSnapshotAge: "1h"
+        ## @section Property Schema Server TLS Configuration (data nodes only)
+        ##
+        tls:
+          ## @param cluster.schemaStorage.property.server.tls.secretName K8s Secret for schema server TLS (cert + key)
+          ## When set, auto-enables BYDB_SCHEMA_SERVER_TLS and mounts cert/key from /etc/tls/<secretName>/
+          ##
+          secretName: ""
 
   ## @section Node Discovery Configuration for Service Discovery
   ##
@@ -1154,93 +1263,3 @@ serviceAccount:
   ##
   name: ""
 
-## @section Etcd configuration for cluster state management
-##
-etcd:
-  ## @param etcd.enabled Enable etcd (boolean)
-  ##
-  enabled: true
-  ## @param etcd.replicaCount Number of etcd replicas
-  ##
-  replicaCount: 1
-  ## @param etcd.image.repository Docker repository for etcd
-  ##
-  image:
-    repository: bitnamilegacy/etcd
-  ## @section Authentication configuration for etcd
-  ##
-  auth:
-    ## @section RBAC configuration for etcd
-    ##
-    rbac:
-      ## @param etcd.auth.rbac.create Create RBAC roles (boolean)
-      ##
-      create: true
-      ## @param etcd.auth.rbac.allowNoneAuthentication Allow unauthenticated access (boolean)
-      ##
-      allowNoneAuthentication: false
-      ## @param etcd.auth.rbac.rootPassword Root user password
-      ##
-      rootPassword: banyandb
-    ## @section Client TLS configuration
-    ##
-    client:
-      ## @param etcd.auth.client.secureTransport Enable TLS for client communication (boolean)
-      ##
-      secureTransport: false
-      ## @param etcd.auth.client.existingSecret Existing secret containing TLS certs
-      ##
-      existingSecret: ""
-      ## @param etcd.auth.client.enableAuthentication Enable client authentication (boolean)
-      ##
-      enableAuthentication: false
-      ## @param etcd.auth.client.certFilename Client certificate filename
-      ##
-      certFilename: tls.crt
-      ## @param etcd.auth.client.certKeyFilename Client certificate key filename
-      ##
-      certKeyFilename: tls.key
-      ## @param etcd.auth.client.caFilename CA certificate filename for TLS
-      ##
-      caFilename: ""
-    ## Authentication token
-    ## ref: https://etcd.io/docs/latest/learning/design-auth-v3/#two-types-of-tokens-simple-and-jwt
-    ##
-    token:
-      ## @param auth.token.enabled Enables token authentication
-      ##
-      enabled: true
-      ## @param auth.token.type Authentication token type. Allowed values: 'simple' or 'jwt'
-      ## ref: https://etcd.io/docs/latest/op-guide/configuration/#--auth-token
-      ##
-      type: simple
-  ## @section Liveness probe configuration for etcd
-  ##
-  livenessProbe:
-    ## @param etcd.livenessProbe.initialDelaySeconds Initial delay for liveness probe
-    ##
-    initialDelaySeconds: 10
-  ## @section Readiness probe configuration for etcd
-  ##
-  readinessProbe:
-    ## @param etcd.readinessProbe.initialDelaySeconds Initial delay for readiness probe
-    ##
-    initialDelaySeconds: 10
-  ## @param etcd.autoCompactionMode Auto-compaction mode (periodic, revision)
-  ##
-  autoCompactionMode: periodic
-  ## @param etcd.autoCompactionRetention Auto-compaction retention period
-  ##
-  autoCompactionRetention: "1"
-  ## @extra etcd.defrag Configuration for defragmentation
-  ##
-  defrag:
-    ## @param etcd.defrag.enabled Enable defragmentation (boolean)
-    ##
-    enabled: true
-    ## @extra etcd.defrag.cronjob Cron job configuration for defragmentation
-    ##
-    cronjob:
-      ## @param etcd.defrag.cronjob.schedule Cron schedule for defragmentation
-      ##
-      schedule: "0 0 * * *"

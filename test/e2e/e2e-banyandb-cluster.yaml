@@ -42,11 +42,23 @@ setup:
         kubectl label namespace default istio-injection=enabled
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
-    - name: Install dependency
+    - name: Install etcd
       command: |
-        helm repo add bitnami https://charts.bitnami.com/bitnami
-        cd chart
-        helm dependency update
+        helm -n istio-system install etcd oci://registry-1.docker.io/bitnamicharts/etcd --version 12.0.18 \
+          --set image.repository=bitnamilegacy/etcd \
+          --set replicaCount=1 \
+          --set auth.rbac.create=true \
+          --set auth.rbac.allowNoneAuthentication=false \
+          --set auth.rbac.rootPassword=banyandb \
+          --set auth.client.secureTransport=false \
+          --set auth.client.enableAuthentication=false \
+          --set auth.token.enabled=true \
+          --set auth.token.type=simple
+      wait:
+        - namespace: istio-system
+          resource: pod
+          for: condition=ready
+          label-selector: app.kubernetes.io/name=etcd
     - name: Install BanyanDB
       command: helm -n istio-system install banyandb chart/ -f test/e2e/values.cluster.yaml
       wait:

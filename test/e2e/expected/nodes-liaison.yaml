@@ -39,13 +39,14 @@ routeTables:
         createRevision: "0"
         modRevision: "0"
       roles:
-        - ROLE_META
         - ROLE_LIAISON
       grpcAddress: banyandb-liaison-0.banyandb-liaison-headless.istio-system:18912
       httpAddress: banyandb-liaison-0.banyandb-liaison-headless.istio-system:17913
       createdAt: {{ notEmpty .createdAt }}
       labels: {}
       propertyRepairGossipGrpcAddress: ""
+      propertySchemaGossipGrpcAddress: ""
+      propertySchemaGrpcAddress: ""
     - metadata:
         group: ""
         name: banyandb-liaison-1.banyandb-liaison-headless.istio-system:18912
@@ -53,13 +54,14 @@ routeTables:
         createRevision: "0"
         modRevision: "0"
       roles:
-        - ROLE_META
         - ROLE_LIAISON
       grpcAddress: banyandb-liaison-1.banyandb-liaison-headless.istio-system:18912
       httpAddress: banyandb-liaison-1.banyandb-liaison-headless.istio-system:17913
       createdAt: {{ notEmpty .createdAt }}
       labels: {}
       propertyRepairGossipGrpcAddress: ""
+      propertySchemaGossipGrpcAddress: ""
+      propertySchemaGrpcAddress: ""
     {{- end}}
     active:
     {{- contains .routeTables.tire1.active}}
@@ -85,6 +87,8 @@ routeTables:
       labels:
         type: hot
       propertyRepairGossipGrpcAddress: banyandb-data-hot-1.banyandb-data-hot-headless.istio-system:17932
+      propertySchemaGossipGrpcAddress: ""
+      propertySchemaGrpcAddress: banyandb-data-hot-1.banyandb-data-hot-headless.istio-system:17916
     - metadata:
         group: ""
         name: banyandb-data-hot-0.banyandb-data-hot-headless.istio-system:17912
@@ -100,6 +104,8 @@ routeTables:
       labels:
         type: hot
       propertyRepairGossipGrpcAddress: banyandb-data-hot-0.banyandb-data-hot-headless.istio-system:17932
+      propertySchemaGossipGrpcAddress: ""
+      propertySchemaGrpcAddress: banyandb-data-hot-0.banyandb-data-hot-headless.istio-system:17916
     {{- end}}
     active:
     {{- contains .routeTables.tire2.active}}
