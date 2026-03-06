@@ -43,7 +43,7 @@ setup:
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
     - name: Install BanyanDB
-      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.cluster-schema-property.yaml
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.dns-node-native-schema-cluster.yaml
       wait:
         - namespace: istio-system
           resource: pod

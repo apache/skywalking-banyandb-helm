@@ -45,7 +45,7 @@ setup:
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
     - name: Install BanyanDB with DNS node registry
-      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.dns.registry.yaml --create-namespace
+      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.dns-cluster-state.yaml --create-namespace
       wait:
         - namespace: istio-system
           resource: pod
