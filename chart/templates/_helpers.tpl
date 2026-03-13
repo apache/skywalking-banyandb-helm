@@ -147,8 +147,6 @@ Includes: repair cron, schema server parameters, schema server TLS
 {{- define "banyandb.schemaStoragePropertyServerEnv" -}}
 {{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
 {{- if eq $schemaMode "property" }}
-- name: BYDB_HAS_META_ROLE
-  value: "true"
 {{- $property := ((default dict .Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.serverRepairCron }}
 - name: BYDB_SCHEMA_PROPERTY_REPAIR_TRIGGER_CRON

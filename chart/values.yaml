@@ -804,7 +804,8 @@ cluster:
     roles:
       ## @param cluster.data.roles.hot Hot data role
       ##
-      hot: {}
+      hot:
+        hasMetaRole: true
 
   ## @section Configuration for UI component
   ##
