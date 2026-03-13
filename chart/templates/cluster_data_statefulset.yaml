@@ -175,7 +175,15 @@ spec:
             {{- end }}
             {{- end }}
             {{- include "banyandb.schemaStorageEnv" $ | nindent 12 }}
+            {{- if eq $roleName "hot" }}
             {{- include "banyandb.schemaStoragePropertyServerEnv" $ | nindent 12 }}
+            {{- else }}
+            {{- $schemaMode := (default dict $.Values.cluster.schemaStorage).mode | default "property" }}
+            {{- if eq $schemaMode "property" }}
+            - name: BYDB_HAS_META_ROLE
+              value: "false"
+            {{- end }}
+            {{- end }}
             {{- include "banyandb.schemaStoragePropertyClientEnv" $ | nindent 12 }}
             {{- include "banyandb.etcdEnv" $ | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}

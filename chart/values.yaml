@@ -1228,6 +1228,24 @@ storage:
       storageClass: null
       ## @param storage.data.persistentVolumeClaims[3].volumeMode Volume mode for the PVC
       volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[4].mountTargets Mount targets for the PVC
+    - mountTargets: [ "schema-property" ]
+      ## @param storage.data.persistentVolumeClaims[4].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[4].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[4].claimName Name of the PVC
+      claimName: hot-schema-property-data
+      ## @param storage.data.persistentVolumeClaims[4].size Size of the PVC
+      size: 5Gi
+      ## @param storage.data.persistentVolumeClaims[4].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[4].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[4].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
 
   ## Liaison storage configuration
   ##
@@ -1264,7 +1282,7 @@ storage:
     persistentVolumeClaims:
     ## @param storage.standalone.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
     ##
-    - mountTargets: [ "measure", "stream", "metadata", "property", "trace" ]
+    - mountTargets: [ "measure", "stream", "metadata", "property", "trace", "schema-property" ]
       ## @param storage.standalone.persistentVolumeClaims[0].claimName Name of the PVC
       claimName: standalone-data
       ## @param storage.standalone.persistentVolumeClaims[0].size Size of the PVC

@@ -40,7 +40,7 @@ storage:
   data:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property", "trace" ]
+    - mountTargets: [ "measure", "stream", "property", "trace", "schema-property" ]
       nodeRole: hot
       existingClaimName: null
       claimName: data
@@ -62,7 +62,7 @@ storage:
   standalone:
     enabled: false
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property", "trace" ]
+    - mountTargets: [ "measure", "stream", "property", "trace", "schema-property" ]
       claimName: standalone-data
       size: 200Gi
       accessModes:
