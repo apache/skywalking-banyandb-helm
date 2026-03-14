@@ -175,7 +175,16 @@ spec:
             {{- end }}
             {{- end }}
             {{- include "banyandb.schemaStorageEnv" $ | nindent 12 }}
+            {{- $hasMetaRole := true }}
+            {{- if hasKey $roleConfig "hasMetaRole" }}
+              {{- $hasMetaRole = $roleConfig.hasMetaRole }}
+            {{- end }}
+            {{- if $hasMetaRole }}
             {{- include "banyandb.schemaStoragePropertyServerEnv" $ | nindent 12 }}
+            {{- else }}
+            - name: BYDB_HAS_META_ROLE
+              value: "false"
+            {{- end }}
             {{- include "banyandb.schemaStoragePropertyClientEnv" $ | nindent 12 }}
             {{- include "banyandb.etcdEnv" $ | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
