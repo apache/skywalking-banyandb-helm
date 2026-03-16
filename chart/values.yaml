@@ -805,6 +805,7 @@ cluster:
       ## @param cluster.data.roles.hot Hot data role
       ##
       hot:
+        ## @param cluster.data.roles.hot.hasMetaRole Whether this role serves as the metadata role when using native property server
         hasMetaRole: true
 
   ## @section Configuration for UI component
