@@ -316,6 +316,9 @@ spec:
             - --poll-metrics-ports=2121,17915
             - --cluster-state-ports=17912,17914
             - --lifecycle-port=17912
+            {{- if $roleConfig.lifecycleSidecar.enabled }}
+            - --lifecycle-report-dir={{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
+            {{- end }}
             - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }}
             - --cluster-state-poll-interval={{ $.Values.cluster.fodc.agent.config.pollClusterStateInterval }}
             - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.metricsPort }}
