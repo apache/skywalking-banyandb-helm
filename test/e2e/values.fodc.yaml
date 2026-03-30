@@ -269,7 +269,7 @@ cluster:
             value: 512Mi
       image:
         repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
-        tag: "931a605a47b2bbb0d171ae1ac12c466d4f3a2905"
+        tag: "ee65a73536b58693ef219d36f1a1194a58b6cc49"
         pullPolicy: IfNotPresent
       grpcSvc:
         labels: {}
@@ -319,7 +319,7 @@ cluster:
     agent:
       image:
         repository: ghcr.io/apache/skywalking-banyandb-fodc-agent
-        tag: "931a605a47b2bbb0d171ae1ac12c466d4f3a2905"
+        tag: "ee65a73536b58693ef219d36f1a1194a58b6cc49"
         pullPolicy: IfNotPresent
       env: []
       containerSecurityContext: {}
