@@ -356,7 +356,7 @@ spec:
           {{- if $roleConfig.lifecycleSidecar.enabled }}
           volumeMounts:
             - name: lifecycle-report-shared
-              mountPath: /tmp/lifecycle-reports
+              mountPath: {{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}
@@ -457,7 +457,7 @@ spec:
             {{- end }}
             {{- if $.Values.cluster.fodc.enabled }}
             - name: lifecycle-report-shared
-              mountPath: /tmp/lifecycle-reports
+              mountPath: {{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
             {{- end }}
           {{- end }}
           {{- with $roleConfig.lifecycleSidecar.resources }}
