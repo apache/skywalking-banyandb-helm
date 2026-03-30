@@ -315,6 +315,7 @@ spec:
             - --container-names=data,lifecycle
             - --poll-metrics-ports=2121,17915
             - --cluster-state-ports=17912,17914
+            - --lifecycle-port=17912
             - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }}
             - --cluster-state-poll-interval={{ $.Values.cluster.fodc.agent.config.pollClusterStateInterval }}
             - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.metricsPort }}
@@ -351,6 +352,11 @@ spec:
                 {{ $limit.key }}: {{ $limit.value }}
               {{- end }}
             {{- end }}
+          {{- end }}
+          {{- if $roleConfig.lifecycleSidecar.enabled }}
+          volumeMounts:
+            - name: lifecycle-report-shared
+              mountPath: /tmp/lifecycle-reports
           {{- end }}
         {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}
@@ -428,8 +434,9 @@ spec:
             {{- if $roleConfig.lifecycleSidecar.reportDir }}
             - "--report-dir={{ $roleConfig.lifecycleSidecar.reportDir }}"
             {{- end }}
-          {{- if $.Values.storage.data.enabled }}
+          {{- if or $.Values.storage.data.enabled $.Values.cluster.fodc.enabled }}
           volumeMounts:
+            {{- if $.Values.storage.data.enabled }}
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
             {{- if eq $claim.nodeRole $roleName }}
             {{- if $claim.existingClaimName }}
@@ -446,6 +453,11 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if $.Values.cluster.fodc.enabled }}
+            - name: lifecycle-report-shared
+              mountPath: /tmp/lifecycle-reports
             {{- end }}
           {{- end }}
           {{- with $roleConfig.lifecycleSidecar.resources }}
@@ -501,7 +513,7 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode }}
+      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled) }}
       volumes:
         {{- if $roleConfig.tls }}
         {{- if $roleConfig.tls.grpcSecretName }}
@@ -532,6 +544,10 @@ spec:
             items:
               - key: {{ include "banyandb.nodeDiscoveryFileKey" $ }}
                 path: nodes.yaml
+        {{- end }}
+        {{- if and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled }}
+        - name: lifecycle-report-shared
+          emptyDir: {}
         {{- end }}
       {{- end }}
 
