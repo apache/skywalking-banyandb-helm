@@ -16,7 +16,7 @@ limitations under the License.
 */}}
 
 {{- if and .Values.cluster.enabled .Values.cluster.nodeDiscovery }}
-{{- if eq (default "etcd" .Values.cluster.nodeDiscovery.mode) "file" }}
+{{- if eq (default "dns" .Values.cluster.nodeDiscovery.mode) "file" }}
 {{- $nodeDiscovery := .Values.cluster.nodeDiscovery }}
 {{- $fileConfig := $nodeDiscovery.file | default dict }}
 {{- $cm := $fileConfig.configMap | default dict }}

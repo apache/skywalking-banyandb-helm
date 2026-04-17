@@ -40,57 +40,6 @@ image:
   ##
   pullPolicy: IfNotPresent
 
-## @section Etcd Client Configuration
-##
-etcd-client:
-  ## @param etcd-client.namespace Namespace in etcd for node registration
-  ## Default: banyandb
-  ##
-  namespace: "banyandb"
-
-  ## @param etcd-client.nodeDiscoveryTimeout Timeout for node discovery
-  ## Default: 2m
-  ##
-  nodeDiscoveryTimeout: "2m"
-
-  ## @param etcd-client.fullSyncInterval Interval for full state synchronization
-  ## Default: 30m
-  ##
-  fullSyncInterval: "30m"
-
-  ## @param etcd-client.endpoints List of external etcd endpoints
-  ## e.g. ["etcd-0.etcd-headless.ns:2379"]
-  ##
-  endpoints: []
-
-  ## @section Etcd Client Authentication
-  ##
-  auth:
-    ## @param etcd-client.auth.username Username for etcd authentication
-    ##
-    username: ""
-    ## @param etcd-client.auth.password Password for etcd authentication
-    ##
-    password: ""
-    ## @section Etcd Client TLS Configuration
-    ##
-    tls:
-      ## @param etcd-client.auth.tls.enabled Enable TLS for etcd client
-      ##
-      enabled: false
-      ## @param etcd-client.auth.tls.secretName K8s secret name containing TLS certs
-      ##
-      secretName: ""
-      ## @param etcd-client.auth.tls.caFilename CA certificate filename
-      ##
-      caFilename: "ca.crt"
-      ## @param etcd-client.auth.tls.certFilename Client certificate filename
-      ##
-      certFilename: "tls.crt"
-      ## @param etcd-client.auth.tls.keyFilename Client key filename
-      ##
-      keyFilename: "tls.key"
-
 ## @section Configuration for standalone deployment
 ##
 standalone:
@@ -259,10 +208,6 @@ cluster:
   ## @section Schema Storage Configuration
   ##
   schemaStorage:
-    ## @param cluster.schemaStorage.mode Schema storage mode ("property" or "etcd")
-    ## Default: property
-    ##
-    mode: "property"
     ## @section Property Mode Configuration
     ##
     property:
@@ -338,7 +283,7 @@ cluster:
   ## @section Node Discovery Configuration for Service Discovery
   ##
   nodeDiscovery:
-    ## @param cluster.nodeDiscovery.mode Node discovery mode (etcd, dns, file)
+    ## @param cluster.nodeDiscovery.mode Node discovery mode (dns, file)
     ## Default: dns
     ##
     mode: "dns"
@@ -1070,10 +1015,12 @@ cluster:
       resources:
         ## @param cluster.fodc.agent.resources.requests Resource requests for Agent
         requests:
-          memory: 256Mi
+          - key: memory
+            value: 256Mi
         ## @param cluster.fodc.agent.resources.limits Resource limits for Agent
         limits:
-          memory: 256Mi
+          - key: memory
+            value: 256Mi
       ## @param cluster.fodc.agent.metricsPort Metrics port for Agent sidecar (prometheus-listen-addr flag)
       metricsPort: 9090
       config:

@@ -24,10 +24,8 @@ image:
 
 cluster:
   enabled: true
-  schemaStorage:
-    mode: "etcd"
   nodeDiscovery:
-    mode: "etcd"
+    mode: "dns"
   liaison:
     replicas: 2
     podAnnotations:
@@ -363,7 +361,7 @@ storage:
   data:
     enabled: true
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property", "trace" ]
+    - mountTargets: [ "measure", "stream", "property", "trace", "schema-property" ]
       nodeRole: hot
       existingClaimName: null
       claimName: data
@@ -394,7 +392,7 @@ storage:
   standalone:
     enabled: false
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property", "trace" ]
+    - mountTargets: [ "measure", "stream", "property", "trace", "schema-property" ]
       claimName: standalone-data
       size: 200Gi
       accessModes:
@@ -410,13 +408,6 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
-etcd-client:
-  endpoints:
-    - "etcd-0.etcd-headless.istio-system:2379"
-  auth:
-    username: "root"
-    password: "banyandb"
 
 fullnameOverride: ""
 nameOverride: "banyandb"

@@ -62,18 +62,6 @@ spec:
               value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.key"
             {{- end }}
             {{- end }}
-            {{- include "banyandb.schemaStorageEnv" . | nindent 12 }}
-            {{- include "banyandb.etcdEnv" . | nindent 12 }}
-            {{- if and .Values.cluster.ui.standalone.tls .Values.cluster.ui.standalone.tls.httpSecretName .Values.etcdClient.auth.tls.enabled }}
-            - name: BYDB_ETCD_TLS
-              value: "true"
-            - name: BYDB_ETCD_TLS_CERT_FILE
-              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.crt"
-            - name: BYDB_ETCD_TLS_KEY_FILE
-              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.key"
-            - name: BYDB_ETCD_TLS_CA_FILE
-              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/ca.crt"
-            {{- end }}
           args:
             - liaison
           ports:
@@ -148,10 +136,6 @@ spec:
             - mountPath: /etc/tls/{{ .Values.cluster.ui.standalone.tls.grpcSecretName }}
               name: {{ .Values.cluster.ui.standalone.tls.grpcSecretName }}-volume
             {{- end }}
-            {{- if .Values.cluster.ui.standalone.tls.etcdSecretName }}
-            - mountPath: /etc/tls/{{ .Values.cluster.ui.standalone.tls.etcdSecretName }}
-              name: {{ .Values.cluster.ui.standalone.tls.etcdSecretName }}-volume
-            {{- end }}
             {{- if and .Values.cluster.ui.standalone.tls.httpSecretName (ne .Values.cluster.ui.standalone.tls.httpSecretName .Values.cluster.ui.standalone.tls.grpcSecretName) }}
             - mountPath: /etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}
               name: {{ .Values.cluster.ui.standalone.tls.httpSecretName }}-volume
@@ -164,11 +148,6 @@ spec:
         - name: {{ .Values.cluster.ui.standalone.tls.grpcSecretName }}-volume
           secret:
             secretName: {{ .Values.cluster.ui.standalone.tls.grpcSecretName }}
-        {{- end }}
-        {{- if .Values.cluster.ui.standalone.tls.etcdSecretName }}
-        - name: {{ .Values.cluster.ui.standalone.tls.etcdSecretName }}-volume
-          secret:
-            secretName: {{ .Values.cluster.ui.standalone.tls.etcdSecretName }}
         {{- end }}
         {{- if and .Values.cluster.ui.standalone.tls.httpSecretName (ne .Values.cluster.ui.standalone.tls.httpSecretName .Values.cluster.ui.standalone.tls.grpcSecretName) }}
         - name: {{ .Values.cluster.ui.standalone.tls.httpSecretName }}-volume

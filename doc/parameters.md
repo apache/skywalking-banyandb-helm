@@ -28,32 +28,6 @@ The content of this document describes the parameters that can be configured in 
 | `auth.credentialsFileKey` | Key name in the Secret that stores the                   | `credentials.yaml` |
 | `auth.users`              | List of users to configure when not using existingSecret | `[]`               |
 
-### Etcd Client Configuration
-
-| Name                               | Description                             | Value      |
-|------------------------------------|-----------------------------------------|------------|
-| `etcd-client.namespace`            | Namespace in etcd for node registration | `banyandb` |
-| `etcd-client.nodeDiscoveryTimeout` | Timeout for node discovery              | `2m`       |
-| `etcd-client.fullSyncInterval`     | Interval for full state synchronization | `30m`      |
-| `etcd-client.endpoints`            | List of external etcd endpoints         | `[]`       |
-
-### Etcd Client Authentication
-
-| Name                            | Description                          | Value   |
-|---------------------------------|--------------------------------------|---------|
-| `etcd-client.auth.username`     | Username for etcd authentication     | `""`    |
-| `etcd-client.auth.password`     | Password for etcd authentication     | `""`    |
-
-### Etcd Client TLS Configuration
-
-| Name                              | Description                              | Value     |
-|-----------------------------------|------------------------------------------|-----------|
-| `etcd-client.auth.tls.enabled`    | Enable TLS for etcd client               | `false`   |
-| `etcd-client.auth.tls.secretName` | K8s secret name containing TLS certs     | `""`      |
-| `etcd-client.auth.tls.caFilename` | CA certificate filename                  | `ca.crt`  |
-| `etcd-client.auth.tls.certFilename` | Client certificate filename            | `tls.crt` |
-| `etcd-client.auth.tls.keyFilename` | Client key filename                     | `tls.key` |
-
 ### Configuration for standalone deployment
 
 | Name                                            | Description                                             | Value          |
@@ -116,7 +90,6 @@ The content of this document describes the parameters that can be configured in 
 
 | Name                                                              | Description                                                                  | Value         |
 |-------------------------------------------------------------------|------------------------------------------------------------------------------|---------------|
-| `cluster.schemaStorage.mode`                                      | Schema storage mode ("property" or "etcd")                                   | `property`    |
 | `cluster.schemaStorage.property.serverRepairCron`                 | Cron schedule for metadata property server repair trigger                    | `@every 10m`  |
 | `cluster.schemaStorage.property.clientSyncInterval`               | Interval for property schema client synchronization                          | `30s`         |
 | `cluster.schemaStorage.property.clientMaxRecvMsgSize`             | Maximum gRPC receive message size for property schema client                 | `""`          |
@@ -142,7 +115,7 @@ The content of this document describes the parameters that can be configured in 
 
 | Name                         | Description                     | Value  |
 |------------------------------|---------------------------------|--------|
-| `cluster.nodeDiscovery.mode` | Node discovery mode (etcd, dns, file) | `dns` |
+| `cluster.nodeDiscovery.mode` | Node discovery mode (dns, file) | `dns` |
 
 ### DNS Mode Configuration
 
