@@ -90,6 +90,9 @@ Includes: repair cron, schema server parameters, schema server TLS
 */}}
 {{- define "banyandb.schemaStoragePropertyServerEnv" -}}
 {{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
+{{- if ne $schemaMode "property" }}
+{{- fail (printf "cluster.schemaStorage.mode must be 'property', got '%s'. etcd mode is no longer supported." $schemaMode) }}
+{{- end }}
 {{- if eq $schemaMode "property" }}
 {{- $property := ((default dict .Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.serverRepairCron }}
@@ -155,6 +158,9 @@ Includes: sync interval, max recv msg size, client TLS
 */}}
 {{- define "banyandb.schemaStoragePropertyClientEnv" -}}
 {{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
+{{- if ne $schemaMode "property" }}
+{{- fail (printf "cluster.schemaStorage.mode must be 'property', got '%s'. etcd mode is no longer supported." $schemaMode) }}
+{{- end }}
 {{- if eq $schemaMode "property" }}
 {{- $property := ((default dict .Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.clientSyncInterval }}
@@ -245,7 +251,7 @@ Generate node discovery environment variables for a component
 {{- $config := .root.Values.cluster.nodeDiscovery | default dict }}
 {{- $mode := $config.mode | default "dns" }}
 {{- if and (ne $mode "dns") (ne $mode "file") }}
-{{- fail (printf "cluster.nodeDiscovery.mode must be 'dns' (default) or 'file', got '%s'. etcd mode has been removed; see CHANGES.md for migration." $mode) }}
+{{- fail (printf "cluster.nodeDiscovery.mode must be 'dns' (default) or 'file', got '%s'. etcd mode is no longer supported; use 'dns' or 'file' instead." $mode) }}
 {{- end }}
 
 - name: BYDB_NODE_DISCOVERY_MODE

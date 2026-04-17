@@ -208,6 +208,9 @@ cluster:
   ## @section Schema Storage Configuration
   ##
   schemaStorage:
+    ## @param cluster.schemaStorage.mode Schema storage mode (only "property" is supported)
+    ##
+    mode: "property"
     ## @section Property Mode Configuration
     ##
     property:
