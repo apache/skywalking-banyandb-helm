@@ -189,6 +189,7 @@ cluster:
 
     roles:
       hot:
+        hasMetaRole: true
         lifecycleSidecar:
           schedule: "@daily"
           enabled: true
@@ -206,6 +207,7 @@ cluster:
               - key: memory
                 value: 512Mi
       warm:
+        hasMetaRole: false
         lifecycleSidecar:
           schedule: "@daily"
           enabled: true
@@ -223,6 +225,7 @@ cluster:
               - key: memory
                 value: 512Mi
       cold:
+        hasMetaRole: false
         replicas: 1
 
   ui:
