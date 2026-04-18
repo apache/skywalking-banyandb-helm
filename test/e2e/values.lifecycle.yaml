@@ -19,15 +19,13 @@
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: c27121f43c76b3b31470e2846f68958884ef91d6
+  tag: 998ce31226f94836234bd3d93bd25abade9c9f65
   pullPolicy: IfNotPresent
 
 cluster:
   enabled: true
-  schemaStorage:
-    mode: "etcd"
   nodeDiscovery:
-    mode: "etcd"
+    mode: "dns"
   liaison:
     replicas: 2
     podAnnotations:
@@ -191,6 +189,7 @@ cluster:
 
     roles:
       hot:
+        hasMetaRole: true
         lifecycleSidecar:
           schedule: "@daily"
           enabled: true
@@ -208,6 +207,7 @@ cluster:
               - key: memory
                 value: 512Mi
       warm:
+        hasMetaRole: false
         lifecycleSidecar:
           schedule: "@daily"
           enabled: true
@@ -225,6 +225,7 @@ cluster:
               - key: memory
                 value: 512Mi
       cold:
+        hasMetaRole: false
         replicas: 1
 
   ui:
@@ -330,6 +331,15 @@ storage:
       - ReadWriteOnce
       storageClass: null
       volumeMode: Filesystem
+    - mountTargets: [ "schema-property" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-schema-property-data
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
     - mountTargets: [ "measure" ]
       nodeRole: warm
       existingClaimName: null
@@ -426,7 +436,7 @@ storage:
   standalone:
     enabled: false
     persistentVolumeClaims:
-    - mountTargets: [ "measure", "stream", "property" ]
+    - mountTargets: [ "measure", "stream", "property", "schema-property" ]
       claimName: standalone-data
       size: 200Gi
       accessModes:
@@ -438,13 +448,6 @@ serviceAccount:
   create: true
   annotations: {}
   name: ""
-
-etcd-client:
-  endpoints:
-    - "etcd-0.etcd-headless.istio-system:2379"
-  auth:
-    username: "root"
-    password: "banyandb"
 
 fullnameOverride: ""
 nameOverride: "banyandb"

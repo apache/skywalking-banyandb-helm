@@ -85,67 +85,14 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-EtcdEndpoints
-*/}}
-{{- define "banyandb.etcdEndpoints" -}}
-{{- $etcdClient := index .Values "etcd-client" | default dict }}
-{{- if $etcdClient.endpoints }}
-- name: BYDB_ETCD_ENDPOINTS
-  value: "{{- $etcdClient.endpoints | join "," -}}"
-{{- end }}
-{{- end }}
-
-{{/*
-EtcdEnv - injects all etcd-related env vars (endpoints, auth, TLS)
-Only rendered when schema storage mode is "etcd" or node discovery mode is "etcd"
-*/}}
-{{- define "banyandb.etcdEnv" -}}
-{{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
-{{- $nodeDiscoveryMode := (default dict .Values.cluster.nodeDiscovery).mode | default "dns" }}
-{{- if or (eq $schemaMode "etcd") (eq $nodeDiscoveryMode "etcd") }}
-{{- $etcdClient := index .Values "etcd-client" | default dict }}
-{{- if not $etcdClient.endpoints }}
-{{- fail "etcd-client.endpoints must be set when schemaStorage or nodeDiscovery mode is 'etcd'" }}
-{{- end }}
-{{- $auth := $etcdClient.auth | default dict }}
-{{- $tls := $auth.tls | default dict }}
-{{- include "banyandb.etcdEndpoints" . }}
-{{- if $auth.username }}
-- name: BYDB_ETCD_USERNAME
-  value: {{ $auth.username | quote }}
-{{- end }}
-{{- if $auth.password }}
-- name: BYDB_ETCD_PASSWORD
-  value: {{ $auth.password | quote }}
-{{- end }}
-{{- if $tls.enabled }}
-{{- if $tls.secretName }}
-- name: BYDB_ETCD_TLS_CA_FILE
-  value: "/etc/tls/{{ $tls.secretName }}/{{ $tls.caFilename | default "ca.crt" }}"
-- name: BYDB_ETCD_TLS_CERT_FILE
-  value: "/etc/tls/{{ $tls.secretName }}/{{ $tls.certFilename | default "tls.crt" }}"
-- name: BYDB_ETCD_TLS_KEY_FILE
-  value: "/etc/tls/{{ $tls.secretName }}/{{ $tls.keyFilename | default "tls.key" }}"
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-SchemaStorageEnv - injects schema storage env vars
-*/}}
-{{- define "banyandb.schemaStorageEnv" -}}
-{{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
-- name: BYDB_SCHEMA_REGISTRY_MODE
-  value: {{ $schemaMode | quote }}
-{{- end }}
-
-{{/*
 SchemaStoragePropertyServerEnv - injects property server env vars (data node only)
 Includes: repair cron, schema server parameters, schema server TLS
 */}}
 {{- define "banyandb.schemaStoragePropertyServerEnv" -}}
 {{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
+{{- if ne $schemaMode "property" }}
+{{- fail (printf "cluster.schemaStorage.mode must be 'property', got '%s'. etcd mode is no longer supported." $schemaMode) }}
+{{- end }}
 {{- if eq $schemaMode "property" }}
 {{- $property := ((default dict .Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.serverRepairCron }}
@@ -211,6 +158,9 @@ Includes: sync interval, max recv msg size, client TLS
 */}}
 {{- define "banyandb.schemaStoragePropertyClientEnv" -}}
 {{- $schemaMode := (default dict .Values.cluster.schemaStorage).mode | default "property" }}
+{{- if ne $schemaMode "property" }}
+{{- fail (printf "cluster.schemaStorage.mode must be 'property', got '%s'. etcd mode is no longer supported." $schemaMode) }}
+{{- end }}
 {{- if eq $schemaMode "property" }}
 {{- $property := ((default dict .Values.cluster.schemaStorage).property) | default dict }}
 {{- if $property.clientSyncInterval }}
@@ -299,28 +249,15 @@ Generate node discovery environment variables for a component
 */}}
 {{- define "banyandb.nodeDiscoveryEnv" -}}
 {{- $config := .root.Values.cluster.nodeDiscovery | default dict }}
-{{- $mode := $config.mode | default "etcd" }}
+{{- $mode := $config.mode | default "dns" }}
+{{- if and (ne $mode "dns") (ne $mode "file") }}
+{{- fail (printf "cluster.nodeDiscovery.mode must be 'dns' (default) or 'file', got '%s'. etcd mode is no longer supported; use 'dns' or 'file' instead." $mode) }}
+{{- end }}
 
 - name: BYDB_NODE_DISCOVERY_MODE
   value: {{ $mode | quote }}
 
-{{- if eq $mode "etcd" }}
-{{- /* Etcd mode configuration */}}
-{{- $etcdClient := index .root.Values "etcd-client" | default dict }}
-{{- if $etcdClient.namespace }}
-- name: BYDB_NAMESPACE
-  value: {{ $etcdClient.namespace | quote }}
-{{- end }}
-{{- if $etcdClient.nodeDiscoveryTimeout }}
-- name: BYDB_NODE_REGISTRY_TIMEOUT
-  value: {{ $etcdClient.nodeDiscoveryTimeout | quote }}
-{{- end }}
-{{- if $etcdClient.fullSyncInterval }}
-- name: BYDB_ETCD_FULL_SYNC_INTERVAL
-  value: {{ $etcdClient.fullSyncInterval | quote }}
-{{- end }}
-
-{{- else if eq $mode "dns" }}
+{{- if eq $mode "dns" }}
 {{- /* DNS mode configuration */}}
 {{- /* Always auto-generate SRV addresses for all data nodes */}}
 {{- $srvAddresses := include "banyandb.allDnsSrvAddresses" .root }}
@@ -406,7 +343,7 @@ Resolve ConfigMap name for file-based node discovery
 {{- define "banyandb.nodeDiscoveryFileConfigMapName" -}}
 {{- $root := .root | default . }}
 {{- $config := $root.Values.cluster.nodeDiscovery | default dict }}
-{{- $mode := $config.mode | default "etcd" }}
+{{- $mode := $config.mode | default "dns" }}
 {{- $file := $config.file | default dict }}
 {{- $cm := $file.configMap | default dict }}
 {{- if $cm.existingName }}

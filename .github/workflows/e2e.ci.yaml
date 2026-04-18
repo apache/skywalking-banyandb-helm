@@ -37,18 +37,14 @@ jobs:
         test:
           - name: Run Skywalking E2E Test (standalone BanyanDB as database)
             config: test/e2e/e2e-standalone.yaml
-          - name: Run Skywalking E2E Test (BanyanDB etcd cluster as database)
-            config: test/e2e/e2e-etcd-cluster.yaml
+          - name: Run Skywalking E2E Test (BanyanDB cluster as database)
+            config: test/e2e/e2e-cluster.yaml
           - name: Run Skywalking E2E Test (BanyanDB lifecycle as database)
             config: test/e2e/e2e-lifecycle.yaml
           - name: Run Skywalking E2E Test (FODC Proxy Service)
             config: test/e2e/e2e-fodc-proxy-service.yaml
           - name: Run Skywalking E2E Test (BanyanDB DNS cluster state)
             config: test/e2e/e2e-dns-cluster-state.yaml
-          - name: Run Skywalking E2E Test (BanyanDB DNS node etcd schema cluster)
-            config: test/e2e/e2e-dns-node-etcd-schema-cluster.yaml
-          - name: Run Skywalking E2E Test (BanyanDB DNS node native schema cluster)
-            config: test/e2e/e2e-dns-node-native-schema-cluster.yaml
     name: ${{ matrix.test.name }}
     env:
       OAP_TAG: 65137fc27fd765bb44007bad7fcbe59a185fa617

@@ -17,7 +17,7 @@ limitations under the License.
 
 {{- if and .Values.cluster.enabled .Values.cluster.data }}
 {{- $nodeDiscovery := .Values.cluster.nodeDiscovery | default dict }}
-{{- $nodeDiscoveryMode := default "etcd" $nodeDiscovery.mode }}
+{{- $nodeDiscoveryMode := default "dns" $nodeDiscovery.mode }}
 {{- $nodeDiscoveryFileMode := eq $nodeDiscoveryMode "file" }}
 {{- $nodeTemplate := .Values.cluster.data.nodeTemplate }}
 {{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
@@ -174,7 +174,6 @@ spec:
               value: "/etc/tls/{{ $roleConfig.tls.grpcSecretName }}/tls.crt"
             {{- end }}
             {{- end }}
-            {{- include "banyandb.schemaStorageEnv" $ | nindent 12 }}
             {{- $hasMetaRole := true }}
             {{- if hasKey $roleConfig "hasMetaRole" }}
               {{- $hasMetaRole = $roleConfig.hasMetaRole }}
@@ -186,7 +185,6 @@ spec:
               value: "false"
             {{- end }}
             {{- include "banyandb.schemaStoragePropertyClientEnv" $ | nindent 12 }}
-            {{- include "banyandb.etcdEnv" $ | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
             {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
             {{- range $env := $mergedEnv }}
@@ -281,10 +279,6 @@ spec:
             {{- if $roleConfig.tls.grpcSecretName }}
             - mountPath: /etc/tls/{{ $roleConfig.tls.grpcSecretName }}
               name: {{ $roleConfig.tls.grpcSecretName }}-volume
-            {{- end }}
-            {{- if $roleConfig.tls.etcdSecretName }}
-            - mountPath: /etc/tls/{{ $roleConfig.tls.etcdSecretName }}
-              name: {{ $roleConfig.tls.etcdSecretName }}-volume
             {{- end }}
             {{- end }}
             {{- if $schemaClientTls.secretName }}
@@ -425,8 +419,6 @@ spec:
           env:
             - name: BYDB_NODE_LABELS
               value: "type={{ $roleName }}"
-            {{- include "banyandb.schemaStorageEnv" $ | nindent 12 }}
-            {{- include "banyandb.etcdEnv" $ | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
           command:
             - "/lifecycle"
@@ -523,11 +515,6 @@ spec:
         - name: {{ $roleConfig.tls.grpcSecretName }}-volume
           secret:
             secretName: {{ $roleConfig.tls.grpcSecretName }}
-        {{- end }}
-        {{- if $roleConfig.tls.etcdSecretName }}
-        - name: {{ $roleConfig.tls.etcdSecretName }}-volume
-          secret:
-            secretName: {{ $roleConfig.tls.etcdSecretName }}
         {{- end }}
         {{- end }}
         {{- if $schemaClientTls.secretName }}

@@ -17,7 +17,7 @@ limitations under the License.
 
 {{- if and .Values.cluster.enabled .Values.cluster.liaison }}
 {{- $nodeDiscovery := .Values.cluster.nodeDiscovery | default dict }}
-{{- $nodeDiscoveryMode := default "etcd" $nodeDiscovery.mode }}
+{{- $nodeDiscoveryMode := default "dns" $nodeDiscovery.mode }}
 {{- $nodeDiscoveryFileMode := eq $nodeDiscoveryMode "file" }}
 apiVersion: apps/v1
 kind: StatefulSet
@@ -147,9 +147,7 @@ spec:
               value: "/etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}/tls.key"
             {{- end }}
             {{- end }}
-            {{- include "banyandb.schemaStorageEnv" . | nindent 12 }}
             {{- include "banyandb.schemaStoragePropertyClientEnv" . | nindent 12 }}
-            {{- include "banyandb.etcdEnv" . | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" .) | nindent 12 }}
             {{- if include "banyandb.hasDataNodeListValue" . }}
             - name: BYDB_DATA_NODE_LIST
@@ -251,10 +249,6 @@ spec:
             - mountPath: /etc/tls/{{ .Values.cluster.liaison.tls.grpcSecretName }}
               name: {{ .Values.cluster.liaison.tls.grpcSecretName }}-volume
             {{- end }}
-            {{- if .Values.cluster.liaison.tls.etcdSecretName }}
-            - mountPath: /etc/tls/{{ .Values.cluster.liaison.tls.etcdSecretName }}
-              name: {{ .Values.cluster.liaison.tls.etcdSecretName }}-volume
-            {{- end }}
             {{- if and .Values.cluster.liaison.tls.httpSecretName (ne .Values.cluster.liaison.tls.httpSecretName .Values.cluster.liaison.tls.grpcSecretName) }}
             - mountPath: /etc/tls/{{ .Values.cluster.liaison.tls.httpSecretName }}
               name: {{ .Values.cluster.liaison.tls.httpSecretName }}-volume
@@ -336,11 +330,6 @@ spec:
         - name: {{ .Values.cluster.liaison.tls.grpcSecretName }}-volume
           secret:
             secretName: {{ .Values.cluster.liaison.tls.grpcSecretName }}
-        {{- end }}
-        {{- if .Values.cluster.liaison.tls.etcdSecretName }}
-        - name: {{ .Values.cluster.liaison.tls.etcdSecretName }}-volume
-          secret:
-            secretName: {{ .Values.cluster.liaison.tls.etcdSecretName }}
         {{- end }}
         {{- if and .Values.cluster.liaison.tls.httpSecretName (ne .Values.cluster.liaison.tls.httpSecretName .Values.cluster.liaison.tls.grpcSecretName) }}
         - name: {{ .Values.cluster.liaison.tls.httpSecretName }}-volume
