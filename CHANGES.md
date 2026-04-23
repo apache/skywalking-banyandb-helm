@@ -2,6 +2,15 @@ Changes by Version
 ==================
 Release Notes.
 
+0.7.0
+-----------------
+
+#### Features
+
+- Remove etcd support (breaking change).
+  If upgrading, remove `etcd-client.*` and `cluster.*.tls.etcdSecretName`
+  from your values overrides.
+
 0.6.0
 -----------------
 
@@ -9,9 +18,6 @@ Release Notes.
 
 -  Support configure node discovery in cluster mode.
 -  Add the FODC Agent and Proxy components to the Helm chart.
-- Remove etcd support (breaking change).
-  If upgrading, remove `etcd-client.*` and `cluster.*.tls.etcdSecretName`
-  from your values overrides.
 
 0.5.3
 -----------------
