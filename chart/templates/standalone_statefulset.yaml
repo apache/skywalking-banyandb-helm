@@ -128,6 +128,18 @@ spec:
             - name: {{ $env.name }}
               value: {{ $env.value }}
             {{- end }}
+            {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_ENABLED
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.enabled | quote }}
+            {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_DIR
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.dir | quote }}
+            - name: BYDB_PANIC_DIAGNOSTICS_MAX_ARTIFACTS
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.maxArtifacts | quote }}
+            - name: BYDB_MAX_DIAGNOSIS_MEMORY_USAGE_PERCENTAGE
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent | quote }}
+            {{- end }}
+            {{- end }}
           args:
             - standalone
             {{- if .Values.auth.enabled }}
@@ -200,7 +212,7 @@ spec:
             {{- end }}
           {{- end }}
 
-          {{- if or .Values.storage.standalone.enabled .Values.standalone.tls .Values.auth.enabled }}
+          {{- if or .Values.storage.standalone.enabled .Values.standalone.tls .Values.auth.enabled (and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled) }}
           volumeMounts:
             {{- if .Values.storage.standalone.enabled }}
             {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
@@ -234,6 +246,10 @@ spec:
             - mountPath: /etc/banyandb
               name: banyandb-auth-writable
             {{- end }}
+            {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: crash-shared
+              mountPath: {{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
           {{- end }}
 
         {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
@@ -257,6 +273,9 @@ spec:
             - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
             - --heartbeat-interval={{ .Values.cluster.fodc.agent.config.heartbeatInterval }}
             - --reconnect-interval={{ .Values.cluster.fodc.agent.config.reconnectInterval }}
+            {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - --crash-source-dir={{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
           env:
             - name: POD_NAME
               valueFrom:
@@ -288,9 +307,14 @@ spec:
               {{- end }}
             {{- end }}
           {{- end }}
+          {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+          volumeMounts:
+            - name: crash-shared
+              mountPath: {{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
+          {{- end }}
         {{- end }}
 
-      {{- if or .Values.standalone.tls .Values.auth.enabled }}
+      {{- if or .Values.standalone.tls .Values.auth.enabled (and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled) }}
       volumes:
         {{- if .Values.standalone.tls }}
         {{- if .Values.standalone.tls.grpcSecretName }}
@@ -316,6 +340,10 @@ spec:
                 path: {{ .Values.auth.credentialsFileKey }}
                 mode: 0600
         - name: banyandb-auth-writable
+          emptyDir: {}
+        {{- end }}
+        {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+        - name: crash-shared
           emptyDir: {}
         {{- end }}
       {{- end }}

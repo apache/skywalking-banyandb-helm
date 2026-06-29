@@ -191,9 +191,21 @@ spec:
             - name: {{ $env.name }}
               value: {{ .value | toString | quote }}
             {{- end }}
-           
+            {{- if $.Values.cluster.fodc.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_ENABLED
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.enabled | quote }}
+            {{- if $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_DIR
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.dir | quote }}
+            - name: BYDB_PANIC_DIAGNOSTICS_MAX_ARTIFACTS
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.maxArtifacts | quote }}
+            - name: BYDB_MAX_DIAGNOSIS_MEMORY_USAGE_PERCENTAGE
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent | quote }}
+            {{- end }}
+            {{- end }}
+
           args:
-            - data 
+            - data
           ports:
             - containerPort: 17912
               name: grpc
@@ -253,7 +265,7 @@ spec:
           {{- $schemaClientTls := $schemaProperty.tls | default dict }}
           {{- $schemaServer := $schemaProperty.server | default dict }}
           {{- $schemaServerTls := $schemaServer.tls | default dict }}
-          {{- if or $.Values.storage.data.enabled $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode }}
+          {{- if or $.Values.storage.data.enabled $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) }}
           volumeMounts:
             {{- if $.Values.storage.data.enabled }}
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
@@ -294,6 +306,10 @@ spec:
               name: node-discovery-file
               readOnly: true
             {{- end }}
+            {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: crash-shared
+              mountPath: {{ $.Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
           {{- end }}
         {{- if and $.Values.cluster.enabled $.Values.cluster.fodc.enabled }}
         - name: fodc-agent
@@ -319,6 +335,9 @@ spec:
             - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
             - --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }}
             - --reconnect-interval={{ $.Values.cluster.fodc.agent.config.reconnectInterval }}
+            {{- if $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - --crash-source-dir={{ $.Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
           env:
             - name: POD_NAME
               valueFrom:
@@ -350,10 +369,16 @@ spec:
               {{- end }}
             {{- end }}
           {{- end }}
-          {{- if $roleConfig.lifecycleSidecar.enabled }}
+          {{- if or $roleConfig.lifecycleSidecar.enabled (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) }}
           volumeMounts:
+            {{- if $roleConfig.lifecycleSidecar.enabled }}
             - name: lifecycle-report-shared
               mountPath: {{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
+            {{- end }}
+            {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: crash-shared
+              mountPath: {{ $.Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
           {{- end }}
         {{- end }}
         {{- if $roleConfig.backupSidecar.enabled }}
@@ -508,7 +533,7 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled) }}
+      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled) (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) }}
       volumes:
         {{- if $roleConfig.tls }}
         {{- if $roleConfig.tls.grpcSecretName }}
@@ -537,6 +562,10 @@ spec:
         {{- end }}
         {{- if and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled }}
         - name: lifecycle-report-shared
+          emptyDir: {}
+        {{- end }}
+        {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+        - name: crash-shared
           emptyDir: {}
         {{- end }}
       {{- end }}
