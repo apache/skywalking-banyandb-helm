@@ -11,7 +11,7 @@ Release Notes.
   If upgrading, remove `etcd-client.*` and `cluster.*.tls.etcdSecretName`
   from your values overrides.
 - Enable FODC panic/crash diagnostics collection by default.
-  Configure via `cluster.fodc.agent.config.crashCollection.{enabled,dir}`.
+  Configure via `cluster.fodc.agent.config.crashCollection.{enabled,dir,maxArtifacts,diagnosisMemoryPercent}`.
 
 0.6.0
 -----------------
