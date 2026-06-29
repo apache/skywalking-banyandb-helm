@@ -261,7 +261,7 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           args:
-            - --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }} \
+            - --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }}
             - --pod-name=$(POD_NAME)
             - --container-names=standalone
             - --poll-metrics-ports=2121
