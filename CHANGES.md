@@ -10,6 +10,7 @@ Release Notes.
 - Remove etcd support (breaking change).
   If upgrading, remove `etcd-client.*` and `cluster.*.tls.etcdSecretName`
   from your values overrides.
+- Disable the lifecycle metrics collector if the container has disabled.
 
 0.6.0
 -----------------
