@@ -322,9 +322,15 @@ spec:
           args:
             - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }}
             - --pod-name=$(POD_NAME)
+            {{- if $roleConfig.lifecycleSidecar.enabled }}
             - --container-names=data,lifecycle
             - --poll-metrics-ports=2121,17915
             - --cluster-state-ports=17912,17914
+            {{- else }}
+            - --container-names=data
+            - --poll-metrics-ports=2121
+            - --cluster-state-ports=17912
+            {{- end }}
             - --lifecycle-port=17912
             {{- if $roleConfig.lifecycleSidecar.enabled }}
             - --lifecycle-report-dir={{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
