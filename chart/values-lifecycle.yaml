@@ -1035,6 +1035,17 @@ cluster:
         reconnectInterval: 10s
         ## @param cluster.fodc.agent.config.ktmEnabled Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)
         ktmEnabled: true
+        ## Panic/crash diagnostics collection. Shares an emptyDir between the banyand
+        ## container (writes panic.json) and the fodc-agent (reads & reports it).
+        crashCollection:
+          ## @param cluster.fodc.agent.config.crashCollection.enabled Enable panic/crash diagnostics collection
+          enabled: true
+          ## @param cluster.fodc.agent.config.crashCollection.dir Shared path where banyand writes panic.json and fodc-agent reads it
+          dir: /tmp/crash
+          ## @param cluster.fodc.agent.config.crashCollection.maxArtifacts Max crash artifact directories banyand retains (oldest removed first; 0 disables pruning)
+          maxArtifacts: 10
+          ## @param cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent Set banyand GOMEMLIMIT to this percent of the cgroup memory limit, reserving headroom for post-panic diagnostics (0 disables)
+          diagnosisMemoryPercent: 50
       ## Liveness probe for Agent
       livenessProbe:
         ## @param cluster.fodc.agent.livenessProbe.initialDelaySeconds Initial delay for Agent liveness probe

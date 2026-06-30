@@ -11,6 +11,8 @@ Release Notes.
   If upgrading, remove `etcd-client.*` and `cluster.*.tls.etcdSecretName`
   from your values overrides.
 - Disable the lifecycle metrics collector when the lifecycle sidecar container is disabled.
+- Enable FODC panic/crash diagnostics collection by default.
+  Configure via `cluster.fodc.agent.config.crashCollection.{enabled,dir,maxArtifacts,diagnosisMemoryPercent}`.
 
 0.6.0
 -----------------
