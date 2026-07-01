@@ -378,6 +378,9 @@ Ki/Mi/Gi/Ti (also KiB/MiB/GiB/TiB). No suffix -> plain byte count. Empty or 0 ->
 {{- if or (eq $s "") (eq $s "0") -}}
 0
 {{- else -}}
+{{- if not (regexMatch "(?i)^[0-9]+(k|kb|ki|kib|m|mb|mi|mib|g|gb|gi|gib|t|tb|ti|tib)?$" $s) -}}
+{{- fail (printf "banyandb.toBytes: invalid size %q; expected an integer optionally followed by K/M/G/T, KB/MB/GB/TB, or Ki/Mi/Gi/Ti (case-insensitive), e.g. 512Mi" $s) -}}
+{{- end -}}
 {{- $num := $s | regexFind "^[0-9]+" | int64 -}}
 {{- $unit := lower (regexReplaceAll "^[0-9]+" $s "" | trim) -}}
 {{- $mult := int64 1 -}}
