@@ -367,3 +367,25 @@ Resolve discovery file data key
 {{- $cm := $file.configMap | default dict }}
 {{- default "nodes.yaml" $cm.key }}
 {{- end }}
+
+{{/*
+Convert a human-readable size to an integer number of bytes.
+Case-insensitive. All suffixes are 1024-based (binary): K/M/G/T, KB/MB/GB/TB,
+Ki/Mi/Gi/Ti (also KiB/MiB/GiB/TiB). No suffix -> plain byte count. Empty or 0 -> 0.
+*/}}
+{{- define "banyandb.toBytes" -}}
+{{- $s := . | toString | trim -}}
+{{- if or (eq $s "") (eq $s "0") -}}
+0
+{{- else -}}
+{{- $num := $s | regexFind "^[0-9]+" | int64 -}}
+{{- $unit := lower (regexReplaceAll "^[0-9]+" $s "" | trim) -}}
+{{- $mult := int64 1 -}}
+{{- if or (eq $unit "k") (eq $unit "kb") (eq $unit "ki") (eq $unit "kib") -}}{{- $mult = int64 1024 -}}
+{{- else if or (eq $unit "m") (eq $unit "mb") (eq $unit "mi") (eq $unit "mib") -}}{{- $mult = int64 1048576 -}}
+{{- else if or (eq $unit "g") (eq $unit "gb") (eq $unit "gi") (eq $unit "gib") -}}{{- $mult = int64 1073741824 -}}
+{{- else if or (eq $unit "t") (eq $unit "tb") (eq $unit "ti") (eq $unit "tib") -}}{{- $mult = int64 1099511627776 -}}
+{{- end -}}
+{{- mul $num $mult -}}
+{{- end -}}
+{{- end }}

@@ -1067,6 +1067,23 @@ cluster:
           maxArtifacts: 10
           ## @param cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent Set banyand GOMEMLIMIT to this percent of the cgroup memory limit, reserving headroom for post-panic diagnostics (0 disables)
           diagnosisMemoryPercent: 50
+      ## Memory-pressure pprof capture. When a data container's RSS approaches its
+      ## cgroup memory limit, the agent pulls heap+goroutine pprof from the data
+      ## container's pprof endpoint (port 6060) onto a shared emptyDir, served by the
+      ## proxy's HTTP API. Requires a data-container memory limit to be effective.
+      pressureProfiler:
+        ## @param cluster.fodc.agent.pressureProfiler.enabled Enable automatic heap+goroutine pprof capture under memory pressure
+        enabled: true
+        ## @param cluster.fodc.agent.pressureProfiler.triggerPercent Capture when RSS / cgroup_limit reaches this percentage
+        triggerPercent: 75
+        ## @param cluster.fodc.agent.pressureProfiler.cooldown Minimum interval between two captures
+        cooldown: 5m
+        ## @param cluster.fodc.agent.pressureProfiler.dir Directory (on the writable volume) where captured profiles are stored; must equal the pressure-profiles mount path
+        dir: /tmp/pressure-profiles
+        ## @param cluster.fodc.agent.pressureProfiler.maxArtifacts Maximum number of capture events to retain (lowest-RSS evicted first)
+        maxArtifacts: 16
+        ## @param cluster.fodc.agent.pressureProfiler.maxDiskSize Maximum total on-disk size for retained events; case-insensitive, all suffixes are 1024-based (K/M/G/T, KB/MB/GB/TB, Ki/Mi/Gi/Ti), or a plain byte count; 0 disables the disk bound
+        maxDiskSize: 512MB
       ## Liveness probe for Agent
       livenessProbe:
         ## @param cluster.fodc.agent.livenessProbe.initialDelaySeconds Initial delay for Agent liveness probe
