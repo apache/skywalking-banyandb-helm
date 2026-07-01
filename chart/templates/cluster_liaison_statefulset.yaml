@@ -309,6 +309,19 @@ spec:
             {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
             - --crash-source-dir={{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
             {{- end }}
+            {{- with .Values.cluster.fodc.agent.pressureProfiler }}
+            {{- if .enabled }}
+            - --pressure-profiler-enabled=true
+            - --pressure-profiler-trigger-percent={{ .triggerPercent }}
+            - --pressure-profiler-pprof-port=6060
+            - --pressure-profiler-cooldown={{ .cooldown }}
+            - --pressure-profiler-dir={{ .dir }}
+            - --pressure-profiler-max-artifacts={{ .maxArtifacts }}
+            - --pressure-profiler-max-disk-bytes={{ include "banyandb.toBytes" .maxDiskSize }}
+            {{- else }}
+            - --pressure-profiler-enabled=false
+            {{- end }}
+            {{- end }}
           env:
             - name: POD_NAME
               valueFrom:
@@ -340,14 +353,20 @@ spec:
               {{- end }}
             {{- end }}
           {{- end }}
-          {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+          {{- if or .Values.cluster.fodc.agent.config.crashCollection.enabled (and .Values.cluster.fodc.agent.pressureProfiler .Values.cluster.fodc.agent.pressureProfiler.enabled) }}
           volumeMounts:
+            {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
             - name: crash-shared
               mountPath: {{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
+            {{- if and .Values.cluster.fodc.agent.pressureProfiler .Values.cluster.fodc.agent.pressureProfiler.enabled }}
+            - name: pressure-profiles
+              mountPath: {{ .Values.cluster.fodc.agent.pressureProfiler.dir }}
+            {{- end }}
           {{- end }}
         {{- end }}
 
-      {{- if or .Values.cluster.liaison.tls $schemaClientTls.secretName .Values.auth.enabled $nodeDiscoveryFileMode (and .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled) }}
+      {{- if or .Values.cluster.liaison.tls $schemaClientTls.secretName .Values.auth.enabled $nodeDiscoveryFileMode (and .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled) (and .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.pressureProfiler .Values.cluster.fodc.agent.pressureProfiler.enabled) }}
       volumes:
         {{- if .Values.cluster.liaison.tls }}
         {{- if .Values.cluster.liaison.tls.grpcSecretName }}
@@ -390,6 +409,10 @@ spec:
         {{- end }}
         {{- if and .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled }}
         - name: crash-shared
+          emptyDir: {}
+        {{- end }}
+        {{- if and .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.pressureProfiler .Values.cluster.fodc.agent.pressureProfiler.enabled }}
+        - name: pressure-profiles
           emptyDir: {}
         {{- end }}
       {{- end }}
