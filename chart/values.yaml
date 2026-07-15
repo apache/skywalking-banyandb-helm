@@ -21,6 +21,10 @@
 ##
 
 ## @param fullnameOverride Override the full name of the chart
+## Keep this short enough that generated resource names stay within Kubernetes limits.
+## StatefulSet names must be <= 52 characters so the controller-revision-hash pod label
+## does not exceed 63 bytes. The chart will fail at render time if any generated name is
+## too long.
 ##
 fullnameOverride: ""
 ## @param nameOverride Override the name of the chart
