@@ -85,6 +85,69 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Validate a generated Kubernetes name does not exceed a byte limit.
+Usage: include "banyandb.validateNameLength" (dict "name" $name "limit" 63 "description" "..." "release" .Release.Name)
+*/}}
+{{- define "banyandb.validateNameLength" -}}
+{{- $name := .name -}}
+{{- $limit := .limit | default 63 -}}
+{{- $description := .description -}}
+{{- $release := .release -}}
+{{- if gt (len $name) (int $limit) }}
+{{- fail (printf "%s '%s' is %d bytes long, which exceeds the %d-byte Kubernetes limit. Shorten the Helm release name '%s' or set a shorter fullnameOverride." $description $name (len $name) $limit $release) }}
+{{- end }}
+{{- end }}
+
+{{/*
+Validate all generated resource names fit within Kubernetes limits.
+StatefulSet names must leave room for the controller-revision-hash suffix
+(<statefulset-name>-<10-char-hash>) so pod labels stay within 63 bytes.
+*/}}
+{{- define "banyandb.validateNames" -}}
+{{- $fullname := include "banyandb.fullname" . -}}
+{{- $release := .Release.Name -}}
+
+{{/* fullname itself */}}
+{{- include "banyandb.validateNameLength" (dict "name" $fullname "limit" 63 "description" "Generated fullname" "release" $release) }}
+
+{{/* Standalone mode */}}
+{{- if .Values.standalone.enabled }}
+{{- include "banyandb.validateNameLength" (dict "name" $fullname "limit" 52 "description" "Standalone StatefulSet name" "release" $release) }}
+{{- end }}
+
+{{/* Cluster liaison */}}
+{{- if and .Values.cluster.enabled .Values.cluster.liaison }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-liaison" $fullname) "limit" 52 "description" "Liaison StatefulSet name" "release" $release) }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-liaison-headless" $fullname) "limit" 63 "description" "Liaison headless service name" "release" $release) }}
+{{- end }}
+
+{{/* Cluster data roles */}}
+{{- if and .Values.cluster.enabled .Values.cluster.data }}
+{{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-data-%s" $fullname $roleName) "limit" 52 "description" (printf "Data StatefulSet name for role '%s'" $roleName) "release" $release) }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-data-%s-headless" $fullname $roleName) "limit" 63 "description" (printf "Data headless service name for role '%s'" $roleName) "release" $release) }}
+{{- end }}
+{{- end }}
+
+{{/* Auth Secret */}}
+{{- if and .Values.auth.enabled (not .Values.auth.existingSecret) }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-auth" $fullname) "limit" 63 "description" "Auth Secret name" "release" $release) }}
+{{- end }}
+
+{{/* Standalone UI */}}
+{{- if and .Values.cluster.enabled (eq .Values.cluster.ui.type "Standalone") }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-ui" $fullname) "limit" 63 "description" "UI Deployment name" "release" $release) }}
+{{- end }}
+
+{{/* FODC proxy */}}
+{{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-fodc-proxy" $fullname) "limit" 63 "description" "FODC proxy Deployment name" "release" $release) }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-fodc-proxy-grpc" $fullname) "limit" 63 "description" "FODC proxy gRPC service name" "release" $release) }}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-fodc-proxy-http" $fullname) "limit" 63 "description" "FODC proxy HTTP service name" "release" $release) }}
+{{- end }}
+{{- end }}
+
+{{/*
 SchemaStoragePropertyServerEnv - injects property server env vars (data node only)
 Includes: repair cron, schema server parameters, schema server TLS
 */}}
