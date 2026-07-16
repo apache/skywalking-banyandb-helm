@@ -58,7 +58,6 @@ spec:
               METRICS_URL="http://banyandb-data-hot-metrics.istio-system.svc.cluster.local:2121/metrics"
               GROUP_NAME="e2e-plugins"
 
-              echo "Creating trace group with sampler pipeline..."
               curl -fsS -o /dev/null -X POST "$LIAISON_URL" \
                 -H 'Content-Type: application/json' \
                 -d "{
@@ -86,7 +85,6 @@ spec:
                   }
                 }"
 
-              echo "Waiting for sampler plugin to load..."
               for i in $(seq 1 60); do
                 if curl -fsS "$METRICS_URL" 2>/dev/null | grep -q "banyandb_trace_pipeline_sampler_active_count{group=\"$GROUP_NAME\"} 1"; then
                   echo "plugin_loaded: true"
