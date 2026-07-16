@@ -13,11 +13,11 @@ The content of this document describes the parameters that can be configured in 
 
 ### Container image configuration
 
-| Name               | Description                               | Value                                  |
-| ------------------ | ----------------------------------------- | -------------------------------------- |
-| `image.repository` | Docker repository for SkyWalking BanyanDB | `docker.io/apache/skywalking-banyandb` |
-| `image.tag`        | Image tag/version (empty for latest)      | `""`                                   |
-| `image.pullPolicy` | Image pull policy (e.g. IfNotPresent)     | `IfNotPresent`                         |
+| Name               | Description                                       | Value                                      |
+| ------------------ | ------------------------------------------------- | ------------------------------------------ |
+| `image.repository` | Docker repository for SkyWalking BanyanDB         | `docker.io/apache/skywalking-banyandb`     |
+| `image.tag`        | Image tag/version (empty means latest at runtime) | `32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0` |
+| `image.pullPolicy` | Image pull policy (e.g. IfNotPresent)             | `IfNotPresent`                             |
 
 ### Trace-pipeline sampler plugin configuration
 
