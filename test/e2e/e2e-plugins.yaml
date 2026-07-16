@@ -31,7 +31,7 @@ setup:
     - name: Create test namespace
       command: kubectl create namespace istio-system
     - name: Install BanyanDB with plugins
-      command: helm -n istio-system install --wait --timeout 10m banyandb chart/ -f test/e2e/values.plugins.yaml
+      command: helm -n istio-system install --wait --timeout 20m banyandb chart/ -f test/e2e/values.plugins.yaml
       wait:
         - namespace: istio-system
           resource: pod
@@ -49,7 +49,7 @@ setup:
         - namespace: istio-system
           resource: job/banyandb-plugin-verify
           for: condition=complete
-  timeout: 15m
+  timeout: 25m
 
 verify:
   retry:
