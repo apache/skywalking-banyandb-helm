@@ -59,7 +59,7 @@ spec:
               GROUP_NAME="e2e-plugins"
 
               echo "Creating trace group with sampler pipeline..."
-              curl -fsS -X POST "$LIAISON_URL" \
+              curl -fsS -o /dev/null -X POST "$LIAISON_URL" \
                 -H 'Content-Type: application/json' \
                 -d "{
                   \"group\": {
@@ -73,14 +73,13 @@ spec:
                     \"pipeline\": {
                       \"enabled\": true,
                       \"enabledEvents\": [\"PIPELINE_EVENT_MERGE\"],
-                      \"mergeGrace\": \"1ms\",
                       \"plugins\": [{
                         \"name\": \"latency-status\",
                         \"sampler\": {
                           \"path\": \"latencystatussampler.so\",
                           \"symbol\": \"NewSampler\",
                           \"abiVersion\": 1,
-                          \"config\": {\"thresholdMs\": 500}
+                          \"config\": {\"thresholdMs\": 500, \"successValue\": \"success\"}
                         }
                       }]
                     }
