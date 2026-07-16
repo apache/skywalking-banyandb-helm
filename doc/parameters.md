@@ -19,6 +19,20 @@ The content of this document describes the parameters that can be configured in 
 | `image.tag`        | Image tag/version (empty for latest)      | `""`                                   |
 | `image.pullPolicy` | Image pull policy (e.g. IfNotPresent)     | `IfNotPresent`                         |
 
+### Trace-pipeline sampler plugin configuration
+
+| Name                              | Description                                                            | Value           |
+| --------------------------------- | ---------------------------------------------------------------------- | --------------- |
+| `plugins.enabled`                 | Enable trace-pipeline native sampler plugins on data nodes.            | `false`         |
+| `plugins.image.repository`        | Docker repository for the plugin carrier image.                        | `""`            |
+| `plugins.image.tag`               | Carrier image tag (empty defaults to <main image tag>-plugins-carrier) | `""`            |
+| `plugins.image.pullPolicy`        | Carrier image pull policy                                              | `IfNotPresent`  |
+| `plugins.mountMode`               | How to deliver plugins into the data-node pod:                         | `initContainer` |
+| `plugins.initContainer.resources` | Resource requests/limits for the carrier copy init container           | `{}`            |
+| `plugins.thirdParty.repository`   | Docker repository for third-party plugins                              | `""`            |
+| `plugins.thirdParty.tag`          | Third-party plugin image tag                                           | `""`            |
+| `plugins.thirdParty.pullPolicy`   | Third-party plugin image pull policy                                   | `IfNotPresent`  |
+
 ### Authentication configuration for BanyanDB
 
 | Name                      | Description                                              | Value              |
@@ -83,44 +97,58 @@ The content of this document describes the parameters that can be configured in 
 ### Cluster mode configuration
 
 | Name              | Description                   | Value  |
-|-------------------|-------------------------------|--------|
+| ----------------- | ----------------------------- | ------ |
 | `cluster.enabled` | Enable cluster mode (boolean) | `true` |
 
 ### Schema Storage Configuration
 
-| Name                                                              | Description                                                                  | Value         |
-|-------------------------------------------------------------------|------------------------------------------------------------------------------|---------------|
-| `cluster.schemaStorage.property.serverRepairCron`                 | Cron schedule for metadata property server repair trigger                    | `@every 10m`  |
-| `cluster.schemaStorage.property.clientSyncInterval`               | Interval for property schema client synchronization                          | `30s`         |
-| `cluster.schemaStorage.property.clientMaxRecvMsgSize`             | Maximum gRPC receive message size for property schema client                 | `""`          |
-| `cluster.schemaStorage.property.tls.secretName`                   | K8s Secret for schema client TLS (CA cert), used by data + liaison nodes     | `""`          |
+| Name                         | Description                                        | Value      |
+| ---------------------------- | -------------------------------------------------- | ---------- |
+| `cluster.schemaStorage.mode` | Schema storage mode (only "property" is supported) | `property` |
+
+### Property Mode Configuration
+
+| Name                                                  | Description                                                  | Value        |
+| ----------------------------------------------------- | ------------------------------------------------------------ | ------------ |
+| `cluster.schemaStorage.property.serverRepairCron`     | Cron schedule for metadata property server repair trigger    | `@every 10m` |
+| `cluster.schemaStorage.property.clientSyncInterval`   | Interval for property schema client synchronization          | `30s`        |
+| `cluster.schemaStorage.property.clientMaxRecvMsgSize` | Maximum gRPC receive message size for property schema client | `""`         |
+| `cluster.schemaStorage.property.tls.secretName`       | K8s Secret for schema client TLS (CA cert)                   | `""`         |
 
 ### Property Schema Server Configuration (data nodes only)
 
-| Name                                                              | Description                                                                  | Value         |
-|-------------------------------------------------------------------|------------------------------------------------------------------------------|---------------|
-| `cluster.schemaStorage.property.server.grpcHost`                  | Schema server gRPC listen address                                            | `""`          |
-| `cluster.schemaStorage.property.server.grpcPort`                  | Schema server gRPC port                                                      | `17916`       |
-| `cluster.schemaStorage.property.server.flushTimeout`              | Interval for flushing in-memory data to disk                                 | `5s`          |
-| `cluster.schemaStorage.property.server.expireDeleteTimeout`       | Soft-delete expiration timeout (7 days)                                      | `168h`        |
-| `cluster.schemaStorage.property.server.maxRecvMsgSize`            | Maximum gRPC receive message size for schema server                          | `""`          |
-| `cluster.schemaStorage.property.server.repairTreeSlotCount`       | Number of repair tree slots                                                  | `""`          |
-| `cluster.schemaStorage.property.server.repairBuildTreeCron`       | Cron expression for repair tree build                                        | `@every 1h`   |
-| `cluster.schemaStorage.property.server.repairQuickBuildTreeTime`  | Duration for quick tree build after startup                                  | `10m`         |
-| `cluster.schemaStorage.property.server.maxFileSnapshotNum`        | Maximum number of file snapshots                                             | `""`          |
-| `cluster.schemaStorage.property.server.minFileSnapshotAge`        | Minimum age before a snapshot can be removed                                 | `1h`          |
-| `cluster.schemaStorage.property.server.tls.secretName`            | K8s Secret for schema server TLS (cert + key), used by data nodes only       | `""`          |
+| Name                                                             | Description                                         | Value       |
+| ---------------------------------------------------------------- | --------------------------------------------------- | ----------- |
+| `cluster.schemaStorage.property.server.grpcHost`                 | Schema server gRPC listen address                   | `""`        |
+| `cluster.schemaStorage.property.server.grpcPort`                 | Schema server gRPC port                             | `17916`     |
+| `cluster.schemaStorage.property.server.flushTimeout`             | Interval for flushing in-memory data to disk        | `5s`        |
+| `cluster.schemaStorage.property.server.expireDeleteTimeout`      | Soft-delete expiration timeout                      | `168h`      |
+| `cluster.schemaStorage.property.server.maxRecvMsgSize`           | Maximum gRPC receive message size for schema server | `""`        |
+| `cluster.schemaStorage.property.server.repairTreeSlotCount`      | Number of repair tree slots                         | `""`        |
+| `cluster.schemaStorage.property.server.repairBuildTreeCron`      | Cron expression for repair tree build               | `@every 1h` |
+| `cluster.schemaStorage.property.server.repairQuickBuildTreeTime` | Duration for quick tree build after startup         | `10m`       |
+| `cluster.schemaStorage.property.server.maxFileSnapshotNum`       | Maximum number of file snapshots                    | `""`        |
+| `cluster.schemaStorage.property.server.minFileSnapshotAge`       | Minimum age before a snapshot can be removed        | `1h`        |
+
+### Property Schema Server TLS Configuration (data nodes only)
+
+| Name                                                   | Description                                   | Value |
+| ------------------------------------------------------ | --------------------------------------------- | ----- |
+| `cluster.schemaStorage.property.server.tls.secretName` | K8s Secret for schema server TLS (cert + key) | `""`  |
+
+### Property Schema Client TLS Configuration (data + liaison nodes)
+
 
 ### Node Discovery Configuration for Service Discovery
 
-| Name                         | Description                     | Value  |
-|------------------------------|---------------------------------|--------|
+| Name                         | Description                     | Value |
+| ---------------------------- | ------------------------------- | ----- |
 | `cluster.nodeDiscovery.mode` | Node discovery mode (dns, file) | `dns` |
 
 ### DNS Mode Configuration
 
 | Name                                          | Description                          | Value |
-|-----------------------------------------------|--------------------------------------|-------|
+| --------------------------------------------- | ------------------------------------ | ----- |
 | `cluster.nodeDiscovery.dns.fetchInitInterval` | Query interval during initialization | `5s`  |
 | `cluster.nodeDiscovery.dns.fetchInitDuration` | Duration of initialization phase     | `5m`  |
 | `cluster.nodeDiscovery.dns.fetchInterval`     | Query interval after initialization  | `15s` |
@@ -129,17 +157,17 @@ The content of this document describes the parameters that can be configured in 
 ### File Mode Configuration
 
 | Name                                              | Description                                                       | Value |
-|---------------------------------------------------|-------------------------------------------------------------------|-------|
+| ------------------------------------------------- | ----------------------------------------------------------------- | ----- |
 | `cluster.nodeDiscovery.file.grpcTimeout`          | Timeout for metadata fetches over gRPC while using file discovery | `5s`  |
 | `cluster.nodeDiscovery.file.fetchInterval`        | Interval to poll and reload the discovery file                    | `5m`  |
 | `cluster.nodeDiscovery.file.retryInitialInterval` | Initial retry interval for failed node fetches metadata           | `1s`  |
 | `cluster.nodeDiscovery.file.retryMaxInterval`     | Maximum retry interval for failed node fetches metadata           | `2m`  |
-| `cluster.nodeDiscovery.file.retryMultiplier`      | Backoff multiplier applied between retries fetches metadata       | `2.0` |
+| `cluster.nodeDiscovery.file.retryMultiplier`      | Backoff multiplier applied between retries fetches metadata       | `2`   |
 
 ### Discovery file ConfigMap settings
 
 | Name                                                | Description                                                         | Value        |
-|-----------------------------------------------------|---------------------------------------------------------------------|--------------|
+| --------------------------------------------------- | ------------------------------------------------------------------- | ------------ |
 | `cluster.nodeDiscovery.file.configMap.existingName` | Existing ConfigMap name to mount as discovery file                  | `""`         |
 | `cluster.nodeDiscovery.file.configMap.key`          | Data key inside the ConfigMap that stores the discovery file        | `nodes.yaml` |
 | `cluster.nodeDiscovery.file.configMap.content`      | Inline YAML used to create the ConfigMap when existingName is empty | `""`         |
@@ -203,61 +231,62 @@ The content of this document describes the parameters that can be configured in 
 
 ### Configuration for data component
 
-| Name                                                           | Description                                                                  | Value                                        |
-| -------------------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------- |
-| `cluster.data.nodeTemplate.replicas`                           | Number of data replicas by default                                           | `2`                                          |
-| `cluster.data.nodeTemplate.podAnnotations`                     | Pod annotations for data pods                                                | `{}`                                         |
-| `cluster.data.nodeTemplate.securityContext`                    | Security context for data pods                                               | `{}`                                         |
-| `cluster.data.nodeTemplate.containerSecurityContext`           | Container-level security context for data pods                               | `{}`                                         |
-| `cluster.data.nodeTemplate.volumePermissions.enabled`          | Enable volume permissions init container for data pods                       | `false`                                      |
-| `cluster.data.nodeTemplate.volumePermissions.chownUser`        | User ID to chown the mounted volumes for data pods                           | `1000`                                       |
-| `cluster.data.nodeTemplate.volumePermissions.chownGroup`       | Group ID to chown the mounted volumes for data pods                          | `1000`                                       |
-| `cluster.data.nodeTemplate.volumePermissions.image`            | Image for the volume permissions init container for data pods                | `busybox:1.36`                               |
-| `cluster.data.nodeTemplate.env`                                | Environment variables for data pods                                          | `[]`                                         |
-| `cluster.data.nodeTemplate.priorityClassName`                  | Priority class name for data pods                                            | `""`                                         |
-| `cluster.data.nodeTemplate.podDisruptionBudget.maxUnavailable` | Maximum unavailable data pods                                                | `1`                                          |
-| `cluster.data.nodeTemplate.tolerations`                        | Tolerations for data pods                                                    | `[]`                                         |
-| `cluster.data.nodeTemplate.nodeSelector`                       | Node selector for data pods                                                  | `[]`                                         |
-| `cluster.data.nodeTemplate.affinity`                           | Affinity rules for data pods                                                 | `{}`                                         |
-| `cluster.data.nodeTemplate.podAffinityPreset`                  | Pod affinity preset for data pods                                            | `""`                                         |
-| `cluster.data.nodeTemplate.podAntiAffinityPreset`              | Pod anti-affinity preset for data pods                                       | `soft`                                       |
-| `cluster.data.nodeTemplate.resources.requests`                 | Resource requests for data pods                                              | `[]`                                         |
-| `cluster.data.nodeTemplate.resources.limits`                   | Resource limits for data pods                                                | `[]`                                         |
-| `cluster.data.nodeTemplate.grpcSvc.labels`                     | Labels for GRPC service for data pods                                        | `{}`                                         |
-| `cluster.data.nodeTemplate.grpcSvc.annotations`                | Annotations for GRPC service for data pods                                   | `{}`                                         |
-| `cluster.data.nodeTemplate.grpcSvc.port`                       | Port number for GRPC service for data pods                                   | `17912`                                      |
-| `cluster.data.nodeTemplate.sidecar`                            | Sidecar containers for data pods                                             | `[]`                                         |
-| `cluster.data.nodeTemplate.backupSidecar.enabled`              | Enable backup sidecar for data pods (boolean)                                | `false`                                      |
-| `cluster.data.nodeTemplate.backupSidecar.dest`                 | Backup destination path for data pods                                        | `file:///tmp/backups/data-$(ORDINAL_NUMBER)` |
-| `cluster.data.nodeTemplate.backupSidecar.timeStyle`            | Backup time style for data pods (e.g., daily)                                | `daily`                                      |
-| `cluster.data.nodeTemplate.backupSidecar.schedule`             | Backup schedule for data pods (cron format)                                  | `@hourly`                                    |
-| `cluster.data.nodeTemplate.backupSidecar.customFlags`          | Custom flags for backup sidecar (e.g., S3, Azure, GCS configuration)         | `[]`                                         |
-| `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods                                   | `{}`                                         |
-| `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)                             | `false`                                      |
-| `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)                                 | `@hourly`                                    |
-| `cluster.data.nodeTemplate.lifecycleSidecar.progressFile`      | Progress file path for lifecycle sidecar                                     | `""`                                         |
-| `cluster.data.nodeTemplate.lifecycleSidecar.reportDir`         | Report directory path for lifecycle sidecar                                  | `""`                                         |
-| `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods                                | `{}`                                         |
-| `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean)                        | `false`                                      |
-| `cluster.data.nodeTemplate.restoreInitContainer.customFlags`   | Custom flags for restore init container (e.g., S3, Azure, GCS configuration) | `[]`                                         |
-| `cluster.data.nodeTemplate.restoreInitContainer.resources`     | Resources for restore init container for data pods                           | `{}`                                         |
-| `cluster.data.nodeTemplate.livenessProbe.initialDelaySeconds`  | Initial delay for data liveness probe                                        | `20`                                         |
-| `cluster.data.nodeTemplate.livenessProbe.periodSeconds`        | Probe period for data liveness probe                                         | `30`                                         |
-| `cluster.data.nodeTemplate.livenessProbe.timeoutSeconds`       | Timeout in seconds for data liveness probe                                   | `5`                                          |
-| `cluster.data.nodeTemplate.livenessProbe.successThreshold`     | Success threshold for data liveness probe                                    | `1`                                          |
-| `cluster.data.nodeTemplate.livenessProbe.failureThreshold`     | Failure threshold for data liveness probe                                    | `5`                                          |
-| `cluster.data.nodeTemplate.readinessProbe.initialDelaySeconds` | Initial delay for data readiness probe                                       | `20`                                         |
-| `cluster.data.nodeTemplate.readinessProbe.periodSeconds`       | Probe period for data readiness probe                                        | `30`                                         |
-| `cluster.data.nodeTemplate.readinessProbe.timeoutSeconds`      | Timeout in seconds for data readiness probe                                  | `5`                                          |
-| `cluster.data.nodeTemplate.readinessProbe.successThreshold`    | Success threshold for data readiness probe                                   | `1`                                          |
-| `cluster.data.nodeTemplate.readinessProbe.failureThreshold`    | Failure threshold for data readiness probe                                   | `5`                                          |
-| `cluster.data.nodeTemplate.startupProbe.initialDelaySeconds`   | Initial delay for data startup probe                                         | `0`                                          |
-| `cluster.data.nodeTemplate.startupProbe.periodSeconds`         | Probe period for data startup probe                                          | `10`                                         |
-| `cluster.data.nodeTemplate.startupProbe.timeoutSeconds`        | Timeout in seconds for data startup probe                                    | `5`                                          |
-| `cluster.data.nodeTemplate.startupProbe.successThreshold`      | Success threshold for data startup probe                                     | `1`                                          |
-| `cluster.data.nodeTemplate.startupProbe.failureThreshold`      | Failure threshold for data startup probe                                     | `60`                                         |
-| `cluster.data.roles`                                           | List of data roles (hot, warm, cold)                                         |                                              |
-| `cluster.data.roles.hot`                                       | Hot data role                                                                | `{}`                                         |
+| Name                                                           | Description                                                                     | Value                                        |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------- |
+| `cluster.data.nodeTemplate.replicas`                           | Number of data replicas by default                                              | `2`                                          |
+| `cluster.data.nodeTemplate.podAnnotations`                     | Pod annotations for data pods                                                   | `{}`                                         |
+| `cluster.data.nodeTemplate.securityContext`                    | Security context for data pods                                                  | `{}`                                         |
+| `cluster.data.nodeTemplate.containerSecurityContext`           | Container-level security context for data pods                                  | `{}`                                         |
+| `cluster.data.nodeTemplate.volumePermissions.enabled`          | Enable volume permissions init container for data pods                          | `false`                                      |
+| `cluster.data.nodeTemplate.volumePermissions.chownUser`        | User ID to chown the mounted volumes for data pods                              | `1000`                                       |
+| `cluster.data.nodeTemplate.volumePermissions.chownGroup`       | Group ID to chown the mounted volumes for data pods                             | `1000`                                       |
+| `cluster.data.nodeTemplate.volumePermissions.image`            | Image for the volume permissions init container for data pods                   | `busybox:1.36`                               |
+| `cluster.data.nodeTemplate.env`                                | Environment variables for data pods                                             | `[]`                                         |
+| `cluster.data.nodeTemplate.priorityClassName`                  | Priority class name for data pods                                               | `""`                                         |
+| `cluster.data.nodeTemplate.podDisruptionBudget.maxUnavailable` | Maximum unavailable data pods                                                   | `1`                                          |
+| `cluster.data.nodeTemplate.tolerations`                        | Tolerations for data pods                                                       | `[]`                                         |
+| `cluster.data.nodeTemplate.nodeSelector`                       | Node selector for data pods                                                     | `[]`                                         |
+| `cluster.data.nodeTemplate.affinity`                           | Affinity rules for data pods                                                    | `{}`                                         |
+| `cluster.data.nodeTemplate.podAffinityPreset`                  | Pod affinity preset for data pods                                               | `""`                                         |
+| `cluster.data.nodeTemplate.podAntiAffinityPreset`              | Pod anti-affinity preset for data pods                                          | `soft`                                       |
+| `cluster.data.nodeTemplate.resources.requests`                 | Resource requests for data pods                                                 | `[]`                                         |
+| `cluster.data.nodeTemplate.resources.limits`                   | Resource limits for data pods                                                   | `[]`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.labels`                     | Labels for GRPC service for data pods                                           | `{}`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.annotations`                | Annotations for GRPC service for data pods                                      | `{}`                                         |
+| `cluster.data.nodeTemplate.grpcSvc.port`                       | Port number for GRPC service for data pods                                      | `17912`                                      |
+| `cluster.data.nodeTemplate.sidecar`                            | Sidecar containers for data pods                                                | `[]`                                         |
+| `cluster.data.nodeTemplate.backupSidecar.enabled`              | Enable backup sidecar for data pods (boolean)                                   | `false`                                      |
+| `cluster.data.nodeTemplate.backupSidecar.dest`                 | Backup destination path for data pods                                           | `file:///tmp/backups/data-$(ORDINAL_NUMBER)` |
+| `cluster.data.nodeTemplate.backupSidecar.timeStyle`            | Backup time style for data pods (e.g., daily)                                   | `daily`                                      |
+| `cluster.data.nodeTemplate.backupSidecar.schedule`             | Backup schedule for data pods (cron format)                                     | `@hourly`                                    |
+| `cluster.data.nodeTemplate.backupSidecar.customFlags`          | Custom flags for backup sidecar (e.g., S3, Azure, GCS configuration)            | `[]`                                         |
+| `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods                                      | `{}`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)                                | `false`                                      |
+| `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)                                    | `@hourly`                                    |
+| `cluster.data.nodeTemplate.lifecycleSidecar.progressFile`      | Progress file path for lifecycle sidecar                                        | `""`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.reportDir`         | Report directory path for lifecycle sidecar                                     | `""`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods                                   | `{}`                                         |
+| `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean)                           | `false`                                      |
+| `cluster.data.nodeTemplate.restoreInitContainer.customFlags`   | Custom flags for restore init container (e.g., S3, Azure, GCS configuration)    | `[]`                                         |
+| `cluster.data.nodeTemplate.restoreInitContainer.resources`     | Resources for restore init container for data pods                              | `{}`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.initialDelaySeconds`  | Initial delay for data liveness probe                                           | `20`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.periodSeconds`        | Probe period for data liveness probe                                            | `30`                                         |
+| `cluster.data.nodeTemplate.livenessProbe.timeoutSeconds`       | Timeout in seconds for data liveness probe                                      | `5`                                          |
+| `cluster.data.nodeTemplate.livenessProbe.successThreshold`     | Success threshold for data liveness probe                                       | `1`                                          |
+| `cluster.data.nodeTemplate.livenessProbe.failureThreshold`     | Failure threshold for data liveness probe                                       | `5`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.initialDelaySeconds` | Initial delay for data readiness probe                                          | `20`                                         |
+| `cluster.data.nodeTemplate.readinessProbe.periodSeconds`       | Probe period for data readiness probe                                           | `30`                                         |
+| `cluster.data.nodeTemplate.readinessProbe.timeoutSeconds`      | Timeout in seconds for data readiness probe                                     | `5`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.successThreshold`    | Success threshold for data readiness probe                                      | `1`                                          |
+| `cluster.data.nodeTemplate.readinessProbe.failureThreshold`    | Failure threshold for data readiness probe                                      | `5`                                          |
+| `cluster.data.nodeTemplate.startupProbe.initialDelaySeconds`   | Initial delay for data startup probe                                            | `0`                                          |
+| `cluster.data.nodeTemplate.startupProbe.periodSeconds`         | Probe period for data startup probe                                             | `10`                                         |
+| `cluster.data.nodeTemplate.startupProbe.timeoutSeconds`        | Timeout in seconds for data startup probe                                       | `5`                                          |
+| `cluster.data.nodeTemplate.startupProbe.successThreshold`      | Success threshold for data startup probe                                        | `1`                                          |
+| `cluster.data.nodeTemplate.startupProbe.failureThreshold`      | Failure threshold for data startup probe                                        | `60`                                         |
+| `cluster.data.roles`                                           | List of data roles (hot, warm, cold)                                            |                                              |
+| `cluster.data.roles.hot`                                       | Hot data role                                                                   |                                              |
+| `cluster.data.roles.hot.hasMetaRole`                           | Whether this role serves as the metadata role when using native property server | `true`                                       |
 
 ### Configuration for UI component
 
@@ -310,168 +339,177 @@ The content of this document describes the parameters that can be configured in 
 
 ### Configuration for FODC (First Occurrence Data Collection)
 
-| Name                  | Description                           | Value  |
-| --------------------- | ------------------------------------- | ------ |
+| Name                   | Description                                  | Value  |
+| ---------------------- | -------------------------------------------- | ------ |
 | `cluster.fodc.enabled` | Enable FODC (both Agent and Proxy) (boolean) | `true` |
 
 ### FODC Proxy component
 
-| Name                                                            | Description                                                             | Value                                             |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
-| `cluster.fodc.proxy.podAnnotations`                              | Pod annotations for Proxy                                               | `{}`                                              |
-| `cluster.fodc.proxy.securityContext`                             | Security context for Proxy pods                                         | `{}`                                              |
-| `cluster.fodc.proxy.containerSecurityContext`                    | Container-level security context for Proxy                              | `{}`                                              |
-| `cluster.fodc.proxy.env`                                         | Environment variables for Proxy pods                                    | `[]`                                              |
-| `cluster.fodc.proxy.priorityClassName`                           | Priority class name for Proxy pods                                      | `""`                                              |
-| `cluster.fodc.proxy.updateStrategy.type`                         | Update strategy type for Proxy pods                                     | `RollingUpdate`                                   |
-| `cluster.fodc.proxy.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods during update                                  | `1`                                               |
-| `cluster.fodc.proxy.updateStrategy.rollingUpdate.maxSurge`       | Maximum surge pods during update                                        | `1`                                               |
-| `cluster.fodc.proxy.podDisruptionBudget`                         | Pod disruption budget for Proxy                                         | `{}`                                              |
-| `cluster.fodc.proxy.tolerations`                                 | Tolerations for Proxy pods                                              | `[]`                                              |
-| `cluster.fodc.proxy.nodeSelector`                                | Node selector for Proxy pods                                            | `[]`                                              |
-| `cluster.fodc.proxy.affinity`                                    | Affinity rules for Proxy pods                                           | `{}`                                              |
-| `cluster.fodc.proxy.podAffinityPreset`                           | Pod affinity preset for Proxy                                           | `""`                                              |
-| `cluster.fodc.proxy.podAntiAffinityPreset`                       | Pod anti-affinity preset for Proxy                                      | `soft`                                            |
-| `cluster.fodc.proxy.resources.requests`                          | Resource requests for Proxy pods                                        | `[]`                                              |
-| `cluster.fodc.proxy.resources.limits`                            | Resource limits for Proxy pods                                          | `[]`                                              |
-| `cluster.fodc.proxy.image.repository`                            | Docker repository for FODC Proxy                                        | `ghcr.io/apache/skywalking-banyandb-fodc-proxy` |
-| `cluster.fodc.proxy.image.tag`                                   | Image tag/version for FODC Proxy (empty for latest)                     | `""`                                              |
-| `cluster.fodc.proxy.image.pullPolicy`                            | Image pull policy for FODC Proxy                                        | `IfNotPresent`                                    |
-| `cluster.fodc.proxy.grpcSvc.labels`                              | Labels for Proxy gRPC service                                           | `{}`                                              |
-| `cluster.fodc.proxy.grpcSvc.annotations`                         | Annotations for Proxy gRPC service                                      | `{}`                                              |
-| `cluster.fodc.proxy.grpcSvc.port`                                | Port number for Proxy gRPC service (Agent connections)                  | `17912`                                           |
-| `cluster.fodc.proxy.httpSvc.labels`                              | Labels for Proxy HTTP service                                           | `{}`                                              |
-| `cluster.fodc.proxy.httpSvc.annotations`                         | Annotations for Proxy HTTP service                                      | `{}`                                              |
-| `cluster.fodc.proxy.httpSvc.port`                                | Port number for Proxy HTTP service                                      | `17913`                                           |
-| `cluster.fodc.proxy.httpSvc.type`                                | Service type for Proxy HTTP service (ClusterIP, LoadBalancer, NodePort) | `LoadBalancer`                                    |
-| `cluster.fodc.proxy.httpSvc.externalIPs`                         | External IP addresses for Proxy HTTP service                            | `[]`                                              |
-| `cluster.fodc.proxy.httpSvc.loadBalancerIP`                      | Load balancer IP for Proxy HTTP service                                 | `nil`                                             |
-| `cluster.fodc.proxy.httpSvc.loadBalancerSourceRanges`            | Allowed source ranges for Proxy HTTP service                            | `[]`                                              |
-| `cluster.fodc.proxy.ingress.enabled`                             | Enable ingress for Proxy                                                | `false`                                           |
-| `cluster.fodc.proxy.ingress.labels`                              | Labels for Proxy ingress                                                | `{}`                                              |
-| `cluster.fodc.proxy.ingress.annotations`                         | Annotations for Proxy ingress                                           | `{}`                                              |
-| `cluster.fodc.proxy.ingress.rules`                               | Ingress rules for Proxy                                                 | `[]`                                              |
-| `cluster.fodc.proxy.ingress.tls`                                 | TLS configuration for Proxy ingress                                     | `[]`                                              |
-| `cluster.fodc.proxy.config.agentHeartbeatTimeout`                | Timeout for considering agent offline                                   | `30s`                                             |
-| `cluster.fodc.proxy.config.agentCleanupTimeout`                  | Timeout for auto-unregistering offline agents                           | `5m`                                              |
-| `cluster.fodc.proxy.config.maxAgents`                            | Maximum number of agents allowed to register                            | `1000`                                            |
-| `cluster.fodc.proxy.config.grpcMaxMsgSize`                       | Maximum gRPC message size in bytes                                      | `4194304`                                         |
-| `cluster.fodc.proxy.config.httpReadTimeout`                      | HTTP read timeout                                                       | `10s`                                             |
-| `cluster.fodc.proxy.config.httpWriteTimeout`                     | HTTP write timeout                                                      | `10s`                                             |
-| `cluster.fodc.proxy.config.heartbeatInterval`                    | Default heartbeat interval for agents                                   | `10s`                                             |
-| `cluster.fodc.proxy.livenessProbe.initialDelaySeconds`           | Initial delay for Proxy liveness probe                                  | `10`                                              |
-| `cluster.fodc.proxy.livenessProbe.periodSeconds`                 | Probe period for Proxy liveness probe                                   | `30`                                              |
-| `cluster.fodc.proxy.livenessProbe.timeoutSeconds`                | Timeout in seconds for Proxy liveness probe                             | `5`                                               |
-| `cluster.fodc.proxy.livenessProbe.successThreshold`              | Success threshold for Proxy liveness probe                              | `1`                                               |
-| `cluster.fodc.proxy.livenessProbe.failureThreshold`              | Failure threshold for Proxy liveness probe                              | `5`                                               |
-| `cluster.fodc.proxy.readinessProbe.initialDelaySeconds`          | Initial delay for Proxy readiness probe                                 | `10`                                              |
-| `cluster.fodc.proxy.readinessProbe.periodSeconds`                | Probe period for Proxy readiness probe                                  | `30`                                              |
-| `cluster.fodc.proxy.readinessProbe.timeoutSeconds`               | Timeout in seconds for Proxy readiness probe                            | `5`                                               |
-| `cluster.fodc.proxy.readinessProbe.successThreshold`             | Success threshold for Proxy readiness probe                             | `1`                                               |
-| `cluster.fodc.proxy.readinessProbe.failureThreshold`             | Failure threshold for Proxy readiness probe                             | `5`                                               |
-| `cluster.fodc.proxy.startupProbe.initialDelaySeconds`            | Initial delay for Proxy startup probe                                   | `0`                                               |
-| `cluster.fodc.proxy.startupProbe.periodSeconds`                  | Probe period for Proxy startup probe                                    | `10`                                              |
-| `cluster.fodc.proxy.startupProbe.timeoutSeconds`                 | Timeout in seconds for Proxy startup probe                              | `5`                                               |
-| `cluster.fodc.proxy.startupProbe.successThreshold`               | Success threshold for Proxy startup probe                               | `1`                                               |
-| `cluster.fodc.proxy.startupProbe.failureThreshold`               | Failure threshold for Proxy startup probe                               | `60`                                              |
+| Name                                                    | Description                                                             | Value                                           |
+| ------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------- |
+| `cluster.fodc.proxy.podAnnotations`                     | Pod annotations for Proxy                                               | `{}`                                            |
+| `cluster.fodc.proxy.securityContext`                    | Security context for Proxy pods                                         | `{}`                                            |
+| `cluster.fodc.proxy.containerSecurityContext`           | Container-level security context for Proxy                              | `{}`                                            |
+| `cluster.fodc.proxy.env`                                | Environment variables for Proxy pods                                    | `[]`                                            |
+| `cluster.fodc.proxy.priorityClassName`                  | Priority class name for Proxy pods                                      | `""`                                            |
+| `cluster.fodc.proxy.podDisruptionBudget`                | Pod disruption budget for Proxy                                         | `{}`                                            |
+| `cluster.fodc.proxy.tolerations`                        | Tolerations for Proxy pods                                              | `[]`                                            |
+| `cluster.fodc.proxy.nodeSelector`                       | Node selector for Proxy pods                                            | `[]`                                            |
+| `cluster.fodc.proxy.affinity`                           | Affinity rules for Proxy pods                                           | `{}`                                            |
+| `cluster.fodc.proxy.podAffinityPreset`                  | Pod affinity preset for Proxy                                           | `""`                                            |
+| `cluster.fodc.proxy.podAntiAffinityPreset`              | Pod anti-affinity preset for Proxy                                      | `soft`                                          |
+| `cluster.fodc.proxy.resources.requests`                 | Resource requests for Proxy pods                                        | `[]`                                            |
+| `cluster.fodc.proxy.resources.limits`                   | Resource limits for Proxy pods                                          | `[]`                                            |
+| `cluster.fodc.proxy.image.repository`                   | Docker repository for FODC Proxy                                        | `ghcr.io/apache/skywalking-banyandb-fodc-proxy` |
+| `cluster.fodc.proxy.image.tag`                          | Image tag/version for FODC Proxy (empty for latest)                     | `""`                                            |
+| `cluster.fodc.proxy.image.pullPolicy`                   | Image pull policy for FODC Proxy                                        | `IfNotPresent`                                  |
+| `cluster.fodc.proxy.grpcSvc.labels`                     | Labels for Proxy gRPC service                                           | `{}`                                            |
+| `cluster.fodc.proxy.grpcSvc.annotations`                | Annotations for Proxy gRPC service                                      | `{}`                                            |
+| `cluster.fodc.proxy.grpcSvc.port`                       | Port number for Proxy gRPC service (Agent connections)                  | `17912`                                         |
+| `cluster.fodc.proxy.httpSvc.labels`                     | Labels for Proxy HTTP service                                           | `{}`                                            |
+| `cluster.fodc.proxy.httpSvc.annotations`                | Annotations for Proxy HTTP service                                      | `{}`                                            |
+| `cluster.fodc.proxy.httpSvc.port`                       | Port number for Proxy HTTP service                                      | `17913`                                         |
+| `cluster.fodc.proxy.httpSvc.type`                       | Service type for Proxy HTTP service (ClusterIP, LoadBalancer, NodePort) | `LoadBalancer`                                  |
+| `cluster.fodc.proxy.httpSvc.externalIPs`                | External IP addresses for Proxy HTTP service                            | `[]`                                            |
+| `cluster.fodc.proxy.httpSvc.loadBalancerIP`             | Load balancer IP for Proxy HTTP service                                 | `nil`                                           |
+| `cluster.fodc.proxy.httpSvc.loadBalancerSourceRanges`   | Allowed source ranges for Proxy HTTP service                            | `[]`                                            |
+| `cluster.fodc.proxy.ingress.enabled`                    | Enable ingress for Proxy                                                | `false`                                         |
+| `cluster.fodc.proxy.ingress.labels`                     | Labels for Proxy ingress                                                | `{}`                                            |
+| `cluster.fodc.proxy.ingress.annotations`                | Annotations for Proxy ingress                                           | `{}`                                            |
+| `cluster.fodc.proxy.ingress.rules`                      | Ingress rules for Proxy                                                 | `[]`                                            |
+| `cluster.fodc.proxy.ingress.tls`                        | TLS configuration for Proxy ingress                                     | `[]`                                            |
+| `cluster.fodc.proxy.config.agentHeartbeatTimeout`       | Timeout for considering agent offline                                   | `30s`                                           |
+| `cluster.fodc.proxy.config.agentCleanupTimeout`         | Timeout for auto-unregistering offline agents                           | `5m`                                            |
+| `cluster.fodc.proxy.config.maxAgents`                   | Maximum number of agents allowed to register                            | `1000`                                          |
+| `cluster.fodc.proxy.config.grpcMaxMsgSize`              | Maximum gRPC message size in bytes                                      | `4194304`                                       |
+| `cluster.fodc.proxy.config.httpReadTimeout`             | HTTP read timeout                                                       | `10s`                                           |
+| `cluster.fodc.proxy.config.httpWriteTimeout`            | HTTP write timeout                                                      | `10s`                                           |
+| `cluster.fodc.proxy.config.heartbeatInterval`           | Default heartbeat interval for agents                                   | `10s`                                           |
+| `cluster.fodc.proxy.livenessProbe.initialDelaySeconds`  | Initial delay for Proxy liveness probe                                  | `10`                                            |
+| `cluster.fodc.proxy.livenessProbe.periodSeconds`        | Probe period for Proxy liveness probe                                   | `30`                                            |
+| `cluster.fodc.proxy.livenessProbe.timeoutSeconds`       | Timeout in seconds for Proxy liveness probe                             | `5`                                             |
+| `cluster.fodc.proxy.livenessProbe.successThreshold`     | Success threshold for Proxy liveness probe                              | `1`                                             |
+| `cluster.fodc.proxy.livenessProbe.failureThreshold`     | Failure threshold for Proxy liveness probe                              | `5`                                             |
+| `cluster.fodc.proxy.readinessProbe.initialDelaySeconds` | Initial delay for Proxy readiness probe                                 | `10`                                            |
+| `cluster.fodc.proxy.readinessProbe.periodSeconds`       | Probe period for Proxy readiness probe                                  | `30`                                            |
+| `cluster.fodc.proxy.readinessProbe.timeoutSeconds`      | Timeout in seconds for Proxy readiness probe                            | `5`                                             |
+| `cluster.fodc.proxy.readinessProbe.successThreshold`    | Success threshold for Proxy readiness probe                             | `1`                                             |
+| `cluster.fodc.proxy.readinessProbe.failureThreshold`    | Failure threshold for Proxy readiness probe                             | `5`                                             |
+| `cluster.fodc.proxy.startupProbe.initialDelaySeconds`   | Initial delay for Proxy startup probe                                   | `0`                                             |
+| `cluster.fodc.proxy.startupProbe.periodSeconds`         | Probe period for Proxy startup probe                                    | `10`                                            |
+| `cluster.fodc.proxy.startupProbe.timeoutSeconds`        | Timeout in seconds for Proxy startup probe                              | `5`                                             |
+| `cluster.fodc.proxy.startupProbe.successThreshold`      | Success threshold for Proxy startup probe                               | `1`                                             |
+| `cluster.fodc.proxy.startupProbe.failureThreshold`      | Failure threshold for Proxy startup probe                               | `60`                                            |
 
 ### FODC Agent sidecar
 
-| Name                                                               | Description                                                                                                                   | Value                                           |
-|--------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
-| `cluster.fodc.agent.image.repository`                              | Docker repository for FODC Agent                                                                                              | `ghcr.io/apache/skywalking-banyandb-fodc-agent` |
-| `cluster.fodc.agent.image.tag`                                     | Image tag/version for FODC Agent (defaults to same as main image)                                                             | `""`                                            |
-| `cluster.fodc.agent.image.pullPolicy`                              | Image pull policy for FODC Agent                                                                                              | `IfNotPresent`                                  |
-| `cluster.fodc.agent.env`                                           | Environment variables for Agent sidecar                                                                                       | `[]`                                            |
-| `cluster.fodc.agent.containerSecurityContext`                      | Container-level security context for Agent                                                                                    | `{}`                                            |
-| `cluster.fodc.agent.resources.requests`                            | Resource requests for Agent                                                                                                   | `{"memory": "256Mi"}`                           |
-| `cluster.fodc.agent.resources.limits`                              | Resource limits for Agent                                                                                                     | `{"memory": "256Mi"}`                           |
-| `cluster.fodc.agent.metricsPort`                                   | Metrics port for Agent sidecar (prometheus-listen-addr flag)                                                                  | `9090`                                          |
-| `cluster.fodc.agent.config.pollMetricsInterval`                    | Interval for polling BanyanDB metrics (poll-metrics-interval flag)                                                            | `15s`                                           |
-| `cluster.fodc.agent.config.heartbeatInterval`                      | Heartbeat interval to Proxy (heartbeat-interval flag)                                                                         | `10s`                                           |
-| `cluster.fodc.agent.config.reconnectInterval`                      | Reconnect interval when connection to Proxy is lost (reconnect-interval flag)                                                 | `10s`                                           |
-| `cluster.fodc.agent.config.ktmEnabled`                             | Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)                                                  | `true`                                          |
-| `cluster.fodc.agent.config.pollClusterStateInterval`               | Interval for polling cluster state from Proxy (poll-cluster-state-interval flag)                                              | `30s`                                           |
-| `cluster.fodc.agent.config.crashCollection.enabled`                | Enable panic/crash diagnostics collection                                                                                     | `true`                                          |
-| `cluster.fodc.agent.config.crashCollection.dir`                    | Shared path where banyand writes panic.json and fodc-agent reads it                                                           | `/tmp/crash`                                    |
-| `cluster.fodc.agent.config.crashCollection.maxArtifacts`           | Max crash artifact directories banyand retains (oldest removed first; 0 disables pruning)                                     | `10`                                            |
-| `cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent` | Set banyand GOMEMLIMIT to this percent of the cgroup memory limit, reserving headroom for post-panic diagnostics (0 disables) | `50`                                            |
-| `cluster.fodc.agent.pressureProfiler.enabled`                      | Enable automatic heap+goroutine pprof capture under memory pressure                                                           | `true`                                          |
-| `cluster.fodc.agent.pressureProfiler.triggerPercent`               | Capture when RSS / cgroup_limit reaches this percentage                                                                       | `75`                                            |
-| `cluster.fodc.agent.pressureProfiler.cooldown`                     | Minimum interval between two captures                                                                                         | `5m`                                            |
-| `cluster.fodc.agent.pressureProfiler.dir`                          | Directory (on the writable volume) where captured profiles are stored; must equal the pressure-profiles mount path            | `/tmp/pressure-profiles`                        |
-| `cluster.fodc.agent.pressureProfiler.maxArtifacts`                 | Maximum number of capture events to retain (lowest-RSS evicted first)                                                         | `16`                                            |
-| `cluster.fodc.agent.pressureProfiler.maxDiskSize`                  | Max total on-disk size for retained events; case-insensitive 1024-based suffix (e.g. 512Mi, 1Gi); 0 disables                  | `512Mi`                                         |
-| `cluster.fodc.agent.livenessProbe.initialDelaySeconds`             | Initial delay for Agent liveness probe                                                                                        | `90`                                            |
-| `cluster.fodc.agent.livenessProbe.periodSeconds`                   | Probe period for Agent liveness probe                                                                                         | `30`                                            |
-| `cluster.fodc.agent.livenessProbe.timeoutSeconds`                  | Timeout in seconds for Agent liveness probe                                                                                   | `5`                                             |
-| `cluster.fodc.agent.livenessProbe.successThreshold`                | Success threshold for Agent liveness probe                                                                                    | `1`                                             |
-| `cluster.fodc.agent.livenessProbe.failureThreshold`                | Failure threshold for Agent liveness probe                                                                                    | `5`                                             |
-| `cluster.fodc.agent.readinessProbe.initialDelaySeconds`            | Initial delay for Agent readiness probe                                                                                       | `60`                                            |
-| `cluster.fodc.agent.readinessProbe.periodSeconds`                  | Probe period for Agent readiness probe                                                                                        | `10`                                            |
-| `cluster.fodc.agent.readinessProbe.timeoutSeconds`                 | Timeout in seconds for Agent readiness probe                                                                                  | `5`                                             |
-| `cluster.fodc.agent.readinessProbe.successThreshold`               | Success threshold for Agent readiness probe                                                                                   | `1`                                             |
-| `cluster.fodc.agent.readinessProbe.failureThreshold`               | Failure threshold for Agent readiness probe                                                                                   | `12`                                            |
-| `cluster.fodc.agent.startupProbe.initialDelaySeconds`              | Initial delay for Agent startup probe                                                                                         | `30`                                            |
-| `cluster.fodc.agent.startupProbe.periodSeconds`                    | Probe period for Agent startup probe                                                                                          | `5`                                             |
-| `cluster.fodc.agent.startupProbe.timeoutSeconds`                   | Timeout in seconds for Agent startup probe                                                                                    | `3`                                             |
-| `cluster.fodc.agent.startupProbe.successThreshold`                 | Success threshold for Agent startup probe                                                                                     | `1`                                             |
-| `cluster.fodc.agent.startupProbe.failureThreshold`                 | Failure threshold for Agent startup probe                                                                                     | `60`                                            |
+| Name                                                               | Description                                                                                                                                                                         | Value                                           |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `cluster.fodc.agent.image.repository`                              | Docker repository for FODC Agent                                                                                                                                                    | `ghcr.io/apache/skywalking-banyandb-fodc-agent` |
+| `cluster.fodc.agent.image.tag`                                     | Image tag/version for FODC Agent (defaults to same as main image)                                                                                                                   | `""`                                            |
+| `cluster.fodc.agent.image.pullPolicy`                              | Image pull policy for FODC Agent                                                                                                                                                    | `IfNotPresent`                                  |
+| `cluster.fodc.agent.env`                                           | Environment variables for Agent sidecar                                                                                                                                             | `[]`                                            |
+| `cluster.fodc.agent.containerSecurityContext`                      | Container-level security context for Agent                                                                                                                                          | `{}`                                            |
+| `cluster.fodc.agent.resources.requests`                            | Resource requests for Agent                                                                                                                                                         |                                                 |
+| `cluster.fodc.agent.resources.requests[0].key`                     | Resource request key                                                                                                                                                                | `memory`                                        |
+| `cluster.fodc.agent.resources.requests[0].value`                   | Resource request value                                                                                                                                                              | `256Mi`                                         |
+| `cluster.fodc.agent.resources.limits`                              | Resource limits for Agent                                                                                                                                                           |                                                 |
+| `cluster.fodc.agent.resources.limits[0].key`                       | Resource limit key                                                                                                                                                                  | `memory`                                        |
+| `cluster.fodc.agent.resources.limits[0].value`                     | Resource limit value                                                                                                                                                                | `256Mi`                                         |
+| `cluster.fodc.agent.metricsPort`                                   | Metrics port for Agent sidecar (prometheus-listen-addr flag)                                                                                                                        | `9090`                                          |
+| `cluster.fodc.agent.config.pollMetricsInterval`                    | Interval for polling BanyanDB metrics (poll-metrics-interval flag)                                                                                                                  | `15s`                                           |
+| `cluster.fodc.agent.config.heartbeatInterval`                      | Heartbeat interval to Proxy (heartbeat-interval flag)                                                                                                                               | `10s`                                           |
+| `cluster.fodc.agent.config.reconnectInterval`                      | Reconnect interval when connection to Proxy is lost (reconnect-interval flag)                                                                                                       | `10s`                                           |
+| `cluster.fodc.agent.config.ktmEnabled`                             | Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)                                                                                                        | `true`                                          |
+| `cluster.fodc.agent.config.pollClusterStateInterval`               | Interval for polling cluster state from Proxy (poll-cluster-state-interval flag)                                                                                                    | `30s`                                           |
+| `cluster.fodc.agent.config.crashCollection.enabled`                | Enable panic/crash diagnostics collection                                                                                                                                           | `true`                                          |
+| `cluster.fodc.agent.config.crashCollection.dir`                    | Shared path where banyand writes panic.json and fodc-agent reads it                                                                                                                 | `/tmp/crash`                                    |
+| `cluster.fodc.agent.config.crashCollection.maxArtifacts`           | Max crash artifact directories banyand retains (oldest removed first; 0 disables pruning)                                                                                           | `10`                                            |
+| `cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent` | Set banyand GOMEMLIMIT to this percent of the cgroup memory limit, reserving headroom for post-panic diagnostics (0 disables)                                                       | `50`                                            |
+| `cluster.fodc.agent.pressureProfiler.enabled`                      | Enable automatic heap+goroutine pprof capture under memory pressure                                                                                                                 | `true`                                          |
+| `cluster.fodc.agent.pressureProfiler.triggerPercent`               | Capture when RSS / cgroup_limit reaches this percentage                                                                                                                             | `75`                                            |
+| `cluster.fodc.agent.pressureProfiler.cooldown`                     | Minimum interval between two captures                                                                                                                                               | `5m`                                            |
+| `cluster.fodc.agent.pressureProfiler.dir`                          | Directory (on the writable volume) where captured profiles are stored; must equal the pressure-profiles mount path                                                                  | `/tmp/pressure-profiles`                        |
+| `cluster.fodc.agent.pressureProfiler.maxArtifacts`                 | Maximum number of capture events to retain (lowest-RSS evicted first)                                                                                                               | `16`                                            |
+| `cluster.fodc.agent.pressureProfiler.maxDiskSize`                  | Maximum total on-disk size for retained events; case-insensitive, all suffixes are 1024-based (K/M/G/T, KB/MB/GB/TB, Ki/Mi/Gi/Ti), or a plain byte count; 0 disables the disk bound | `512Mi`                                         |
+| `cluster.fodc.agent.livenessProbe.initialDelaySeconds`             | Initial delay for Agent liveness probe                                                                                                                                              | `90`                                            |
+| `cluster.fodc.agent.livenessProbe.periodSeconds`                   | Probe period for Agent liveness probe                                                                                                                                               | `30`                                            |
+| `cluster.fodc.agent.livenessProbe.timeoutSeconds`                  | Timeout in seconds for Agent liveness probe                                                                                                                                         | `5`                                             |
+| `cluster.fodc.agent.livenessProbe.successThreshold`                | Success threshold for Agent liveness probe                                                                                                                                          | `1`                                             |
+| `cluster.fodc.agent.livenessProbe.failureThreshold`                | Failure threshold for Agent liveness probe                                                                                                                                          | `5`                                             |
+| `cluster.fodc.agent.readinessProbe.initialDelaySeconds`            | Initial delay for Agent readiness probe                                                                                                                                             | `60`                                            |
+| `cluster.fodc.agent.readinessProbe.periodSeconds`                  | Probe period for Agent readiness probe                                                                                                                                              | `10`                                            |
+| `cluster.fodc.agent.readinessProbe.timeoutSeconds`                 | Timeout in seconds for Agent readiness probe                                                                                                                                        | `5`                                             |
+| `cluster.fodc.agent.readinessProbe.successThreshold`               | Success threshold for Agent readiness probe                                                                                                                                         | `1`                                             |
+| `cluster.fodc.agent.readinessProbe.failureThreshold`               | Failure threshold for Agent readiness probe                                                                                                                                         | `12`                                            |
+| `cluster.fodc.agent.startupProbe.initialDelaySeconds`              | Initial delay for Agent startup probe                                                                                                                                               | `30`                                            |
+| `cluster.fodc.agent.startupProbe.periodSeconds`                    | Probe period for Agent startup probe                                                                                                                                                | `5`                                             |
+| `cluster.fodc.agent.startupProbe.timeoutSeconds`                   | Timeout in seconds for Agent startup probe                                                                                                                                          | `3`                                             |
+| `cluster.fodc.agent.startupProbe.successThreshold`                 | Success threshold for Agent startup probe                                                                                                                                           | `1`                                             |
+| `cluster.fodc.agent.startupProbe.failureThreshold`                 | Failure threshold for Agent startup probe                                                                                                                                           | `60`                                            |
 
 ### Storage configuration for persistent volumes
 
-| Name                                                        | Description                                             | Value                                                |
-| ----------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------- |
-| `storage.data.enabled`                                      | Enable persistent storage for data nodes (boolean)      | `true`                                               |
-| `storage.data.persistentVolumeClaims`                       | List of PVC configurations for data nodes               |                                                      |
-| `storage.data.persistentVolumeClaims[0].mountTargets`       | Mount targets for the PVC                               | `["measure"]`                                        |
-| `storage.data.persistentVolumeClaims[0].nodeRole`           | Node role this PVC is bound to (hot, warm, cold)        | `hot`                                                |
-| `storage.data.persistentVolumeClaims[0].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                |
-| `storage.data.persistentVolumeClaims[0].claimName`          | Name of the PVC                                         | `hot-measure-data`                                   |
-| `storage.data.persistentVolumeClaims[0].size`               | Size of the PVC                                         | `50Gi`                                               |
-| `storage.data.persistentVolumeClaims[0].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                  |
-| `storage.data.persistentVolumeClaims[0].storageClass`       | Storage class for the PVC                               | `nil`                                                |
-| `storage.data.persistentVolumeClaims[0].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                         |
-| `storage.data.persistentVolumeClaims[1].mountTargets`       | Mount targets for the PVC                               | `["stream"]`                                         |
-| `storage.data.persistentVolumeClaims[1].nodeRole`           | Node role this PVC is bound to                          | `hot`                                                |
-| `storage.data.persistentVolumeClaims[1].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                |
-| `storage.data.persistentVolumeClaims[1].claimName`          | Name of the PVC                                         | `hot-stream-data`                                    |
-| `storage.data.persistentVolumeClaims[1].size`               | Size of the PVC                                         | `50Gi`                                               |
-| `storage.data.persistentVolumeClaims[1].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                  |
-| `storage.data.persistentVolumeClaims[1].storageClass`       | Storage class for the PVC                               | `nil`                                                |
-| `storage.data.persistentVolumeClaims[1].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                         |
-| `storage.data.persistentVolumeClaims[2].mountTargets`       | Mount targets for the PVC                               | `["property"]`                                       |
-| `storage.data.persistentVolumeClaims[2].nodeRole`           | Node role this PVC is bound to                          | `hot`                                                |
-| `storage.data.persistentVolumeClaims[2].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                |
-| `storage.data.persistentVolumeClaims[2].claimName`          | Name of the PVC                                         | `hot-property-data`                                  |
-| `storage.data.persistentVolumeClaims[2].size`               | Size of the PVC                                         | `5Gi`                                                |
-| `storage.data.persistentVolumeClaims[2].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                  |
-| `storage.data.persistentVolumeClaims[2].storageClass`       | Storage class for the PVC                               | `nil`                                                |
-| `storage.data.persistentVolumeClaims[2].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                         |
-| `storage.data.persistentVolumeClaims[3].mountTargets`       | Mount targets for the PVC                               | `["trace"]`                                          |
-| `storage.data.persistentVolumeClaims[3].nodeRole`           | Node role this PVC is bound to                          | `hot`                                                |
-| `storage.data.persistentVolumeClaims[3].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                |
-| `storage.data.persistentVolumeClaims[3].claimName`          | Name of the PVC                                         | `hot-trace-data`                                     |
-| `storage.data.persistentVolumeClaims[3].size`               | Size of the PVC                                         | `50Gi`                                               |
-| `storage.data.persistentVolumeClaims[3].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                  |
-| `storage.data.persistentVolumeClaims[3].storageClass`       | Storage class for the PVC                               | `nil`                                                |
-| `storage.data.persistentVolumeClaims[3].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                         |
-| `storage.liaison.enabled`                                   | Enable persistent storage for liaison nodes (boolean)   | `true`                                               |
-| `storage.liaison.persistentVolumeClaims`                    | List of PVC configurations for liaison nodes            |                                                      |
-| `storage.liaison.persistentVolumeClaims[0].mountTargets`    | Mount targets for the PVC                               | `["measure","stream","trace"]`                       |
-| `storage.liaison.persistentVolumeClaims[0].claimName`       | Name of the PVC                                         | `liaison-data`                                       |
-| `storage.liaison.persistentVolumeClaims[0].size`            | Size of the PVC                                         | `10Gi`                                               |
-| `storage.liaison.persistentVolumeClaims[0].accessModes`     | Access modes for the PVC                                | `["ReadWriteOnce"]`                                  |
-| `storage.liaison.persistentVolumeClaims[0].storageClass`    | Storage class for the PVC                               | `nil`                                                |
-| `storage.liaison.persistentVolumeClaims[0].volumeMode`      | Volume mode for the PVC                                 | `Filesystem`                                         |
-| `storage.standalone.enabled`                                | Enable persistent storage for standalone mode (boolean) | `false`                                              |
-| `storage.standalone.persistentVolumeClaims`                 | List of PVC configurations for standalone               |                                                      |
-| `storage.standalone.persistentVolumeClaims[0].mountTargets` | Mount targets for the PVC                               | `["measure","stream","metadata","property","trace"]` |
-| `storage.standalone.persistentVolumeClaims[0].claimName`    | Name of the PVC                                         | `standalone-data`                                    |
-| `storage.standalone.persistentVolumeClaims[0].size`         | Size of the PVC                                         | `200Gi`                                              |
-| `storage.standalone.persistentVolumeClaims[0].accessModes`  | Access modes for the PVC                                | `["ReadWriteOnce"]`                                  |
-| `storage.standalone.persistentVolumeClaims[0].storageClass` | Storage class for the PVC                               | `nil`                                                |
-| `storage.standalone.persistentVolumeClaims[0].volumeMode`   | Volume mode for the PVC                                 | `Filesystem`                                         |
+| Name                                                        | Description                                             | Value                                                                  |
+| ----------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `storage.data.enabled`                                      | Enable persistent storage for data nodes (boolean)      | `true`                                                                 |
+| `storage.data.persistentVolumeClaims`                       | List of PVC configurations for data nodes               |                                                                        |
+| `storage.data.persistentVolumeClaims[0].mountTargets`       | Mount targets for the PVC                               | `["measure"]`                                                          |
+| `storage.data.persistentVolumeClaims[0].nodeRole`           | Node role this PVC is bound to (hot, warm, cold)        | `hot`                                                                  |
+| `storage.data.persistentVolumeClaims[0].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[0].claimName`          | Name of the PVC                                         | `hot-measure-data`                                                     |
+| `storage.data.persistentVolumeClaims[0].size`               | Size of the PVC                                         | `50Gi`                                                                 |
+| `storage.data.persistentVolumeClaims[0].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                                    |
+| `storage.data.persistentVolumeClaims[0].storageClass`       | Storage class for the PVC                               | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[0].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                                           |
+| `storage.data.persistentVolumeClaims[1].mountTargets`       | Mount targets for the PVC                               | `["stream"]`                                                           |
+| `storage.data.persistentVolumeClaims[1].nodeRole`           | Node role this PVC is bound to                          | `hot`                                                                  |
+| `storage.data.persistentVolumeClaims[1].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[1].claimName`          | Name of the PVC                                         | `hot-stream-data`                                                      |
+| `storage.data.persistentVolumeClaims[1].size`               | Size of the PVC                                         | `50Gi`                                                                 |
+| `storage.data.persistentVolumeClaims[1].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                                    |
+| `storage.data.persistentVolumeClaims[1].storageClass`       | Storage class for the PVC                               | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[1].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                                           |
+| `storage.data.persistentVolumeClaims[2].mountTargets`       | Mount targets for the PVC                               | `["property"]`                                                         |
+| `storage.data.persistentVolumeClaims[2].nodeRole`           | Node role this PVC is bound to                          | `hot`                                                                  |
+| `storage.data.persistentVolumeClaims[2].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[2].claimName`          | Name of the PVC                                         | `hot-property-data`                                                    |
+| `storage.data.persistentVolumeClaims[2].size`               | Size of the PVC                                         | `5Gi`                                                                  |
+| `storage.data.persistentVolumeClaims[2].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                                    |
+| `storage.data.persistentVolumeClaims[2].storageClass`       | Storage class for the PVC                               | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[2].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                                           |
+| `storage.data.persistentVolumeClaims[3].mountTargets`       | Mount targets for the PVC                               | `["trace"]`                                                            |
+| `storage.data.persistentVolumeClaims[3].nodeRole`           | Node role this PVC is bound to                          | `hot`                                                                  |
+| `storage.data.persistentVolumeClaims[3].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[3].claimName`          | Name of the PVC                                         | `hot-trace-data`                                                       |
+| `storage.data.persistentVolumeClaims[3].size`               | Size of the PVC                                         | `50Gi`                                                                 |
+| `storage.data.persistentVolumeClaims[3].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                                    |
+| `storage.data.persistentVolumeClaims[3].storageClass`       | Storage class for the PVC                               | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[3].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                                           |
+| `storage.data.persistentVolumeClaims[4].mountTargets`       | Mount targets for the PVC                               | `["schema-property"]`                                                  |
+| `storage.data.persistentVolumeClaims[4].nodeRole`           | Node role this PVC is bound to                          | `hot`                                                                  |
+| `storage.data.persistentVolumeClaims[4].existingClaimName`  | Existing PVC name (if any)                              | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[4].claimName`          | Name of the PVC                                         | `hot-schema-property-data`                                             |
+| `storage.data.persistentVolumeClaims[4].size`               | Size of the PVC                                         | `5Gi`                                                                  |
+| `storage.data.persistentVolumeClaims[4].accessModes`        | Access modes for the PVC                                | `["ReadWriteOnce"]`                                                    |
+| `storage.data.persistentVolumeClaims[4].storageClass`       | Storage class for the PVC                               | `nil`                                                                  |
+| `storage.data.persistentVolumeClaims[4].volumeMode`         | Volume mode for the PVC                                 | `Filesystem`                                                           |
+| `storage.liaison.enabled`                                   | Enable persistent storage for liaison nodes (boolean)   | `true`                                                                 |
+| `storage.liaison.persistentVolumeClaims`                    | List of PVC configurations for liaison nodes            |                                                                        |
+| `storage.liaison.persistentVolumeClaims[0].mountTargets`    | Mount targets for the PVC                               | `["measure","stream","trace"]`                                         |
+| `storage.liaison.persistentVolumeClaims[0].claimName`       | Name of the PVC                                         | `liaison-data`                                                         |
+| `storage.liaison.persistentVolumeClaims[0].size`            | Size of the PVC                                         | `10Gi`                                                                 |
+| `storage.liaison.persistentVolumeClaims[0].accessModes`     | Access modes for the PVC                                | `["ReadWriteOnce"]`                                                    |
+| `storage.liaison.persistentVolumeClaims[0].storageClass`    | Storage class for the PVC                               | `nil`                                                                  |
+| `storage.liaison.persistentVolumeClaims[0].volumeMode`      | Volume mode for the PVC                                 | `Filesystem`                                                           |
+| `storage.standalone.enabled`                                | Enable persistent storage for standalone mode (boolean) | `false`                                                                |
+| `storage.standalone.persistentVolumeClaims`                 | List of PVC configurations for standalone               |                                                                        |
+| `storage.standalone.persistentVolumeClaims[0].mountTargets` | Mount targets for the PVC                               | `["measure","stream","metadata","property","trace","schema-property"]` |
+| `storage.standalone.persistentVolumeClaims[0].claimName`    | Name of the PVC                                         | `standalone-data`                                                      |
+| `storage.standalone.persistentVolumeClaims[0].size`         | Size of the PVC                                         | `200Gi`                                                                |
+| `storage.standalone.persistentVolumeClaims[0].accessModes`  | Access modes for the PVC                                | `["ReadWriteOnce"]`                                                    |
+| `storage.standalone.persistentVolumeClaims[0].storageClass` | Storage class for the PVC                               | `nil`                                                                  |
+| `storage.standalone.persistentVolumeClaims[0].volumeMode`   | Volume mode for the PVC                                 | `Filesystem`                                                           |
 
 ### Service account configuration
 
@@ -480,4 +518,3 @@ The content of this document describes the parameters that can be configured in 
 | `serviceAccount.create`      | Create a service account (boolean)  | `true` |
 | `serviceAccount.annotations` | Annotations for the service account | `{}`   |
 | `serviceAccount.name`        | Name of the service account         | `""`   |
-

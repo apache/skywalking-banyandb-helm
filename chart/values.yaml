@@ -85,13 +85,13 @@ plugins:
   ## Optional third-party plugin image mounted at /plugins/thirdparty.
   ##
   thirdParty:
-    ## @param plugins.thirdParty.image.repository Docker repository for third-party plugins
+    ## @param plugins.thirdParty.repository Docker repository for third-party plugins
     ##
     repository: ""
-    ## @param plugins.thirdParty.image.tag Third-party plugin image tag
+    ## @param plugins.thirdParty.tag Third-party plugin image tag
     ##
     tag: ""
-    ## @param plugins.thirdParty.image.pullPolicy Third-party plugin image pull policy
+    ## @param plugins.thirdParty.pullPolicy Third-party plugin image pull policy
     ##
     pullPolicy: IfNotPresent
 
@@ -805,7 +805,7 @@ cluster:
     ## @extra cluster.data.roles List of data roles (hot, warm, cold)
     ##
     roles:
-      ## @param cluster.data.roles.hot Hot data role
+      ## @extra cluster.data.roles.hot Hot data role
       ##
       hot:
         ## @param cluster.data.roles.hot.hasMetaRole Whether this role serves as the metadata role when using native property server
@@ -1090,12 +1090,18 @@ cluster:
       ## @param cluster.fodc.agent.containerSecurityContext Container-level security context for Agent
       containerSecurityContext: {}
       resources:
-        ## @param cluster.fodc.agent.resources.requests Resource requests for Agent
+        ## @extra cluster.fodc.agent.resources.requests Resource requests for Agent
+        ##
         requests:
+          ## @param cluster.fodc.agent.resources.requests[0].key Resource request key
+          ## @param cluster.fodc.agent.resources.requests[0].value Resource request value
           - key: memory
             value: 256Mi
-        ## @param cluster.fodc.agent.resources.limits Resource limits for Agent
+        ## @extra cluster.fodc.agent.resources.limits Resource limits for Agent
+        ##
         limits:
+          ## @param cluster.fodc.agent.resources.limits[0].key Resource limit key
+          ## @param cluster.fodc.agent.resources.limits[0].value Resource limit value
           - key: memory
             value: 256Mi
       ## @param cluster.fodc.agent.metricsPort Metrics port for Agent sidecar (prometheus-listen-addr flag)
