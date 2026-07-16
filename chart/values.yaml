@@ -44,6 +44,57 @@ image:
   ##
   pullPolicy: IfNotPresent
 
+## @section Trace-pipeline sampler plugin configuration
+##
+plugins:
+  ## @param plugins.enabled Enable trace-pipeline native sampler plugins on data nodes.
+  ## When enabled, the data-node container uses the -plugins host image and mounts
+  ## the carrier image at /plugins. Liaison and standalone pods never host plugins.
+  ##
+  enabled: false
+
+  ## Plugin carrier image configuration.
+  ## The carrier delivers first-party .so files and is mounted at /plugins.
+  ## Lockstep parity is required: the carrier must match the data-node host image tag.
+  ##
+  image:
+    ## @param plugins.image.repository Docker repository for the plugin carrier image.
+    ## Empty defaults to the main banyandb image repository to preserve lockstep parity.
+    ##
+    repository: ""
+    ## @param plugins.image.tag Carrier image tag (empty defaults to <main image tag>-plugins-carrier)
+    ##
+    tag: ""
+    ## @param plugins.image.pullPolicy Carrier image pull policy
+    ##
+    pullPolicy: IfNotPresent
+
+  ## @param plugins.mountMode How to deliver plugins into the data-node pod:
+  ## "initContainer" (default, portable) copies .so files from the carrier into a shared emptyDir.
+  ## "imageVolume" uses an OCI image volume (Kubernetes >= 1.31 beta).
+  ##
+  mountMode: initContainer
+
+  ## Init-container delivery configuration (used when mountMode=initContainer)
+  ##
+  initContainer:
+    ## @param plugins.initContainer.resources Resource requests/limits for the carrier copy init container
+    ##
+    resources: {}
+
+  ## Optional third-party plugin image mounted at /plugins/thirdparty.
+  ##
+  thirdParty:
+    ## @param plugins.thirdParty.image.repository Docker repository for third-party plugins
+    ##
+    repository: ""
+    ## @param plugins.thirdParty.image.tag Third-party plugin image tag
+    ##
+    tag: ""
+    ## @param plugins.thirdParty.image.pullPolicy Third-party plugin image pull policy
+    ##
+    pullPolicy: IfNotPresent
+
 ## @section Authentication configuration for BanyanDB
 ##
 auth:

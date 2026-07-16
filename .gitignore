@@ -17,3 +17,4 @@ build/
 .claude
 CLAUDE.md
 .cursor
+.omc/
