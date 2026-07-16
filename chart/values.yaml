@@ -37,9 +37,9 @@ image:
   ## @param image.repository Docker repository for SkyWalking BanyanDB
   ##
   repository: docker.io/apache/skywalking-banyandb
-  ## @param image.tag Image tag/version (empty for latest)
+  ## @param image.tag Image tag/version (empty means latest at runtime)
   ##
-  tag: ""
+  tag: "32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0"
   ## @param image.pullPolicy Image pull policy (e.g. IfNotPresent)
   ##
   pullPolicy: IfNotPresent
@@ -70,8 +70,11 @@ plugins:
     pullPolicy: IfNotPresent
 
   ## @param plugins.mountMode How to deliver plugins into the data-node pod:
-  ## "initContainer" (default, portable) copies .so files from the carrier into a shared emptyDir.
-  ## "imageVolume" uses an OCI image volume (Kubernetes >= 1.31 beta).
+  ## - "initContainer" (default, works on all Kubernetes versions): runs the carrier image as an
+  ##   initContainer that copies the first-party .so files into a shared emptyDir volume mounted
+  ##   at /plugins.
+  ## - "imageVolume" (Kubernetes >= 1.31, OCI image volume): mounts the carrier image filesystem
+  ##   directly at /plugins without an initContainer or shell.
   ##
   mountMode: initContainer
 
