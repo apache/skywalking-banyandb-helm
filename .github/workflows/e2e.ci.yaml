@@ -99,7 +99,7 @@ jobs:
         if: ${{ failure() }}
         name: Upload Logs
         with:
-          name: logs-${{ matrix.test.config }}
+          name: logs-${{ github.run_id }}-${{ strategy.job-index }}
           path: "${{ runner.temp }}/skywalking-infra-e2e/logs"
 
 
