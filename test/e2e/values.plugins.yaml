@@ -52,7 +52,7 @@ cluster:
       port: 17912
     httpSvc:
       port: 17913
-      type: LoadBalancer
+      type: ClusterIP
     livenessProbe:
       initialDelaySeconds: 20
       periodSeconds: 5
