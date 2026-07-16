@@ -30,6 +30,8 @@ cluster:
     mode: "dns"
   liaison:
     replicas: 2
+    httpSvc:
+      type: ClusterIP
   data:
     nodeTemplate:
       replicas: 2
