@@ -163,11 +163,10 @@ spec:
           {{- end }}
         {{- end }}
         {{- if and $plugins.enabled (eq $pluginsMountMode "initContainer") (include "banyandb.pluginsThirdPartyImage" $) }}
-        {{- $thirdParty := $plugins.thirdParty | default dict -}}
-        {{- $thirdPartyImage := $thirdParty.image | default dict -}}
+        {{- $thirdParty := $plugins.thirdParty | default dict }}
         - name: plugin-thirdparty
           image: {{ include "banyandb.pluginsThirdPartyImage" $ }}
-          imagePullPolicy: {{ $thirdPartyImage.pullPolicy | default "IfNotPresent" }}
+          imagePullPolicy: {{ $thirdParty.pullPolicy | default "IfNotPresent" }}
           command:
             - sh
             - -c

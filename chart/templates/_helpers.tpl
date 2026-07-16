@@ -179,9 +179,8 @@ Return the third-party plugin image reference, if configured.
 */}}
 {{- define "banyandb.pluginsThirdPartyImage" -}}
 {{- $thirdParty := (default dict .Values.plugins).thirdParty | default dict -}}
-{{- $image := $thirdParty.image | default dict -}}
-{{- if and $image.repository $image.tag -}}
-{{- printf "%s:%s" $image.repository $image.tag -}}
+{{- if and $thirdParty.repository $thirdParty.tag -}}
+{{- printf "%s:%s" $thirdParty.repository $thirdParty.tag -}}
 {{- end -}}
 {{- end -}}
 
