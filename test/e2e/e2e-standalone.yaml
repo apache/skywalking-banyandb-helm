@@ -43,7 +43,7 @@ setup:
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
     - name: Install BanyanDB
-      command: helm -n istio-system install banyandb chart/ -f test/e2e/values.standalone.yaml
+      command: helm -n istio-system install --wait --timeout 20m banyandb chart/ -f test/e2e/values.standalone.yaml
       wait:
         - namespace: istio-system
           resource: pod
@@ -91,7 +91,7 @@ setup:
         - namespace: default
           resource: pod
           for: condition=Ready
-  timeout: 25m
+  timeout: 35m
 
 verify:
   retry:

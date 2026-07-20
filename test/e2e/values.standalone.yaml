@@ -22,7 +22,7 @@ cluster:
 
 image:
   repository: ghcr.io/apache/skywalking-banyandb
-  tag: 998ce31226f94836234bd3d93bd25abade9c9f65
+  tag: 32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0
   pullPolicy: IfNotPresent
 
 standalone:
@@ -118,7 +118,7 @@ standalone:
     labels: {}
     annotations: {}
     port: 17913
-    type: LoadBalancer
+    type: ClusterIP
     externalIPs: []
     loadBalancerIP: null
     loadBalancerSourceRanges: []

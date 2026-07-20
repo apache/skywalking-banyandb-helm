@@ -148,6 +148,68 @@ StatefulSet names must leave room for the controller-revision-hash suffix
 {{- end }}
 
 {{/*
+Trace-pipeline plugin helpers
+*/}}
+
+{{/*
+Return the data-node image to use when plugins are enabled.
+This is the -plugins host image tag derived from the main image tag.
+*/}}
+{{- define "banyandb.pluginsHostImage" -}}
+{{- $repo := .Values.image.repository -}}
+{{- $tag := required "banyandb.image.tag is required when plugins are enabled" .Values.image.tag -}}
+{{- printf "%s:%s-plugins" $repo $tag -}}
+{{- end -}}
+
+{{/*
+Return the plugin carrier image reference.
+The carrier tag defaults to <main-tag>-plugins-carrier to preserve lockstep parity.
+*/}}
+{{- define "banyandb.pluginsCarrierImage" -}}
+{{- $plugins := .Values.plugins | default dict -}}
+{{- $pluginsImage := $plugins.image | default dict -}}
+{{- $repo := $pluginsImage.repository | default .Values.image.repository -}}
+{{- $mainTag := required "banyandb.image.tag is required when plugins are enabled" .Values.image.tag -}}
+{{- $tag := $pluginsImage.tag | default (printf "%s-plugins-carrier" $mainTag) -}}
+{{- printf "%s:%s" $repo $tag -}}
+{{- end -}}
+
+{{/*
+Return the third-party plugin image reference, if configured.
+*/}}
+{{- define "banyandb.pluginsThirdPartyImage" -}}
+{{- $thirdParty := (default dict .Values.plugins).thirdParty | default dict -}}
+{{- if and $thirdParty.repository $thirdParty.tag -}}
+{{- printf "%s:%s" $thirdParty.repository $thirdParty.tag -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate plugin configuration.
+*/}}
+{{- define "banyandb.validatePlugins" -}}
+{{- $plugins := .Values.plugins | default dict -}}
+{{- if $plugins.enabled }}
+{{- if .Values.standalone.enabled }}
+{{- fail "plugins.enabled cannot be used in standalone mode; plugins are supported on data nodes in cluster mode only" }}
+{{- end }}
+{{- if not .Values.cluster.enabled }}
+{{- fail "plugins.enabled requires cluster.enabled=true; plugins are supported on data nodes in cluster mode only" }}
+{{- end }}
+{{- if not .Values.cluster.data }}
+{{- fail "plugins.enabled requires cluster.data to be configured" }}
+{{- end }}
+{{- $mountMode := $plugins.mountMode | default "initContainer" }}
+{{- if and (ne $mountMode "initContainer") (ne $mountMode "imageVolume") }}
+{{- fail (printf "plugins.mountMode must be 'initContainer' or 'imageVolume', got '%s'" $mountMode) }}
+{{- end }}
+{{- if not .Values.image.tag }}
+{{- fail "banyandb.image.tag is required when plugins.enabled=true" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 SchemaStoragePropertyServerEnv - injects property server env vars (data node only)
 Includes: repair cron, schema server parameters, schema server TLS
 */}}

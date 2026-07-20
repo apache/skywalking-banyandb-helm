@@ -137,9 +137,60 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- end }}
+        {{- $plugins := $.Values.plugins | default dict -}}
+        {{- $pluginsMountMode := $plugins.mountMode | default "initContainer" -}}
+        {{- $pluginsImage := $plugins.image | default dict -}}
+        {{- $pluginsInitContainer := $plugins.initContainer | default dict -}}
+        {{- if and $plugins.enabled (eq $pluginsMountMode "initContainer") }}
+        - name: plugin-carrier
+          image: {{ include "banyandb.pluginsCarrierImage" $ }}
+          imagePullPolicy: {{ $pluginsImage.pullPolicy | default $.Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              mkdir -p /plugins-shared /plugins-shared/thirdparty
+              if [ -d /plugins ] && [ "$(ls -A /plugins)" ]; then
+                cp /plugins/*.so /plugins-shared/ 2>/dev/null || true
+              fi
+          volumeMounts:
+            - name: plugins-volume
+              mountPath: /plugins-shared
+          {{- with $pluginsInitContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- if and $plugins.enabled (eq $pluginsMountMode "initContainer") (include "banyandb.pluginsThirdPartyImage" $) }}
+        {{- $thirdParty := $plugins.thirdParty | default dict }}
+        - name: plugin-thirdparty
+          image: {{ include "banyandb.pluginsThirdPartyImage" $ }}
+          imagePullPolicy: {{ $thirdParty.pullPolicy | default "IfNotPresent" }}
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              mkdir -p /plugins-shared/thirdparty
+              if [ -d /plugins ] && [ "$(ls -A /plugins)" ]; then
+                cp /plugins/*.so /plugins-shared/thirdparty/ 2>/dev/null || true
+              fi
+          volumeMounts:
+            - name: plugins-volume
+              mountPath: /plugins-shared
+          {{- with $pluginsInitContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
       containers:
         - name: data
+          {{- if $plugins.enabled }}
+          image: {{ include "banyandb.pluginsHostImage" $ }}
+          {{- else }}
           image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          {{- end }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           {{- with $roleConfig.containerSecurityContext }}
           securityContext:
@@ -206,6 +257,10 @@ spec:
 
           args:
             - data
+            {{- if $plugins.enabled }}
+            - --trace-pipeline-native-plugin-enabled=true
+            - --trace-pipeline-trusted-plugin-dir=/plugins
+            {{- end }}
           ports:
             - containerPort: 17912
               name: grpc
@@ -245,7 +300,7 @@ spec:
             timeoutSeconds: {{ $roleConfig.startupProbe.timeoutSeconds }}
             successThreshold: {{ $roleConfig.startupProbe.successThreshold }}
             failureThreshold: {{ $roleConfig.startupProbe.failureThreshold }}
-          {{- if $roleConfig.resources }}
+          {{- if or $roleConfig.resources.requests $roleConfig.resources.limits }}
           resources:
             {{- if $roleConfig.resources.requests }}
             requests:
@@ -265,7 +320,8 @@ spec:
           {{- $schemaClientTls := $schemaProperty.tls | default dict }}
           {{- $schemaServer := $schemaProperty.server | default dict }}
           {{- $schemaServerTls := $schemaServer.tls | default dict }}
-          {{- if or $.Values.storage.data.enabled $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) }}
+          {{- $dataPlugins := $.Values.plugins | default dict -}}
+          {{- if or $.Values.storage.data.enabled $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) $dataPlugins.enabled }}
           volumeMounts:
             {{- if $.Values.storage.data.enabled }}
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
@@ -309,6 +365,10 @@ spec:
             {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
             - name: crash-shared
               mountPath: {{ $.Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
+            {{- if $dataPlugins.enabled }}
+            - name: plugins-volume
+              mountPath: /plugins
             {{- end }}
           {{- end }}
         {{- if and $.Values.cluster.enabled $.Values.cluster.fodc.enabled }}
@@ -556,7 +616,9 @@ spec:
           {{- end }}
         {{- end }}
 
-      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled) (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.pressureProfiler $.Values.cluster.fodc.agent.pressureProfiler.enabled) }}
+      {{- $volPlugins := $.Values.plugins | default dict -}}
+      {{- $volPluginsImage := $volPlugins.image | default dict -}}
+      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled) (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.pressureProfiler $.Values.cluster.fodc.agent.pressureProfiler.enabled) $volPlugins.enabled }}
       volumes:
         {{- if $roleConfig.tls }}
         {{- if $roleConfig.tls.grpcSecretName }}
@@ -594,6 +656,18 @@ spec:
         {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.pressureProfiler $.Values.cluster.fodc.agent.pressureProfiler.enabled }}
         - name: pressure-profiles
           emptyDir: {}
+        {{- end }}
+        {{- if $volPlugins.enabled }}
+        {{- $volPluginsMode := $volPlugins.mountMode | default "initContainer" }}
+        {{- if eq $volPluginsMode "initContainer" }}
+        - name: plugins-volume
+          emptyDir: {}
+        {{- else if eq $volPluginsMode "imageVolume" }}
+        - name: plugins-volume
+          image:
+            reference: {{ include "banyandb.pluginsCarrierImage" $ }}
+            pullPolicy: {{ $volPluginsImage.pullPolicy | default $.Values.image.pullPolicy }}
+        {{- end }}
         {{- end }}
       {{- end }}
 
