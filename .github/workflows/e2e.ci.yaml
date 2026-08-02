@@ -45,6 +45,10 @@ jobs:
             config: test/e2e/e2e-fodc-proxy-service.yaml
           - name: Run Skywalking E2E Test (BanyanDB DNS cluster state)
             config: test/e2e/e2e-dns-cluster-state.yaml
+          - name: Run Canopy E2E Test (standalone BanyanDB + canopy console)
+            config: test/e2e/e2e-canopy-standalone.yaml
+          - name: Run Canopy E2E Test (BanyanDB cluster + canopy console)
+            config: test/e2e/e2e-canopy-cluster.yaml
           - name: Run Skywalking E2E Test (BanyanDB trace-pipeline plugins)
             config: test/e2e/e2e-plugins.yaml
     name: ${{ matrix.test.name }}

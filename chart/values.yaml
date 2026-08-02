@@ -132,6 +132,142 @@ auth:
   ##
   users: []
 
+## @section Canopy web console configuration
+## Canopy is the standalone web console for BanyanDB (SPA + BFF), intended to
+## replace the legacy embedded UI. It proxies /api and /monitoring to BanyanDB,
+## so a single ingress to canopy covers both the console and the HTTP API.
+##
+canopy:
+  ## @param canopy.enabled Deploy the canopy console (Deployment + Service).
+  ##
+  enabled: false
+
+  image:
+    ## @param canopy.image.repository Canopy image repository. Empty defaults to
+    ## image.repository (the console ships in the same repo with a "-canopy" tag suffix).
+    ##
+    repository: ""
+    ## @param canopy.image.tag Canopy image tag. Empty defaults to "<image.tag>-canopy"
+    ## (lockstep with the BanyanDB image, mirroring the plugins carrier pattern).
+    ##
+    tag: ""
+    ## @param canopy.image.pullPolicy Canopy image pull policy. Empty defaults to
+    ## image.pullPolicy.
+    ##
+    pullPolicy: ""
+
+  ## @param canopy.replicas Number of canopy replicas
+  ##
+  replicas: 1
+
+  ## @param canopy.env Extra environment variables appended to the canopy container
+  ##
+  env: []
+
+  ## Console authentication. Canopy always runs with NODE_ENV=production, which
+  ## forbids the dev no-auth mode — it needs a users file and a session secret.
+  ## When nothing is provided the chart generates a default admin user with a
+  ## strong random password (stable across upgrades); retrieve it from NOTES or:
+  ##   kubectl get secret <release>-canopy-auth -o jsonpath='{.data.password}' | base64 -d
+  ##
+  auth:
+    ## @param canopy.auth.username Default admin username (generated user only)
+    ##
+    username: admin
+    ## @param canopy.auth.password Default admin password. Empty generates a strong
+    ## random one on install (reused on upgrades via the generated Secret).
+    ##
+    password: ""
+    ## @param canopy.auth.sessionSecret Session signing secret (>= 32 chars). Empty
+    ## generates a random one (also reused on upgrades).
+    ##
+    sessionSecret: ""
+    ## @param canopy.auth.users Extra console users appended after the default admin,
+    ## each {username, passwordHash (bcrypt), role (admin|readonly)}
+    ##
+    users: []
+    ## @param canopy.auth.existingSecret Use an existing Secret instead of the
+    ## generated one. Must contain keys "session-secret" and "users.yaml"
+    ## (canopy users file format); may also carry "password" for NOTES output.
+    ##
+    existingSecret: ""
+
+  service:
+    ## @param canopy.service.labels Labels for the canopy service
+    ##
+    labels: {}
+    ## @param canopy.service.annotations Annotations for the canopy service
+    ##
+    annotations: {}
+    ## @param canopy.service.port Canopy service port
+    ##
+    port: 4000
+    ## @param canopy.service.type Canopy service type
+    ##
+    type: ClusterIP
+    ## @param canopy.service.externalIPs External IPs for the canopy service
+    ##
+    externalIPs: []
+    ## @param canopy.service.loadBalancerIP Load balancer IP for the canopy service
+    ##
+    loadBalancerIP: ""
+    ## @param canopy.service.loadBalancerSourceRanges Load balancer source ranges
+    ##
+    loadBalancerSourceRanges: []
+
+  ## @param canopy.updateStrategy Update strategy for canopy pods
+  ##
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
+  ## @param canopy.podAnnotations Pod annotations for canopy
+  ##
+  podAnnotations: {}
+  ## @param canopy.securityContext Security context for canopy pods
+  ##
+  securityContext: {}
+  ## @param canopy.priorityClassName Priority class name for canopy pods
+  ##
+  priorityClassName: ""
+  ## @param canopy.podDisruptionBudget Pod disruption budget for canopy
+  ##
+  podDisruptionBudget: {}
+  ## @param canopy.resources Resource requests/limits for canopy pods
+  ##
+  resources: {}
+  ## @param canopy.tolerations Tolerations for canopy pods
+  ##
+  tolerations: []
+  ## @param canopy.nodeSelector Node selector for canopy pods
+  ##
+  nodeSelector: []
+  ## @param canopy.affinity Affinity rules for canopy pods
+  ##
+  affinity: {}
+
+  ingress:
+    ## @param canopy.ingress.enabled Create an Ingress for the canopy console.
+    ## Canopy proxies /api and /monitoring, so this single ingress exposes both
+    ## the console UI and the BanyanDB HTTP API.
+    ##
+    enabled: false
+    ## @param canopy.ingress.labels Labels for the canopy ingress
+    ##
+    labels: {}
+    ## @param canopy.ingress.annotations Annotations for the canopy ingress
+    ##
+    annotations: {}
+    ## @param canopy.ingress.tls TLS configuration for the canopy ingress
+    ##
+    tls: []
+    ## @param canopy.ingress.rules Ingress rules; each path's backend defaults to
+    ## the canopy service when serviceName/port are omitted.
+    ##
+    rules: []
+
 ## @section Configuration for standalone deployment
 ##
 standalone:

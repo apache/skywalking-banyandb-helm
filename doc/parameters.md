@@ -42,6 +42,43 @@ The content of this document describes the parameters that can be configured in 
 | `auth.credentialsFileKey` | Key name in the Secret that stores the                   | `credentials.yaml` |
 | `auth.users`              | List of users to configure when not using existingSecret | `[]`               |
 
+### Canopy web console configuration
+
+| Name                         | Description                                                                          | Value        |
+| ---------------------------- | ------------------------------------------------------------------------------------ | ------------ |
+| `canopy.enabled`             | Deploy the canopy console (Deployment + Service).                                    | `false`      |
+| `canopy.image.repository`    | Canopy image repository. Empty defaults to image.repository                          | `""`         |
+| `canopy.image.tag`           | Canopy image tag. Empty defaults to "<image.tag>-canopy"                             | `""`         |
+| `canopy.image.pullPolicy`    | Canopy image pull policy. Empty defaults to image.pullPolicy                         | `""`         |
+| `canopy.replicas`            | Number of canopy replicas                                                            | `1`          |
+| `canopy.env`                 | Extra environment variables appended to the canopy container                         | `[]`         |
+| `canopy.auth.username`       | Default admin username (generated user only)                                         | `admin`      |
+| `canopy.auth.password`       | Default admin password. Empty generates a strong random one                          | `""`         |
+| `canopy.auth.sessionSecret`  | Session signing secret (>= 32 chars). Empty generates a random one                   | `""`         |
+| `canopy.auth.users`          | Extra console users appended after the default admin                                 | `[]`         |
+| `canopy.auth.existingSecret` | Use an existing Secret with "session-secret" and "users.yaml" keys                   | `""`         |
+| `canopy.service.labels`      | Labels for the canopy service                                                        | `{}`         |
+| `canopy.service.annotations` | Annotations for the canopy service                                                   | `{}`         |
+| `canopy.service.port`        | Canopy service port                                                                  | `4000`       |
+| `canopy.service.type`        | Canopy service type                                                                  | `ClusterIP`  |
+| `canopy.service.externalIPs` | External IPs for the canopy service                                                  | `[]`         |
+| `canopy.service.loadBalancerIP` | Load balancer IP for the canopy service                                           | `""`         |
+| `canopy.service.loadBalancerSourceRanges` | Load balancer source ranges                                              | `[]`         |
+| `canopy.updateStrategy`      | Update strategy for canopy pods                                                      |              |
+| `canopy.podAnnotations`      | Pod annotations for canopy                                                           | `{}`         |
+| `canopy.securityContext`     | Security context for canopy pods                                                     | `{}`         |
+| `canopy.priorityClassName`   | Priority class name for canopy pods                                                  | `""`         |
+| `canopy.podDisruptionBudget` | Pod disruption budget for canopy                                                     | `{}`         |
+| `canopy.resources`           | Resource requests/limits for canopy pods                                             | `{}`         |
+| `canopy.tolerations`         | Tolerations for canopy pods                                                          | `[]`         |
+| `canopy.nodeSelector`        | Node selector for canopy pods                                                        | `[]`         |
+| `canopy.affinity`            | Affinity rules for canopy pods                                                       | `{}`         |
+| `canopy.ingress.enabled`     | Create an Ingress for the canopy console                                             | `false`      |
+| `canopy.ingress.labels`      | Labels for the canopy ingress                                                        | `{}`         |
+| `canopy.ingress.annotations` | Annotations for the canopy ingress                                                   | `{}`         |
+| `canopy.ingress.tls`         | TLS configuration for the canopy ingress                                             | `[]`         |
+| `canopy.ingress.rules`       | Ingress rules; backends default to the canopy service                                | `[]`         |
+
 ### Configuration for standalone deployment
 
 | Name                                            | Description                                             | Value          |
