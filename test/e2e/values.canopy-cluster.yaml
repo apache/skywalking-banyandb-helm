@@ -470,6 +470,6 @@ auth:
 canopy:
   enabled: true
   image:
-    tag: "REPLACE_WITH_MAIN_SHA-canopy"
+    tag: "36921708b3bd3e0cd0ca37db9761fadf685c99a1-canopy"
   service:
     type: ClusterIP
