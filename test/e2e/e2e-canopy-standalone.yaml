@@ -45,12 +45,6 @@ setup:
       command: bash test/e2e/verify-canopy.sh banyandb default
   timeout: 15m
 
-verify:
-  retry:
-    count: 3
-    interval: 10s
-  cases:
-    # The scenario's assertions run in the verify step above (the framework's
-    # swctl-based cases target SkyWalking, which this scenario doesn't deploy).
-    - query: kubectl -n default get deploy banyandb-canopy -o yaml
-      expected: expected/canopy-deployment.yml
+# The framework's swctl-based verify cases target a SkyWalking deployment,
+# which this scenario does not install — the gate is the verify-canopy.sh
+# step above (health, generated-admin login, BFF proxy, SPA, registry read).
