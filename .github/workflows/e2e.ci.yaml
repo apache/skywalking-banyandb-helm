@@ -34,6 +34,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
+      # Matrix legs are independent scenarios — a flake in one (e.g. the
+      # wait-for-pods race on a cold kind node) must not cancel the rest.
+      fail-fast: false
       matrix:
         test:
           - name: Run Skywalking E2E Test (standalone BanyanDB as database)
