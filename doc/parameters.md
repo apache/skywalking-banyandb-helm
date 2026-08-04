@@ -64,7 +64,9 @@ The content of this document describes the parameters that can be configured in 
 | `canopy.service.externalIPs` | External IPs for the canopy service                                                  | `[]`         |
 | `canopy.service.loadBalancerIP` | Load balancer IP for the canopy service                                           | `""`         |
 | `canopy.service.loadBalancerSourceRanges` | Load balancer source ranges                                              | `[]`         |
-| `canopy.updateStrategy`      | Update strategy for canopy pods                                                      |              |
+| `canopy.updateStrategy.type` | Update strategy type for canopy pods                                                 | `RollingUpdate` |
+| `canopy.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods for canopy update                          | `1`          |
+| `canopy.updateStrategy.rollingUpdate.maxSurge` | Maximum surge pods for canopy update                                     | `1`          |
 | `canopy.podAnnotations`      | Pod annotations for canopy                                                           | `{}`         |
 | `canopy.securityContext`     | Security context for canopy pods                                                     | `{}`         |
 | `canopy.priorityClassName`   | Priority class name for canopy pods                                                  | `""`         |
