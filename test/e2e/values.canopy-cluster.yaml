@@ -120,7 +120,7 @@ cluster:
       labels: {}
       annotations: {}
       port: 17913
-      type: LoadBalancer
+      type: ClusterIP
       externalIPs: []
       loadBalancerIP: null
       loadBalancerSourceRanges: []
@@ -361,7 +361,7 @@ cluster:
         labels: {}
         annotations: {}
         port: 17913
-        type: LoadBalancer
+        type: ClusterIP
         externalIPs: []
         loadBalancerIP: null
         loadBalancerSourceRanges: []
