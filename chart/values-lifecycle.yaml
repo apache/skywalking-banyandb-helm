@@ -33,9 +33,12 @@ image:
   ## @param image.repository Docker repository for SkyWalking BanyanDB
   ##
   repository: docker.io/apache/skywalking-banyandb
-  ## @param image.tag Image tag/version (required; must be non-empty)
+  ## @param image.tag Image tag/version. REQUIRED and deliberately has NO
+  ## default: every install must pick an explicit tag
+  ## (--set image.tag=... / --values), so nobody runs a stale pinned sha by
+  ## accident. The templates fail fast via `required` when it is empty.
   ##
-  tag: "32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0"
+  tag: ""
   ## @param image.pullPolicy Image pull policy (e.g. IfNotPresent)
   ##
   pullPolicy: IfNotPresent
