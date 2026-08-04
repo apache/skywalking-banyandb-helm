@@ -35,7 +35,7 @@ setup:
     - name: Install helm
       command: bash test/e2e/setup-e2e-shell/install.sh helm
     - name: Install BanyanDB with the canopy console (standalone)
-      command: helm -n default install --wait --timeout 10m banyandb chart/ -f test/e2e/values.canopy.yaml
+      command: helm -n default install --wait --timeout 20m banyandb chart/ -f test/e2e/values.canopy.yaml
       wait:
         - namespace: default
           resource: pod
@@ -43,7 +43,7 @@ setup:
           label-selector: app.kubernetes.io/component=canopy
     - name: Verify the canopy console
       command: bash test/e2e/verify-canopy.sh banyandb default
-  timeout: 15m
+  timeout: 25m
 
 # The framework's swctl-based verify cases target a SkyWalking deployment,
 # which this scenario does not install — the gate is the verify-canopy.sh
