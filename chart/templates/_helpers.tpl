@@ -549,18 +549,32 @@ standalone's otherwise.
 {{- end }}
 
 {{/*
+The URL scheme for BanyanDB HTTP: https when HTTP TLS is enabled for the
+active mode (standalone.tls.httpSecretName / cluster.liaison.tls.httpSecretName).
+*/}}
+{{- define "banyandb.canopyScheme" -}}
+{{- $scheme := "http" -}}
+{{- if .Values.cluster.enabled -}}
+{{- if (default dict .Values.cluster.liaison.tls).httpSecretName -}}{{- $scheme = "https" -}}{{- end -}}
+{{- else -}}
+{{- if (default dict .Values.standalone.tls).httpSecretName -}}{{- $scheme = "https" -}}{{- end -}}
+{{- end -}}
+{{- $scheme -}}
+{{- end }}
+
+{{/*
 BANYANDB_TARGET for the canopy container. The <fullname>-http service exists
 in both modes (standalone -> standalone pods, cluster -> liaison pods).
 */}}
 {{- define "banyandb.canopyTarget" -}}
-{{- printf "http://%s-http:%v" (include "banyandb.fullname" .) (include "banyandb.canopyHttpPort" .) -}}
+{{- printf "%s://%s-http:%v" (include "banyandb.canopyScheme" .) (include "banyandb.fullname" .) (include "banyandb.canopyHttpPort" .) -}}
 {{- end }}
 
 {{/*
 MONITOR_TARGET for the canopy container (observability port on the same service).
 */}}
 {{- define "banyandb.canopyMonitorTarget" -}}
-{{- printf "http://%s-http:2121" (include "banyandb.fullname" .) -}}
+{{- printf "%s://%s-http:2121" (include "banyandb.canopyScheme" .) (include "banyandb.fullname" .) -}}
 {{- end }}
 
 {{/*

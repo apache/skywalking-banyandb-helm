@@ -33,6 +33,9 @@ spec:
   type: {{ .Values.canopy.service.type }}
   ports:
     - port: {{ .Values.canopy.service.port }}
+      # The container always listens on 4000 (Deployment); without this, a
+      # custom service port would route to the same-numbered pod port.
+      targetPort: http
       name: http
   selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: canopy

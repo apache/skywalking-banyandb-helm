@@ -53,6 +53,8 @@ jobs:
             config: test/e2e/e2e-canopy-standalone.yaml
           - name: Run Canopy E2E Test (BanyanDB cluster + canopy console)
             config: test/e2e/e2e-canopy-cluster.yaml
+          - name: Run Skywalking E2E Test (BanyanDB trace-pipeline plugins)
+            config: test/e2e/e2e-plugins.yaml
     name: ${{ matrix.test.name }}
     env:
       OAP_TAG: 65137fc27fd765bb44007bad7fcbe59a185fa617
@@ -67,14 +69,32 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone skywalking-infra-e2e
+        run: |
+          git clone https://github.com/apache/skywalking-infra-e2e.git skywalking-infra-e2e-src
+          git -C skywalking-infra-e2e-src checkout 7e4b5b68716fdb7b79b21fa8908f9db497e1b115
       - name: Setup go
         uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
         with:
           go-version: '1.24'
+      - name: Install docker-compose
+        shell: bash
+        run: |
+          if ! command -v docker-compose >/dev/null 2>&1; then
+            echo "Installing docker-compose"
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+      - name: Install skywalking-infra-e2e
+        run: make -C skywalking-infra-e2e-src install DESTDIR=/usr/local/bin
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@7e4b5b68716fdb7b79b21fa8908f9db497e1b115
-        with:
-          e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
+        run: |
+          export SW_INFRA_E2E_LOG_DIR="${{ runner.temp }}/skywalking-infra-e2e/logs"
+          e2e run \
+            -c "$GITHUB_WORKSPACE/${{ matrix.test.config }}" \
+            -B \
+            -w "${{ runner.temp }}/skywalking-infra-e2e" \
+            -l "$SW_INFRA_E2E_LOG_DIR"
       - if: ${{ failure() }}
         run: |
           df -h
@@ -83,12 +103,12 @@ jobs:
             du -sh $dir
           done
           docker images
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ failure() }}
         name: Upload Logs
         with:
-          name: logs
-          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          name: logs-${{ github.run_id }}-${{ strategy.job-index }}
+          path: "${{ runner.temp }}/skywalking-infra-e2e/logs"
 
 
   build:
