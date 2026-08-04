@@ -13,11 +13,11 @@ The content of this document describes the parameters that can be configured in 
 
 ### Container image configuration
 
-| Name               | Description                                       | Value                                      |
-| ------------------ | ------------------------------------------------- | ------------------------------------------ |
-| `image.repository` | Docker repository for SkyWalking BanyanDB         | `docker.io/apache/skywalking-banyandb`     |
-| `image.tag`        | Image tag/version (required; must be non-empty)   | `32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0` |
-| `image.pullPolicy` | Image pull policy (e.g. IfNotPresent)             | `IfNotPresent`                             |
+| Name               | Description                                                                                                                                 | Value                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `image.repository` | Docker repository for SkyWalking BanyanDB                                                                                                   | `docker.io/apache/skywalking-banyandb` |
+| `image.tag`        | Image tag/version. REQUIRED, deliberately no default — every install must set it explicitly; templates fail fast via `required` when empty. | `""`                                   |
+| `image.pullPolicy` | Image pull policy (e.g. IfNotPresent)                                                                                                       | `IfNotPresent`                         |
 
 ### Trace-pipeline sampler plugin configuration
 
@@ -41,6 +41,45 @@ The content of this document describes the parameters that can be configured in 
 | `auth.existingSecret`     | Use an existing Secret for credentials                   | `""`               |
 | `auth.credentialsFileKey` | Key name in the Secret that stores the                   | `credentials.yaml` |
 | `auth.users`              | List of users to configure when not using existingSecret | `[]`               |
+
+### Canopy web console configuration
+
+| Name                                                 | Description                                                                                                                                                                      | Value           |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| `canopy.enabled`                                     | Deploy the canopy console (Deployment + Service).                                                                                                                                | `false`         |
+| `canopy.image.repository`                            | Canopy image repository. Empty defaults to image.repository (the console ships in the same repo with a "-canopy" tag suffix).                                                    | `""`            |
+| `canopy.image.tag`                                   | Canopy image tag. Empty defaults to "<image.tag>-canopy" (lockstep with the BanyanDB image, mirroring the plugins carrier pattern).                                              | `""`            |
+| `canopy.image.pullPolicy`                            | Canopy image pull policy. Empty defaults to image.pullPolicy.                                                                                                                    | `""`            |
+| `canopy.replicas`                                    | Number of canopy replicas                                                                                                                                                        | `1`             |
+| `canopy.env`                                         | Extra environment variables appended to the canopy container                                                                                                                     | `[]`            |
+| `canopy.auth.username`                               | Default admin username (generated user only)                                                                                                                                     | `admin`         |
+| `canopy.auth.password`                               | Default admin password. Empty generates a strong random one on install (reused on upgrades via the generated Secret).                                                            | `""`            |
+| `canopy.auth.sessionSecret`                          | Session signing secret (>= 32 chars). Empty generates a random one (also reused on upgrades).                                                                                    | `""`            |
+| `canopy.auth.users`                                  | Extra console users appended after the default admin, each {username, passwordHash (bcrypt), role (admin|readonly)}                                                              | `[]`            |
+| `canopy.auth.existingSecret`                         | Use an existing Secret instead of the generated one. Must contain keys "session-secret" and "users.yaml" (canopy users file format); may also carry "password" for NOTES output. | `""`            |
+| `canopy.service.labels`                              | Labels for the canopy service                                                                                                                                                    | `{}`            |
+| `canopy.service.annotations`                         | Annotations for the canopy service                                                                                                                                               | `{}`            |
+| `canopy.service.port`                                | Canopy service port                                                                                                                                                              | `4000`          |
+| `canopy.service.type`                                | Canopy service type                                                                                                                                                              | `ClusterIP`     |
+| `canopy.service.externalIPs`                         | External IPs for the canopy service                                                                                                                                              | `[]`            |
+| `canopy.service.loadBalancerIP`                      | Load balancer IP for the canopy service                                                                                                                                          | `""`            |
+| `canopy.service.loadBalancerSourceRanges`            | Load balancer source ranges                                                                                                                                                      | `[]`            |
+| `canopy.updateStrategy.type`                         | Update strategy type for canopy pods                                                                                                                                             | `RollingUpdate` |
+| `canopy.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods for canopy update                                                                                                                                       | `1`             |
+| `canopy.updateStrategy.rollingUpdate.maxSurge`       | Maximum surge pods for canopy update                                                                                                                                             | `1`             |
+| `canopy.podAnnotations`                              | Pod annotations for canopy                                                                                                                                                       | `{}`            |
+| `canopy.securityContext`                             | Security context for canopy pods                                                                                                                                                 | `{}`            |
+| `canopy.priorityClassName`                           | Priority class name for canopy pods                                                                                                                                              | `""`            |
+| `canopy.podDisruptionBudget`                         | Pod disruption budget for canopy                                                                                                                                                 | `{}`            |
+| `canopy.resources`                                   | Resource requests/limits for canopy pods                                                                                                                                         | `{}`            |
+| `canopy.tolerations`                                 | Tolerations for canopy pods                                                                                                                                                      | `[]`            |
+| `canopy.nodeSelector`                                | Node selector for canopy pods                                                                                                                                                    | `[]`            |
+| `canopy.affinity`                                    | Affinity rules for canopy pods                                                                                                                                                   | `{}`            |
+| `canopy.ingress.enabled`                             | Create an Ingress for the canopy console. Canopy proxies /api and /monitoring, so this single ingress exposes both the console UI and the BanyanDB HTTP API.                     | `false`         |
+| `canopy.ingress.labels`                              | Labels for the canopy ingress                                                                                                                                                    | `{}`            |
+| `canopy.ingress.annotations`                         | Annotations for the canopy ingress                                                                                                                                               | `{}`            |
+| `canopy.ingress.tls`                                 | TLS configuration for the canopy ingress                                                                                                                                         | `[]`            |
+| `canopy.ingress.rules`                               | Ingress rules; each path's backend defaults to the canopy service when serviceName/port are omitted.                                                                             | `[]`            |
 
 ### Configuration for standalone deployment
 

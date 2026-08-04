@@ -45,3 +45,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */}}
+{{- if .Values.canopy.enabled }}
+Canopy console is deployed.
+
+  URL (in-cluster):
+    http://{{ template "banyandb.fullname" . }}-canopy.{{ .Release.Namespace }}:{{ .Values.canopy.service.port }}
+  Port-forward:
+    kubectl -n {{ .Release.Namespace }} port-forward svc/{{ template "banyandb.fullname" . }}-canopy {{ .Values.canopy.service.port }}:{{ .Values.canopy.service.port }}
+{{- if .Values.canopy.ingress.enabled }}
+  Ingress is enabled — check `kubectl -n {{ .Release.Namespace }} get ingress {{ template "banyandb.fullname" . }}-canopy` for the address.
+{{- end }}
+{{- if .Values.canopy.auth.existingSecret }}
+
+  Credentials are managed by your existing Secret "{{ .Values.canopy.auth.existingSecret }}".
+{{- else }}
+  {{- if ne .Values.canopy.auth.username "" }}
+  Username: {{ .Values.canopy.auth.username }}
+  {{- end }}
+  Password (randomly generated if not set via canopy.auth.password — stable across upgrades):
+    kubectl -n {{ .Release.Namespace }} get secret {{ template "banyandb.fullname" . }}-canopy-auth -o jsonpath='{.data.password}' | base64 -d; echo
+{{- end }}
+{{- end }}

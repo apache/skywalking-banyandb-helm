@@ -517,3 +517,74 @@ Ki/Mi/Gi/Ti (also KiB/MiB/GiB/TiB). No suffix -> plain byte count. Empty or 0 ->
 {{- mul $num $mult -}}
 {{- end -}}
 {{- end }}
+
+{{/*
+Canopy console image. Repository/pullPolicy default to the main image config;
+the tag defaults to "<image.tag>-canopy" (lockstep, mirroring the plugins
+carrier pattern) since the console ships in the same repo with a tag suffix.
+*/}}
+{{- define "banyandb.canopyImage" -}}
+{{- $repo := .Values.canopy.image.repository | default .Values.image.repository -}}
+{{- $tag := .Values.canopy.image.tag | default (printf "%s-canopy" (required "banyandb.image.tag is required" .Values.image.tag)) -}}
+{{- printf "%s:%s" $repo $tag -}}
+{{- end }}
+
+{{/*
+Canopy image pullPolicy (defaults to the main image pullPolicy).
+*/}}
+{{- define "banyandb.canopyImagePullPolicy" -}}
+{{- .Values.canopy.image.pullPolicy | default .Values.image.pullPolicy -}}
+{{- end }}
+
+{{/*
+The BanyanDB HTTP service port canopy proxies to: liaison's in cluster mode,
+standalone's otherwise.
+*/}}
+{{- define "banyandb.canopyHttpPort" -}}
+{{- if .Values.cluster.enabled -}}
+{{- .Values.cluster.liaison.httpSvc.port -}}
+{{- else -}}
+{{- .Values.standalone.httpSvc.port -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+The URL scheme for BanyanDB HTTP: https when HTTP TLS is enabled for the
+active mode (standalone.tls.httpSecretName / cluster.liaison.tls.httpSecretName).
+*/}}
+{{- define "banyandb.canopyScheme" -}}
+{{- $scheme := "http" -}}
+{{- if .Values.cluster.enabled -}}
+{{- if (default dict .Values.cluster.liaison.tls).httpSecretName -}}{{- $scheme = "https" -}}{{- end -}}
+{{- else -}}
+{{- if (default dict .Values.standalone.tls).httpSecretName -}}{{- $scheme = "https" -}}{{- end -}}
+{{- end -}}
+{{- $scheme -}}
+{{- end }}
+
+{{/*
+BANYANDB_TARGET for the canopy container. The <fullname>-http service exists
+in both modes (standalone -> standalone pods, cluster -> liaison pods).
+*/}}
+{{- define "banyandb.canopyTarget" -}}
+{{- printf "%s://%s-http:%v" (include "banyandb.canopyScheme" .) (include "banyandb.fullname" .) (include "banyandb.canopyHttpPort" .) -}}
+{{- end }}
+
+{{/*
+MONITOR_TARGET for the canopy container (observability port on the same service).
+*/}}
+{{- define "banyandb.canopyMonitorTarget" -}}
+{{- printf "%s://%s-http:2121" (include "banyandb.canopyScheme" .) (include "banyandb.fullname" .) -}}
+{{- end }}
+
+{{/*
+The auth Secret name canopy uses: the user's existing one, or the chart-generated
+<fullname>-canopy-auth.
+*/}}
+{{- define "banyandb.canopyAuthSecret" -}}
+{{- if .Values.canopy.auth.existingSecret -}}
+{{- .Values.canopy.auth.existingSecret -}}
+{{- else -}}
+{{- printf "%s-canopy-auth" (include "banyandb.fullname" .) -}}
+{{- end -}}
+{{- end }}

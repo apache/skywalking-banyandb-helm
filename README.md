@@ -125,6 +125,27 @@ kubectl get secret <release-name>-banyandb-auth -n <namespace> -o jsonpath='{.da
 
 Adjust the key if you changed `auth.credentialsFileKey`.
 
+## Canopy console
+
+The chart can deploy [canopy](https://github.com/apache/skywalking-banyandb/tree/main/canopy), the standalone web console for BanyanDB (the legacy embedded UI's replacement), for both standalone and cluster modes:
+
+```yaml
+canopy:
+  enabled: true
+```
+
+Canopy proxies `/api` and `/monitoring`, so exposing the canopy service (or `canopy.ingress`) gives you the console UI and the BanyanDB HTTP API on one endpoint. The image tag defaults to `<image.tag>-canopy` — the console ships in the same repo with a tag suffix, in lockstep with the BanyanDB image.
+
+### Console credentials
+
+On first install the chart generates a default `admin` user with a strong random password (stable across upgrades). Retrieve it from the install notes or directly:
+
+```bash
+kubectl get secret <release-name>-canopy-auth -n <namespace> -o jsonpath='{.data.password}' | base64 -d; echo
+```
+
+To use your own credentials, either set `canopy.auth.password` / `canopy.auth.users` (bcrypt hashes), or point `canopy.auth.existingSecret` at a Secret containing `session-secret` and `users.yaml` keys.
+
 ## Use external certificate authorities for TLS
 If you'd like to use external certificate authorities, such as Vault, corresponding annotations can be injected into [banyandb](./chart/templates/statefulset.yaml).
 

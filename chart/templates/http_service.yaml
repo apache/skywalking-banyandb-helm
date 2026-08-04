@@ -34,6 +34,10 @@ spec:
   ports:
     - port: {{ .Values.standalone.httpSvc.port }}
       name: http
+    # observability endpoint, so the canopy console's MONITOR_TARGET can point
+    # at this service in standalone mode.
+    - port: 2121
+      name: observability
   selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: standalone
   {{- if .Values.standalone.httpSvc.externalIPs }}
@@ -73,6 +77,10 @@ spec:
   ports:
     - port: {{ .Values.cluster.liaison.httpSvc.port }}
       name: http
+    # observability endpoint, so the canopy console's MONITOR_TARGET can point
+    # at the liaison service in cluster mode.
+    - port: 2121
+      name: observability
   selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: liaison
   {{- if .Values.cluster.liaison.httpSvc.externalIPs }}
