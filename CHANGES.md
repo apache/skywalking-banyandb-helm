@@ -22,6 +22,12 @@ Release Notes.
   Configure via `cluster.fodc.agent.config.crashCollection.{enabled,dir,maxArtifacts,diagnosisMemoryPercent}`.
 - Add FODC memory-pressure pprof capture for data and liaison nodes.
   Configure via `cluster.fodc.agent.pressureProfiler.*`.
+- Add trace-pipeline sampler plugin support for data nodes (`plugins.*`):
+  deploy the plugin host/carrier images, mount trusted and third-party plugin
+  directories, and validate the plugin configuration at install time.
+- Validate generated resource names (StatefulSets, Services, Secrets,
+  Deployments) at install/upgrade time to avoid exceeding Kubernetes' 63-byte
+  label limit, failing fast with a clear error instead of at apply time.
 
 0.6.0
 -----------------
