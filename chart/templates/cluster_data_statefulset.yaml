@@ -112,6 +112,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+            {{- range $env := $roleConfig.restoreInitContainer.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | toString | quote }}
+            {{- end }}
           {{- if $.Values.storage.data.enabled }}
           volumeMounts:
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
@@ -484,6 +488,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+            {{- range $env := $roleConfig.backupSidecar.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | toString | quote }}
+            {{- end }}
           {{- if $.Values.storage.data.enabled }}
           volumeMounts:
             {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
@@ -528,6 +536,10 @@ spec:
             - name: BYDB_NODE_LABELS
               value: "type={{ $roleName }}"
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
+            {{- range $env := $roleConfig.lifecycleSidecar.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | toString | quote }}
+            {{- end }}
           command:
             - "/lifecycle"
             - "--schedule={{ $roleConfig.lifecycleSidecar.schedule }}"

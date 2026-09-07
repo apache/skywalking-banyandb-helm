@@ -28,6 +28,7 @@ Release Notes.
 - Validate generated resource names (StatefulSets, Services, Secrets,
   Deployments) at install/upgrade time to avoid exceeding Kubernetes' 63-byte
   label limit, failing fast with a clear error instead of at apply time.
+- Add an `env` list to the lifecycle sidecar, the backup sidecar and the restore init container.
 
 0.6.0
 -----------------
