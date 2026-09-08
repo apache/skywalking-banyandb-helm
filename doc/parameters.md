@@ -294,17 +294,20 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.data.nodeTemplate.grpcSvc.annotations`                | Annotations for GRPC service for data pods                                      | `{}`                                         |
 | `cluster.data.nodeTemplate.grpcSvc.port`                       | Port number for GRPC service for data pods                                      | `17912`                                      |
 | `cluster.data.nodeTemplate.sidecar`                            | Sidecar containers for data pods                                                | `[]`                                         |
+| `cluster.data.nodeTemplate.backupSidecar.env`                  | Environment variables for the backup sidecar                                    | `[]`                                         |
 | `cluster.data.nodeTemplate.backupSidecar.enabled`              | Enable backup sidecar for data pods (boolean)                                   | `false`                                      |
 | `cluster.data.nodeTemplate.backupSidecar.dest`                 | Backup destination path for data pods                                           | `file:///tmp/backups/data-$(ORDINAL_NUMBER)` |
 | `cluster.data.nodeTemplate.backupSidecar.timeStyle`            | Backup time style for data pods (e.g., daily)                                   | `daily`                                      |
 | `cluster.data.nodeTemplate.backupSidecar.schedule`             | Backup schedule for data pods (cron format)                                     | `@hourly`                                    |
 | `cluster.data.nodeTemplate.backupSidecar.customFlags`          | Custom flags for backup sidecar (e.g., S3, Azure, GCS configuration)            | `[]`                                         |
 | `cluster.data.nodeTemplate.backupSidecar.resources`            | Resources for backup sidecar for data pods                                      | `{}`                                         |
+| `cluster.data.nodeTemplate.lifecycleSidecar.env`               | Environment variables for the lifecycle sidecar                                 | `[]`                                         |
 | `cluster.data.nodeTemplate.lifecycleSidecar.enabled`           | Enable lifecycle sidecar for data pods (boolean)                                | `false`                                      |
 | `cluster.data.nodeTemplate.lifecycleSidecar.schedule`          | Schedule for lifecycle sidecar (cron format)                                    | `@hourly`                                    |
 | `cluster.data.nodeTemplate.lifecycleSidecar.progressFile`      | Progress file path for lifecycle sidecar                                        | `""`                                         |
 | `cluster.data.nodeTemplate.lifecycleSidecar.reportDir`         | Report directory path for lifecycle sidecar                                     | `""`                                         |
 | `cluster.data.nodeTemplate.lifecycleSidecar.resources`         | Resources for lifecycle sidecar for data pods                                   | `{}`                                         |
+| `cluster.data.nodeTemplate.restoreInitContainer.env`           | Environment variables for the restore init container                            | `[]`                                         |
 | `cluster.data.nodeTemplate.restoreInitContainer.enabled`       | Enable restore init container for data pods (boolean)                           | `false`                                      |
 | `cluster.data.nodeTemplate.restoreInitContainer.customFlags`   | Custom flags for restore init container (e.g., S3, Azure, GCS configuration)    | `[]`                                         |
 | `cluster.data.nodeTemplate.restoreInitContainer.resources`     | Resources for restore init container for data pods                              | `{}`                                         |

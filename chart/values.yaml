@@ -797,6 +797,9 @@ cluster:
       ## Backup sidecar configuration for data pods
       ##
       backupSidecar:
+        ## @param cluster.data.nodeTemplate.backupSidecar.env Environment variables for the backup sidecar
+        ##
+        env: []
         ## @param cluster.data.nodeTemplate.backupSidecar.enabled Enable backup sidecar for data pods (boolean)
         ##
         enabled: false
@@ -818,6 +821,9 @@ cluster:
       ## Lifecycle sidecar configuration for data pods
       ##
       lifecycleSidecar:
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.env Environment variables for the lifecycle sidecar
+        ##
+        env: []
         ## @param cluster.data.nodeTemplate.lifecycleSidecar.enabled Enable lifecycle sidecar for data pods (boolean)
         ##
         enabled: false
@@ -836,6 +842,9 @@ cluster:
       ## Restore init container configuration for data pods
       ##
       restoreInitContainer:
+        ## @param cluster.data.nodeTemplate.restoreInitContainer.env Environment variables for the restore init container
+        ##
+        env: []
         ## @param cluster.data.nodeTemplate.restoreInitContainer.enabled Enable restore init container for data pods (boolean)
         ##
         enabled: false
