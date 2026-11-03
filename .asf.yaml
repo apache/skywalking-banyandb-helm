@@ -16,6 +16,7 @@
 #
 
 github:
+  dependabot_updates: false
   description: BanyanDB Helm Chart repository provides ways to install and configure BanyanDB running in a cluster natively on Kubernetes.
   homepage: https://skywalking.apache.org/
   labels:
