@@ -241,10 +241,21 @@ spec:
             {{- end }}
             {{- include "banyandb.schemaStoragePropertyClientEnv" $ | nindent 12 }}
             {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
+            {{- /* $roleConfig already inherits nodeTemplate.env when the role sets no env of its own, so merge by name:
+                   first-seen order is kept and a later (role) value overrides an earlier (nodeTemplate) one. Duplicate
+                   names are rejected by server-side apply (Helm 4). */}}
             {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
+            {{- $envValues := dict }}
+            {{- $envNames := list }}
             {{- range $env := $mergedEnv }}
-            - name: {{ $env.name }}
-              value: {{ .value | toString | quote }}
+            {{- if not (hasKey $envValues $env.name) }}
+            {{- $envNames = append $envNames $env.name }}
+            {{- end }}
+            {{- $_ := set $envValues $env.name $env.value }}
+            {{- end }}
+            {{- range $name := $envNames }}
+            - name: {{ $name }}
+              value: {{ index $envValues $name | toString | quote }}
             {{- end }}
             {{- if $.Values.cluster.fodc.enabled }}
             - name: BYDB_PANIC_DIAGNOSTICS_ENABLED

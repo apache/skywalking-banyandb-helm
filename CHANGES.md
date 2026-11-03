@@ -2,6 +2,16 @@ Changes by Version
 ==================
 Release Notes.
 
+0.8.0
+-----------------
+
+#### Bugs
+
+- Fix the duplicate data-node environment variables that made Helm 4 installs fail with "duplicate entries
+  for key": a role that sets no `env` of its own inherited `cluster.data.nodeTemplate.env` and then got it a
+  second time. The data container now merges `nodeTemplate.env` and the role's `env` by name; a role value
+  overrides the template value of the same name.
+
 0.7.0
 -----------------
 
