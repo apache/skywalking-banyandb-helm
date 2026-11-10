@@ -7,6 +7,12 @@ Release Notes.
 
 #### Bugs
 
+- Refuse to render a data role that runs a schema server (`hasMetaRole`, true unless set) without a
+  persistent volume claim for `schema-property`, and likewise a standalone node with persistent storage.
+  Overriding `storage.data.persistentVolumeClaims` replaces the default list, which silently dropped the
+  schema claim: the schema server then wrote to the container filesystem and every restart lost all schemas.
+  `values-lifecycle.yaml` had this gap and now adds the `hot-schema-property-data` claim.
+
 - Fix the duplicate data-node environment variables that made Helm 4 installs fail with "duplicate entries
   for key": a role that sets no `env` of its own inherited `cluster.data.nodeTemplate.env` and then got it a
   second time. The data container now merges `nodeTemplate.env` and the role's `env` by name; a role value
