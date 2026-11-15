@@ -16,6 +16,7 @@ limitations under the License.
 */}}
 
 {{- if .Values.canopy.enabled }}
+{{- include "banyandb.validateCanopyAuth" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,9 +33,13 @@ spec:
     metadata:
       labels: {{ include "banyandb.labels" . | nindent 8 }}
         app.kubernetes.io/component: canopy
-      {{- if .Values.canopy.podAnnotations }}
+      {{- if or .Values.canopy.podAnnotations .Values.canopy.auth.config }}
       annotations:
-{{ toYaml .Values.canopy.podAnnotations | indent 8 }}
+        {{- $annotations := deepCopy (.Values.canopy.podAnnotations | default dict) }}
+        {{- if .Values.canopy.auth.config }}
+        {{- $_ := set $annotations "checksum/canopy-auth-config" (toYaml .Values.canopy.auth.config | sha256sum) }}
+        {{- end }}
+        {{- toYaml $annotations | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
@@ -47,7 +52,16 @@ spec:
         - name: canopy
           image: {{ include "banyandb.canopyImage" . }}
           imagePullPolicy: {{ include "banyandb.canopyImagePullPolicy" . }}
+          {{- with .Values.canopy.envFromSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ . | quote }}
+          {{- end }}
           env:
+            {{- if .Values.canopy.auth.config }}
+            - name: CANOPY_AUTH_CONFIG
+              value: /etc/canopy/config/auth.yaml
+            {{- end }}
             - name: PORT
               value: "4000"
             - name: NODE_ENV
@@ -119,11 +133,21 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
+            {{- if .Values.canopy.auth.config }}
+            - name: canopy-auth-config
+              mountPath: /etc/canopy/config
+              readOnly: true
+            {{- end }}
             - name: canopy-auth
               mountPath: /etc/canopy/users.yaml
               subPath: users.yaml
               readOnly: true
       volumes:
+        {{- if .Values.canopy.auth.config }}
+        - name: canopy-auth-config
+          secret:
+            secretName: {{ include "banyandb.fullname" . }}-canopy-auth-config
+        {{- end }}
         - name: canopy-auth
           secret:
             secretName: {{ include "banyandb.canopyAuthSecret" . }}
