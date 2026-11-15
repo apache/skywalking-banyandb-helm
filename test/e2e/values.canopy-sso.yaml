@@ -1,0 +1,55 @@
+# Licensed to Apache Software Foundation (ASF) under one or more contributor
+# license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright
+# ownership. Apache Software Foundation (ASF) licenses this file to you under
+# the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Overlay values.canopy.yaml. All credentials here are test-only.
+canopy:
+  image:
+    tag: "874367dc8c8e218d36c404ecbde91818e0922847-canopy"
+  envFromSecret: canopy-sso-credentials
+  auth:
+    config:
+      auth:
+        backend: sso
+        sso:
+          timeoutMs: 1000
+          providers:
+            - id: github
+              name: Mock GitHub
+              type: oauth2
+              clientId: canopy-e2e
+              clientSecretEnv: CANOPY_AUTH_SSO_GITHUB_CLIENT_SECRET
+              authorizeUrl: http://canopy-sso-idp:8080/authorize
+              tokenUrl: http://canopy-sso-idp:8080/token
+              userinfoUrl: http://canopy-sso-idp:8080/userinfo
+              emailsUrl: http://canopy-sso-idp:8080/emails
+              scopes: [read:user, user:email]
+            - id: google
+              name: Mock Google
+              type: oidc
+              issuer: http://canopy-sso-idp:8080
+              clientId: canopy-e2e
+              clientSecretEnv: CANOPY_AUTH_SSO_GOOGLE_CLIENT_SECRET
+              scopes: [openid, email]
+          roles:
+            defaultRoles: [readonly]
+            roleByEmail:
+              admin@example.test: [admin]
+        breakGlass:
+          enabled: true
+          users:
+            - username: emergency
+              role: admin
+              passwordHash: '$argon2id$v=19$m=19456,t=2,p=1$ZTJlLXN0YXRpYy1zYWx0LW9ubHk$4Nacc3XrCGd4na6NE9yiR3hHz18SMxq+0TjGll1GxkQ'

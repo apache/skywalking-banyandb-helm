@@ -53,6 +53,8 @@ jobs:
             config: test/e2e/e2e-canopy-standalone.yaml
           - name: Run Canopy E2E Test (BanyanDB cluster + canopy console)
             config: test/e2e/e2e-canopy-cluster.yaml
+          - name: Run Canopy E2E Test (OAuth2, OIDC and break-glass)
+            config: test/e2e/e2e-canopy-sso.yaml
           - name: Run Skywalking E2E Test (BanyanDB trace-pipeline plugins)
             config: test/e2e/e2e-plugins.yaml
     name: ${{ matrix.test.name }}
@@ -111,9 +113,21 @@ jobs:
           path: "${{ runner.temp }}/skywalking-infra-e2e/logs"
 
 
+  helm-render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Helm
+        run: bash test/e2e/setup-e2e-shell/install.sh helm
+      - name: Verify Canopy Helm rendering
+        run: |
+          export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+          python3 -m pip install PyYAML==6.0.3
+          python3 test/helm/test-canopy-auth.py
+
   build:
     runs-on: ubuntu-latest
-    needs: [als]
+    needs: [als, helm-render]
     steps:
       - name: dummy
         run: echo

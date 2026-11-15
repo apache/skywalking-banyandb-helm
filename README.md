@@ -146,6 +146,102 @@ kubectl get secret <release-name>-canopy-auth -n <namespace> -o jsonpath='{.data
 
 To use your own credentials, either set `canopy.auth.password` / `canopy.auth.users` (bcrypt hashes), or point `canopy.auth.existingSecret` at a Secret containing `session-secret` and `users.yaml` keys.
 
+### SSO and break-glass
+
+Set `canopy.auth.config` to the complete Canopy configuration document, including
+its top-level `auth` mapping. The chart renders it into a separate Secret and
+mounts it at `/etc/canopy/config/auth.yaml`, setting `CANOPY_AUTH_CONFIG`.
+Use an image with Canopy SSO support and continue to supply an explicit image tag.
+
+Like Horizon's `ui.envFromSecret`, `canopy.envFromSecret` injects keys from an
+existing Secret in the release namespace as environment variables. Create that
+Secret separately through your secret-management tooling. For the example below,
+it must contain `CANOPY_AUTH_SSO_GITHUB_CLIENT_SECRET` and
+`CANOPY_AUTH_SSO_GOOGLE_CLIENT_SECRET`; neither credential belongs in values or
+the auth document.
+
+```yaml
+canopy:
+  enabled: true
+  replicas: 1
+  envFromSecret: canopy-sso-credentials
+  auth:
+    config:
+      auth:
+        backend: sso
+        sso:
+          providers:
+            - id: github
+              name: GitHub
+              type: oauth2
+              clientId: YOUR_GITHUB_CLIENT_ID
+              clientSecretEnv: CANOPY_AUTH_SSO_GITHUB_CLIENT_SECRET
+              authorizeUrl: https://github.com/login/oauth/authorize
+              tokenUrl: https://github.com/login/oauth/access_token
+              userinfoUrl: https://api.github.com/user
+              emailsUrl: https://api.github.com/user/emails
+              scopes: [read:user, user:email]
+              redirectUri: https://canopy.example.com/auth/sso/github/callback
+            - id: google
+              name: Google
+              type: oidc
+              issuer: https://accounts.google.com
+              clientId: YOUR_GOOGLE_CLIENT_ID
+              clientSecretEnv: CANOPY_AUTH_SSO_GOOGLE_CLIENT_SECRET
+              scopes: [openid, email, profile]
+              redirectUri: https://canopy.example.com/auth/sso/google/callback
+          roles:
+            defaultRoles: [readonly]
+            roleByEmail:
+              ops@example.com: [admin]
+        breakGlass:
+          enabled: false
+          users: []
+```
+
+Register the exact callback URLs with each provider, including a nonstandard port
+if used. Verify those registrations before reusing a Horizon OAuth client.
+Canopy reads client IDs literally: it does not expand Horizon's `${ENV_VAR}`
+placeholders. Provider secrets use `clientSecretEnv`; an inline `clientSecret`
+is rejected. Explicit container variables (including `canopy.env`) take precedence
+over `envFromSecret`; avoid conflicting auth overrides, especially
+`CANOPY_AUTH_CONFIG` and `CANOPY_AUTH_BACKEND`.
+
+The existing generated/local auth Secret and `canopy.auth.existingSecret` keep
+working independently of the new config Secret. `CANOPY_USERS` still points to
+their users file and takes precedence over `config.auth.local.users`.
+For SSO, explicitly select `backend: sso`; those local users do not automatically
+become emergency accounts. To enable break-glass, set
+`config.auth.breakGlass.enabled: true` and populate its `users` list with
+`{username, passwordHash, role}` entries (argon2id or bcrypt hashes).
+These accounts can log in only while SSO is unhealthy. Keep plaintext passwords
+out of the document; password hashes are stored in the config Secret.
+
+Horizon configurations need these translations:
+
+| Horizon | Canopy |
+| --- | --- |
+| `kind`, `displayName` | `type`, `name` |
+| `authorizationEndpoint`, `tokenEndpoint`, `userinfoEndpoint`, `emailsEndpoint` | `authorizeUrl`, `tokenUrl`, `userinfoUrl`, `emailsUrl` |
+| `viewer` | `readonly` |
+| `maintainer`, `operator`, `admin` | No intermediate roles; granting `admin` grants full administration |
+| `allowedDomains: []` | No equivalent key; admission is controlled by `auth.sso.roles` |
+
+An email mapping takes precedence over a domain mapping, then `defaultRoles`.
+Without a matching role, login is refused with 403. Use `defaultRoles: [readonly]`
+to admit ordinary provider users, and grant `admin` explicitly; copying Horizon's
+default `maintainer` role as `admin` would overgrant access.
+
+Keep `canopy.replicas: 1` unless routing is sticky: sessions and pending SSO
+logins live in server memory, and restarts sign users out. Helm config changes
+trigger a rollout via `checksum/canopy-auth-config`. Rotating the external
+environment Secret requires a manual rollout:
+`kubectl rollout restart deployment/<release-name>-canopy -n <namespace>`.
+The config uses a directory mount rather than `subPath`; direct Secret updates
+can reach Canopy's reloadable role and break-glass settings after Kubernetes
+projects the update, but provider changes still require a restart.
+`GET /api/meta` reports the backend, providers, SSO health and break-glass state.
+
 ## Use external certificate authorities for TLS
 If you'd like to use external certificate authorities, such as Vault, corresponding annotations can be injected into [banyandb](./chart/templates/statefulset.yaml).
 
