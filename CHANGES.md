@@ -5,6 +5,12 @@ Release Notes.
 0.8.0
 -----------------
 
+#### Features
+
+- Support Canopy SSO (OIDC/OAuth2) and break-glass with a mounted
+  `canopy.auth.config` document and Secret-backed environment variables via
+  `canopy.envFromSecret`. Auth config changes trigger a Canopy rollout.
+
 #### Bugs
 
 - Refuse to render a data role that runs a schema server (`hasMetaRole`, true unless set) without a

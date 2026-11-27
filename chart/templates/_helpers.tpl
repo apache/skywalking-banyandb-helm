@@ -629,3 +629,32 @@ The auth Secret name canopy uses: the user's existing one, or the chart-generate
 {{- printf "%s-canopy-auth" (include "banyandb.fullname" .) -}}
 {{- end -}}
 {{- end }}
+
+{{/*
+Validate the chart-owned auth document envelope. Canopy validates provider
+semantics at startup; credentials must never be embedded in the document.
+*/}}
+{{- define "banyandb.validateCanopyAuth" -}}
+{{- $config := .Values.canopy.auth.config -}}
+{{- if $config -}}
+{{- if not (kindIs "map" $config) -}}
+{{- fail "canopy.auth.config must be a mapping with a top-level auth mapping" -}}
+{{- end -}}
+{{- if not (kindIs "map" (get $config "auth")) -}}
+{{- fail "canopy.auth.config must contain a top-level auth mapping" -}}
+{{- end -}}
+{{- $sso := get $config.auth "sso" -}}
+{{- if kindIs "map" $sso -}}
+{{- if kindIs "slice" $sso.providers -}}
+{{- range $provider := $sso.providers -}}
+{{- if kindIs "map" $provider -}}
+{{- if hasKey $provider "clientSecret" -}}
+{{- fail "canopy.auth.config provider clientSecret is not supported; use clientSecretEnv with canopy.envFromSecret" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-canopy-auth-config" (include "banyandb.fullname" .)) "limit" 63 "description" "Canopy auth config Secret name" "release" .Release.Name) -}}
+{{- end -}}
+{{- end -}}

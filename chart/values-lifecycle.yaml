@@ -57,11 +57,14 @@ canopy:
     ## @param canopy.image.pullPolicy Canopy image pull policy. Empty defaults to image.pullPolicy.
     pullPolicy: ""
 
-  ## @param canopy.replicas Number of canopy replicas
+  ## @param canopy.replicas Number of canopy replicas. Use 1 unless routing is sticky; sessions are held in memory.
   replicas: 1
 
   ## @param canopy.env Extra environment variables appended to the canopy container
   env: []
+
+  ## @param canopy.envFromSecret Existing Secret whose keys are injected as environment variables (for SSO clientSecretEnv references).
+  envFromSecret: ""
 
   ## Console authentication. Canopy always runs with NODE_ENV=production, which
   ## forbids the dev no-auth mode — it needs a users file and a session secret.
@@ -70,6 +73,8 @@ canopy:
   ##   kubectl get secret <release>-canopy-auth -o jsonpath='{.data.password}' | base64 -d
   ##
   auth:
+    ## @param canopy.auth.config Complete Canopy auth configuration document with a top-level auth mapping. Mounted as a Secret; provider client secrets must use clientSecretEnv and canopy.envFromSecret.
+    config: {}
     ## @param canopy.auth.username Default admin username (generated user only)
     username: admin
     ## @param canopy.auth.password Default admin password. Empty generates a strong random one on install (reused on upgrades via the generated Secret).
