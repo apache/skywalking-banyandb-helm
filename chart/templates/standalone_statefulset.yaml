@@ -405,7 +405,9 @@ spec:
   {{- if .Values.storage.standalone.enabled }}
   volumeClaimTemplates:
     {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: {{ $claim.claimName }}
       spec:
         {{- if $claim.accessModes }}

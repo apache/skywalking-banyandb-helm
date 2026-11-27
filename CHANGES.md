@@ -7,6 +7,11 @@ Release Notes.
 
 #### Bugs
 
+- Avoid permanent drift in GitOps tools such as Argo CD. Every `volumeClaimTemplates` item now sets
+  `apiVersion: v1` and `kind: PersistentVolumeClaim`, which the API server adds anyway. The default
+  `cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable: 1` is removed: the field needs the beta
+  `MaxUnavailableStatefulSet` feature gate, and where the gate is off the API server drops it. Set it
+  explicitly if your cluster enables the gate.
 - Fix the duplicate data-node environment variables that made Helm 4 installs fail with "duplicate entries
   for key": a role that sets no `env` of its own inherited `cluster.data.nodeTemplate.env` and then got it a
   second time. The data container now merges `nodeTemplate.env` and the role's `env` by name; a role value

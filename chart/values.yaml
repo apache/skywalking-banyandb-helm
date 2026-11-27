@@ -592,10 +592,11 @@ cluster:
     ##
     updateStrategy:
       ## @param cluster.liaison.updateStrategy.type Update strategy type for liaison pods
+      ## rollingUpdate.maxUnavailable is not set by default: on a StatefulSet it needs the
+      ## MaxUnavailableStatefulSet feature gate, which is still beta. Where the gate is off the
+      ## API server drops the field, and GitOps tools report permanent drift. Set it here if
+      ## your cluster enables the gate.
       type: RollingUpdate
-      rollingUpdate:
-        ## @param cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods during update
-        maxUnavailable: 1
     ## @param cluster.liaison.podManagementPolicy Pod management policy for liaison StatefulSet
     ##
     podManagementPolicy: Parallel
