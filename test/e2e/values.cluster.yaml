@@ -55,8 +55,6 @@ cluster:
     podDisruptionBudget: {}
     updateStrategy:
       type: RollingUpdate
-      rollingUpdate:
-        maxUnavailable: 1
     podManagementPolicy: Parallel
     # minAvailable: 1
     # maxUnavailable: 2
