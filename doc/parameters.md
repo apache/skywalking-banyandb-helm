@@ -228,7 +228,6 @@ The content of this document describes the parameters that can be configured in 
 | `cluster.liaison.env`                                         | Environment variables for liaison pods                      | `[]`            |
 | `cluster.liaison.priorityClassName`                           | Priority class name for liaison pods                        | `""`            |
 | `cluster.liaison.updateStrategy.type`                         | Update strategy type for liaison pods                       | `RollingUpdate` |
-| `cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable` | Maximum unavailable pods during update                      | `1`             |
 | `cluster.liaison.podManagementPolicy`                         | Pod management policy for liaison StatefulSet               | `Parallel`      |
 | `cluster.liaison.podDisruptionBudget`                         | Pod disruption budget for liaison                           | `{}`            |
 | `cluster.liaison.tolerations`                                 | Tolerations for liaison pods                                | `[]`            |

@@ -52,8 +52,6 @@ cluster:
     podDisruptionBudget: {}
     updateStrategy:
       type: RollingUpdate
-      rollingUpdate:
-        maxUnavailable: 1
     podManagementPolicy: Parallel
     tolerations: []
     nodeSelector: []

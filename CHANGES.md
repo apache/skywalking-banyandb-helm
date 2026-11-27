@@ -13,6 +13,11 @@ Release Notes.
 
 #### Bugs
 
+- Avoid permanent drift in GitOps tools such as Argo CD. Every `volumeClaimTemplates` item now sets
+  `apiVersion: v1` and `kind: PersistentVolumeClaim`, which the API server adds anyway. The default
+  `cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable: 1` is removed: the field needs the beta
+  `MaxUnavailableStatefulSet` feature gate, and where the gate is off the API server drops it. Set it
+  explicitly if your cluster enables the gate.
 - Refuse to render a data role that runs a schema server (`hasMetaRole`, true unless set) without a
   persistent volume claim for `schema-property`, and likewise a standalone node with persistent storage.
   Overriding `storage.data.persistentVolumeClaims` replaces the default list, which silently dropped the

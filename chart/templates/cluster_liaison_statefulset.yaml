@@ -480,7 +480,9 @@ spec:
   {{- if .Values.storage.liaison.enabled }}
   volumeClaimTemplates:
     {{- range $claim := .Values.storage.liaison.persistentVolumeClaims }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: {{ $claim.claimName }}
       spec:
         {{- if $claim.accessModes }}
