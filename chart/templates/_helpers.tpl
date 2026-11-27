@@ -210,6 +210,47 @@ Validate plugin configuration.
 {{- end }}
 
 {{/*
+Validate that every node running a schema server keeps the schema files on a persistent volume.
+The schema server writes to /tmp/schema-property, so with persistent storage enabled a data role
+with hasMetaRole (true unless set) and the standalone node need a claim with that mount target.
+Without one the schemas live on the container filesystem and a restart loses all of them. A values
+file that overrides persistentVolumeClaims replaces the default list and drops that claim silently.
+*/}}
+{{- define "banyandb.validateSchemaStorage" -}}
+{{- if and .Values.cluster.enabled .Values.cluster.data .Values.storage.data.enabled }}
+{{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
+{{- $role := $roleConfig | default dict }}
+{{- $hasMetaRole := true }}
+{{- if hasKey $role "hasMetaRole" }}
+{{- $hasMetaRole = $role.hasMetaRole }}
+{{- end }}
+{{- if $hasMetaRole }}
+{{- $mounted := false }}
+{{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+{{- if and (eq $claim.nodeRole $roleName) (has "schema-property" ($claim.mountTargets | default list)) }}
+{{- $mounted = true }}
+{{- end }}
+{{- end }}
+{{- if not $mounted }}
+{{- fail (printf "storage.data.persistentVolumeClaims has no claim with mountTargets \"schema-property\" for data role %q, which runs a schema server (hasMetaRole). Its schemas would be lost on every restart. Add a claim with nodeRole: %s and mountTargets: [\"schema-property\"], or set cluster.data.roles.%s.hasMetaRole: false." $roleName $roleName $roleName) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if and .Values.standalone.enabled .Values.storage.standalone.enabled }}
+{{- $mounted := false }}
+{{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
+{{- if has "schema-property" ($claim.mountTargets | default list) }}
+{{- $mounted = true }}
+{{- end }}
+{{- end }}
+{{- if not $mounted }}
+{{- fail "storage.standalone.persistentVolumeClaims has no claim with mountTargets \"schema-property\". The standalone schema server would lose its schemas on every restart. Add \"schema-property\" to a claim's mountTargets." }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 SchemaStoragePropertyServerEnv - injects property server env vars (data node only)
 Includes: repair cron, schema server parameters, schema server TLS
 */}}
@@ -588,3 +629,32 @@ The auth Secret name canopy uses: the user's existing one, or the chart-generate
 {{- printf "%s-canopy-auth" (include "banyandb.fullname" .) -}}
 {{- end -}}
 {{- end }}
+
+{{/*
+Validate the chart-owned auth document envelope. Canopy validates provider
+semantics at startup; credentials must never be embedded in the document.
+*/}}
+{{- define "banyandb.validateCanopyAuth" -}}
+{{- $config := .Values.canopy.auth.config -}}
+{{- if $config -}}
+{{- if not (kindIs "map" $config) -}}
+{{- fail "canopy.auth.config must be a mapping with a top-level auth mapping" -}}
+{{- end -}}
+{{- if not (kindIs "map" (get $config "auth")) -}}
+{{- fail "canopy.auth.config must contain a top-level auth mapping" -}}
+{{- end -}}
+{{- $sso := get $config.auth "sso" -}}
+{{- if kindIs "map" $sso -}}
+{{- if kindIs "slice" $sso.providers -}}
+{{- range $provider := $sso.providers -}}
+{{- if kindIs "map" $provider -}}
+{{- if hasKey $provider "clientSecret" -}}
+{{- fail "canopy.auth.config provider clientSecret is not supported; use clientSecretEnv with canopy.envFromSecret" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- include "banyandb.validateNameLength" (dict "name" (printf "%s-canopy-auth-config" (include "banyandb.fullname" .)) "limit" 63 "description" "Canopy auth config Secret name" "release" .Release.Name) -}}
+{{- end -}}
+{{- end -}}

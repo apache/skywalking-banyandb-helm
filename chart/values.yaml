@@ -149,11 +149,14 @@ canopy:
     ## @param canopy.image.pullPolicy Canopy image pull policy. Empty defaults to image.pullPolicy.
     pullPolicy: ""
 
-  ## @param canopy.replicas Number of canopy replicas
+  ## @param canopy.replicas Number of canopy replicas. Use 1 unless routing is sticky; sessions are held in memory.
   replicas: 1
 
   ## @param canopy.env Extra environment variables appended to the canopy container
   env: []
+
+  ## @param canopy.envFromSecret Existing Secret whose keys are injected as environment variables (for SSO clientSecretEnv references).
+  envFromSecret: ""
 
   ## Console authentication. Canopy always runs with NODE_ENV=production, which
   ## forbids the dev no-auth mode — it needs a users file and a session secret.
@@ -162,6 +165,8 @@ canopy:
   ##   kubectl get secret <release>-canopy-auth -o jsonpath='{.data.password}' | base64 -d
   ##
   auth:
+    ## @param canopy.auth.config Complete Canopy auth configuration document with a top-level auth mapping. Mounted as a Secret; provider client secrets must use clientSecretEnv and canopy.envFromSecret.
+    config: {}
     ## @param canopy.auth.username Default admin username (generated user only)
     username: admin
     ## @param canopy.auth.password Default admin password. Empty generates a strong random one on install (reused on upgrades via the generated Secret).
@@ -1376,6 +1381,8 @@ storage:
       storageClass: null
       ## @param storage.data.persistentVolumeClaims[3].volumeMode Volume mode for the PVC
       volumeMode: Filesystem
+    ## The schema server of a role with hasMetaRole keeps its files here; without this claim a restart loses
+    ## every schema. The chart refuses to render a role that has a schema server but no schema-property claim.
     ## @param storage.data.persistentVolumeClaims[4].mountTargets Mount targets for the PVC
     - mountTargets: [ "schema-property" ]
       ## @param storage.data.persistentVolumeClaims[4].nodeRole Node role this PVC is bound to

@@ -5,6 +5,12 @@ Release Notes.
 0.8.0
 -----------------
 
+#### Features
+
+- Support Canopy SSO (OIDC/OAuth2) and break-glass with a mounted
+  `canopy.auth.config` document and Secret-backed environment variables via
+  `canopy.envFromSecret`. Auth config changes trigger a Canopy rollout.
+
 #### Bugs
 
 - Avoid permanent drift in GitOps tools such as Argo CD. Every `volumeClaimTemplates` item now sets
@@ -12,6 +18,12 @@ Release Notes.
   `cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable: 1` is removed: the field needs the beta
   `MaxUnavailableStatefulSet` feature gate, and where the gate is off the API server drops it. Set it
   explicitly if your cluster enables the gate.
+- Refuse to render a data role that runs a schema server (`hasMetaRole`, true unless set) without a
+  persistent volume claim for `schema-property`, and likewise a standalone node with persistent storage.
+  Overriding `storage.data.persistentVolumeClaims` replaces the default list, which silently dropped the
+  schema claim: the schema server then wrote to the container filesystem and every restart lost all schemas.
+  `values-lifecycle.yaml` had this gap and now adds the `hot-schema-property-data` claim.
+
 - Fix the duplicate data-node environment variables that made Helm 4 installs fail with "duplicate entries
   for key": a role that sets no `env` of its own inherited `cluster.data.nodeTemplate.env` and then got it a
   second time. The data container now merges `nodeTemplate.env` and the role's `env` by name; a role value

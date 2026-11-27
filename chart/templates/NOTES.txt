@@ -55,7 +55,13 @@ Canopy console is deployed.
 {{- if .Values.canopy.ingress.enabled }}
   Ingress is enabled — check `kubectl -n {{ .Release.Namespace }} get ingress {{ template "banyandb.fullname" . }}-canopy` for the address.
 {{- end }}
-{{- if .Values.canopy.auth.existingSecret }}
+{{- if eq (dig "auth" "backend" "" (.Values.canopy.auth.config | default dict)) "sso" }}
+
+  SSO is configured. Sign in with a configured provider.
+  Local users are not break-glass accounts; configure auth.breakGlass explicitly.
+  After rotating canopy.envFromSecret, restart this Deployment:
+    kubectl -n {{ .Release.Namespace }} rollout restart deployment/{{ template "banyandb.fullname" . }}-canopy
+{{- else if .Values.canopy.auth.existingSecret }}
 
   Credentials are managed by your existing Secret "{{ .Values.canopy.auth.existingSecret }}".
 {{- else }}
